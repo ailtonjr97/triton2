@@ -1,6 +1,5 @@
 const express = require("express");
 const comercialModel = require("../models/comercialModel");
-const ApisTotvs = require("../models/apisTotvsModel");
 const router = express.Router();
 const XLSX = require('xlsx')
 const path = require('path')
@@ -219,9 +218,10 @@ router.post("/proposta-de-frete/:id", async(req, res)=>{
 
 router.get("/sck/:numped", async(req, res)=>{
     try {
-        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SCK_2/get_all_id?idN=" + req.params.numped, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SCK/get_all_id?idN=" + req.params.numped, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         res.send(response.data)
     } catch (error) {
+        console.log(error)
         res.sendStatus(500);
     }
 });
@@ -235,7 +235,7 @@ router.get("/clientes/:numped", async(req, res)=>{
     }
 });
 
-router.post("/nova-proposta-de-frete/:numped/:cotador", async(req, res)=>{
+router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=>{
     try {
         let today = new Date();
         const dd = String(today.getDate()).padStart(2, '0');
@@ -244,7 +244,7 @@ router.post("/nova-proposta-de-frete/:numped/:cotador", async(req, res)=>{
         today = dd + '/' + mm + '/' + yyyy;
 
         let revisao = await comercialModel.revisaoCotacao(req.params.numped);
-        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SCJ/get_id?id=" + req.params.numped, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.params.numped}&empresa=${req.params.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
 
         let valorTotal = 0.0
         for(let i = 0; i < req.body.length; i++){
@@ -253,16 +253,16 @@ router.post("/nova-proposta-de-frete/:numped/:cotador", async(req, res)=>{
 
         //Necessário criar 3 cotações
         if(revisao.length == 0){
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             for(let i = 0; i < req.body.length; i++){
                 await comercialModel.novosItens(req.params.numped, req.body[i]);
             };
         }else{
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
         };
 
         res.sendStatus(200);
@@ -284,7 +284,7 @@ router.get("/proposta-frete-itens/:numped", async(req, res)=>{
 router.get("/transportadoras", async(req, res)=>{
     try {
         const response = await axios.get(process.env.APITOTVS + "CONSULTA_SA4/get_all", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-        res.send(response.data.objects)
+        res.json(response.data.objects)
     } catch (error) {
         console.log(error)
         res.sendStatus(500);
@@ -294,8 +294,18 @@ router.get("/transportadoras", async(req, res)=>{
 router.get("/transportadoras/:nome", async(req, res)=>{
     try {
         const response = await axios.get(process.env.APITOTVS + "CONSULTA_SA4/get_all_like_nome?limit=20&pesquisa=" + req.params.nome, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-        res.send(response.data.objects)
+        res.json(response.data.objects);
     } catch (error) {
+        res.sendStatus(500);
+    }
+});
+
+router.get("/update-frete-cot", async(req, res)=>{
+    try {
+        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${req.query.valor}&transp=${req.query.transp}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
         res.sendStatus(500);
     }
 });
