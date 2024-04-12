@@ -231,6 +231,7 @@ router.get("/clientes/:numped", async(req, res)=>{
         const response = await axios.get(process.env.APITOTVS + "CONSULTA_SA1/get_id?id=" + req.params.numped, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         res.send(response.data)
     } catch (error) {
+        console.log(error)
         res.sendStatus(500);
     }
 });
@@ -304,6 +305,447 @@ router.get("/update-frete-cot", async(req, res)=>{
     try {
         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${req.query.valor}&transp=${req.query.transp}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa1", async(req, res)=>{
+    try {
+        res.json(await comercialModel.sa1());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa1/:cod", async(req, res)=>{
+    try {
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SA1/get_id?id=${req.params.cod}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.json(response.data);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa1-update", async(req, res)=>{
+    try {
+        const values = [];
+        const limitador = await axios.get(process.env.APITOTVS + "CONSULTA_SA1/get_all", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SA1/get_all?limit=" + limitador.data.meta.total, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        response.data.objects.forEach(response => {
+            values.push([
+                response.cod,
+                response.nome,
+                response.cod_mun,
+                response.mun,
+                response.nreduz,
+                response.grpven,
+                response.loja,
+                response.end,
+                response.codpais,
+                response.est,
+                response.cep,
+                response.tipo,
+                response.cgc,
+                response.filial,
+                response.xcartei
+            ])
+        });
+        await comercialModel.updateSa1(values);
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+})
+
+router.get("/sa1-pesquisa", async(req, res)=>{
+    try {
+        let resultados
+        if(req.query.resultados == 'null' || req.query.resultados == undefined || req.query.resultados == '')
+        {
+            resultados = 1000
+        }else{
+            resultados = req.query.resultados
+        }
+        res.json(await comercialModel.searchSa1(req.query.codigo, req.query.nome, resultados));
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/sa1/api/update", async(req, res)=>{
+    try {
+        await axios.put(process.env.APITOTVS + `updatesa1/update/sa1`, req.body, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}, Headers: {"tenantid": `01, 0101001, ailton souza, ${process.env.SENHAPITOTVS}`, "x-erp-module": "FAT"}});
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/sa1/api/update-local", async(req, res)=>{
+    try {
+        await comercialModel.sa1UpdateLocal(req.body);
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa3", async(req, res)=>{
+    try {
+        res.json(await comercialModel.sa3());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa3/vendedor/:id", async(req, res)=>{
+    try {
+        res.json(await comercialModel.sa3Id(req.params.id));
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa3/update", async(req, res)=>{
+    try {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0!
+        let dd = today.getDate();
+
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+
+        const hoje = dd + '/' + mm + '/' + yyyy;
+
+        const periodo = await comercialModel.tableUpdate('sa3')
+        await comercialModel.tableUpdateAtualiza('sa3', hoje)
+
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/get_all?updated_at=${periodo[0].data}&limit=10000`,
+        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
+        const tam_sa3 = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/get_all?limit=10000`,
+        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
+        const tam_tabela = await comercialModel.tamanhoTabela()
+
+        const diferencaTabelas = tam_sa3.data.meta.total - tam_tabela[0].contagem
+
+        let values = [];
+        response.data.objects.forEach(response => {
+            values.push(
+                {
+                    "filial": response.filial,
+                    "cod": response.cod,
+                    "nome": response.nome,
+                    "nreduz": response.nreduz,
+                    "end": response.end,
+                    "bairro": response.bairro,
+                    "mun": response.mun,
+                    "est": response.est,
+                    "cep": response.cep,
+                    "dddtel": response.dddtel,
+                    "tel": response.tel,
+                    "email": response.email,
+                    "R_E_C_N_O_": response.R_E_C_N_O_,
+                    "R_E_C_D_E_L_": response.R_E_C_D_E_L_
+                }
+            )
+        });
+
+        const limitArray = values.length - diferencaTabelas
+        for (let i = 0; i < values.length; i ++){
+            values.splice(0, limitArray)
+        }
+
+        // //insert de registros SOMENTE SE a tabela estiver vazia ou for adicionada uma nova coluna na tabela local
+        // for(let i = 0; i < tam_sa3.data.objects.length; i++){
+        //     await comercialModel.insertSa3(
+        //         tam_sa3.data.objects[i].filial,
+        //         tam_sa3.data.objects[i].cod, 
+        //         tam_sa3.data.objects[i].nome,
+        //         tam_sa3.data.objects[i].nreduz,
+        //         tam_sa3.data.objects[i].end,
+        //         tam_sa3.data.objects[i].bairro,
+        //         tam_sa3.data.objects[i].mun,
+        //         tam_sa3.data.objects[i].est,
+        //         tam_sa3.data.objects[i].cep,
+        //         tam_sa3.data.objects[i].dddtel,
+        //         tam_sa3.data.objects[i].tel,
+        //         tam_sa3.data.objects[i].email,
+        //         tam_sa3.data.objects[i].R_E_C_N_O_,
+        //         tam_sa3.data.objects[i].R_E_C_D_E_L_
+        //     )
+        // } 
+
+        //insert de registros q não existem ainda
+        if(diferencaTabelas != 0){
+            for(let i = 0; i < values.length; i++){
+                await comercialModel.insertSa3(
+                    values[i].filial,
+                    values[i].cod, 
+                    values[i].nome,
+                    values[i].nreduz,
+                    values[i].end,
+                    values[i].bairro,
+                    values[i].mun,
+                    values[i].est,
+                    values[i].cep,
+                    values[i].dddtel,
+                    values[i].tel,
+                    values[i].email,
+                    values[i].R_E_C_N_O_,
+                    values[i].R_E_C_D_E_L_
+                )
+            }
+        }
+
+        //update dos registros.
+        for(let i = 0; i < response.data.objects.length; i++){
+            await comercialModel.updateSa3(
+                response.data.objects[i].filial,
+                response.data.objects[i].cod, 
+                response.data.objects[i].nome,
+                response.data.objects[i].nreduz,
+                response.data.objects[i].end,
+                response.data.objects[i].bairro,
+                response.data.objects[i].mun,
+                response.data.objects[i].est,
+                response.data.objects[i].cep,
+                response.data.objects[i].dddtel,
+                response.data.objects[i].tel,
+                response.data.objects[i].email,
+                response.data.objects[i].R_E_C_N_O_,
+                response.data.objects[i].R_E_C_D_E_L_
+            )
+        }
+
+        res.json(await comercialModel.sa3());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/sa3/api/update", async(req, res)=>{
+    try {
+        if(req.body.A3_CEP == '        ') req.body.A3_CEP = '82325200'
+        await axios.put(process.env.APITOTVS + `CONSULTA_SA3/update`, req.body, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}, Headers: {"tenantid": `01, 0101001, ailton souza, ${process.env.SENHAPITOTVS}`, "x-erp-module": "FAT"}});
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/sa3/api/insert", async(req, res)=>{
+    try {
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/get_cod`,
+        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        const a3CodAdd = (parseInt(response.data.objects[0].cod) + 1).toString().padStart(6, "0")
+        const payload = {"A3_COD": a3CodAdd, "A3_NOME": req.body.A3_NOME};
+        await axios.post(process.env.APITOTVS + `CONSULTA_SA3/insert`, payload, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}, Headers: {"tenantid": `01, 0101001, ailton souza, ${process.env.SENHAPITOTVS}`, "x-erp-module": "FAT"}});
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/sa3/api/delete", async(req, res)=>{
+    try {
+        await axios.delete(process.env.APITOTVS + `CONSULTA_SA3/delete`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}, Headers: {"tenantid": `01, 0101001, ailton souza, ${process.env.SENHAPITOTVS}`, "x-erp-module": "FAT"}, data: req.body});
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/sa3/pesquisa", async(req, res)=>{
+    try {
+        if(!req.query.codigo) req.query.codigo = '';
+        if(!req.query.nome) req.query.nome = '';
+        if(!req.query.email) req.query.email = '';
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/get_all?codigo=${req.query.codigo}&nome=${req.query.nome}&email=${req.query.email}&limit=10000`,
+        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.json(response.data.objects);
+    } catch (error) {
+        if(error.response.status = 404){
+            res.json([]);
+        }else{
+            res.sendStatus(500);
+        }
+    }
+});
+
+router.get("/track_order/get_all", async(req, res)=>{
+    try {
+        const filterArray = (array, fields, value) => {
+            fields = Array.isArray(fields) ? fields : [fields];
+            return array.filter((item) => fields.some((field) => item[field] === value));
+        };
+
+        function formatDate (input) {
+            let datePart = input.match(/\d+/g),
+            year = datePart[0], // get only two digits
+            month = datePart[1], day = datePart[2];
+            
+            return day+'/'+month+'/'+year;
+        }
+
+        function formatDateProtheus (input) {
+            let datePart = input.match(/\d+/g),
+            year = datePart[0], // get only two digits
+            month = datePart[1], day = datePart[2];
+            
+            let data = year+month+day
+            let dataString = String(data)
+            return dataString;
+        }
+        
+        let values = [];
+        let sc5;
+        if(!req.query.data_ent){
+            sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=`,
+            {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        }else{
+            sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}`,
+            {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        }
+
+        const sc6 = await axios.get(process.env.APITOTVS + `CONSULTA_SC6/get_track`,
+        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
+        sc5.data.objects.forEach(response => {
+            values.push({
+                C5_FILIAL: response.C5_FILIAL,
+                C5_NUM: response.C5_NUM,
+                R_E_C_N_O_: response.R_E_C_N_O_,
+                R_E_C_D_E_L_: response.R_E_C_D_E_L_,
+                C5_XSEPCD: response.C5_XSEPCD,
+                C5_XHSEPCD: response.C5_XHSEPCD,
+                C5_XNSEPCD: response.C5_XNSEPCD,
+                C5_XLIBCOM: response.C5_XLIBCOM,
+                C5_XHLIBCO: response.C5_XHLIBCO,
+                C5_XNLIBCO: response.C5_XNLIBCO,
+                C5_XLIBFAT: response.C5_XLIBFAT,
+                C5_XHLIBFA: response.C5_XHLIBFA,
+                C5_XNLIBFA: response.C5_XNLIBFA,
+                C5_XFATURD: response.C5_XFATURD,
+                C5_XHFATUR: response.C5_XHFATUR,
+                C5_XNFATUR: response.C5_XNFATUR,
+                C5_XLIBEXP: response.C5_XLIBEXP,
+                C5_XHLIBEX: response.C5_XHLIBEX,
+                C5_XNLIBEX: response.C5_XNLIBEX,
+                C5_XEXPEDI: response.C5_XEXPEDI,
+                C5_XHEXPED: response.C5_XHEXPED,
+                C5_XNEXPED: response.C5_XNEXPED,
+                C5_FECENT: formatDate (response.C5_FECENT),
+                itens: [
+                ]
+            })
+        });
+
+        values.forEach(element => {
+            let filtrado = filterArray(sc6.data.objects, 'C6_NUM', element.C5_NUM)
+            filtrado = filterArray(filtrado, 'C6_FILIAL', element.C5_FILIAL)
+            element.itens.push(
+                filtrado
+            )
+        });
+
+        values = values.filter(item => item.R_E_C_D_E_L_ == 0)
+        res.json(values);
+    } catch (error) {
+        if(error.response.status == 404){
+            res.sendStatus(404);
+        }else{
+            res.sendStatus(500);
+        }
+    }
+});
+
+router.get("/track_order/update_c6xsepcd/:filial/:num/:item/:produto/:logado", async(req, res)=>{
+    try {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0!
+        let dd = today.getDate();
+        let minutes = today.getMinutes();
+        let hour = today.getHours();
+
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+
+        if (minutes < 10) minutes = '0' + minutes;
+        if (hour < 10) hour = '0' + hour;
+
+        const hoje = dd + '/' + mm + '/' + yyyy;
+        const hora = hour + ':' + minutes
+        let horarioAtual = hoje + ' ' + hora
+        await axios.put(process.env.APITOTVS + `CONSULTA_SC6/update_xsepcd?filial=${req.params.filial}&num=${req.params.num}&item=${req.params.item}&produto=${req.params.produto}&hora=${horarioAtual}&logado=${req.params.logado}`, '',
+        {
+            auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}, 
+        });
+
+        const listSepcd = await axios.get(process.env.APITOTVS + `CONSULTA_SC6/get_xsepcd?filial=${req.params.filial}&num=${req.params.num}`,
+        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
+        let values = []
+        listSepcd.data.objects.forEach(e => {
+            values.push(e.C6_XSEPCD)
+        });
+
+        if(!values.includes(false)){
+            await axios.put(process.env.APITOTVS + `CONSULTA_SC5/update_campo?filial=${req.params.filial}&num=${req.params.num}&campo=C5_XSEPCD&booleano=T&logado=${req.params.logado}&campo_logado=C5_XNSEPCD&hora=${horarioAtual}&campo_hora=C5_XHSEPCD`, '',
+            {
+                auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS},
+            });
+        }
+
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/track_order/update_campo/:filial/:num/:campo/:booleano/:logado/:campologado/:campohora", async(req, res)=>{
+    try {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        let mm = today.getMonth() + 1; // Months start at 0!
+        let dd = today.getDate();
+        let minutes = today.getMinutes();
+        let hour = today.getHours();
+
+        if (dd < 10) dd = '0' + dd;
+        if (mm < 10) mm = '0' + mm;
+
+        if (minutes < 10) minutes = '0' + minutes;
+        if (hour < 10) hour = '0' + hour;
+
+        const hoje = dd + '/' + mm + '/' + yyyy;
+        const hora = hour + ':' + minutes
+        let horarioAtual = hoje + ' ' + hora
+
+        const response = await axios.put(process.env.APITOTVS + `CONSULTA_SC5/update_campo?filial=${req.params.filial}&num=${req.params.num}&campo=${req.params.campo}&booleano=${req.params.booleano}&logado=${req.params.logado}&campo_logado=${req.params.campologado}&hora=${horarioAtual}&campo_hora=${req.params.campohora}`,'',
+        {
+            auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS},
+        });
+
+        res.sendStatus(200)
     } catch (error) {
         console.log(error);
         res.sendStatus(500);

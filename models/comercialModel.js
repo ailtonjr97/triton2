@@ -6,7 +6,7 @@ async function connect(){
     const pool = mysql.createPool({
         host: process.env.SQLHOST,
         port: '3306',
-        user: 'docs_admin',
+        user: process.env.SQLUSER,
         password: process.env.SQLPASSWORD,
         database: process.env.SQLDATABASE,
         waitForConnections: true,
@@ -24,28 +24,28 @@ connect();
 
 const all = async(setor, designado)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM docspro.proposta_frete as pf left join users as u on pf.cotador_id = u.id left join users as u2 on pf.cotador_id_2 = u2.id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) order by id desc`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM PRODUCAO.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) order by id desc`);
     conn.end();
     return rows;
 };
 
 const allSemRevisao = async(setor, designado)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM docspro.proposta_frete as pf left join users as u on pf.cotador_id = u.id left join users as u2 on pf.cotador_id_2 = u2.id`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM PRODUCAO.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id`);
     conn.end();
     return rows;
 };
 
 const search = async(codigo, resultados)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM docspro.proposta_frete as pf left join users as u on pf.cotador_id = u.id left join users as u2 on pf.cotador_id_2 = u2.id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' order by id desc LIMIT ${resultados}`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM PRODUCAO.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' order by id desc LIMIT ${resultados}`);
     conn.end();
     return rows;
 };
 
 const searchSemRevisao = async(codigo, resultados)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM docspro.proposta_frete as pf left join users as u on pf.cotador_id = u.id left join users as u2 on pf.cotador_id_2 = u2.id WHERE pedido LIKE '%${codigo}%' LIMIT ${resultados}`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM PRODUCAO.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id WHERE pedido LIKE '%${codigo}%' LIMIT ${resultados}`);
     conn.end();
     return rows;
 };
@@ -57,25 +57,26 @@ const proposta = async(id)=>{
     return rows;
 };
 
-const freteUpdate = async(body, id, today)=>{
+const freteUpdate = async(body, id, today, valorMaisImposto)=>{
     const conn = await connect();
     await conn.query(`
-        UPDATE docspro.proposta_frete SET
+        UPDATE PRODUCAO.proposta_frete SET
         data_resp = ?,
         valor = ?,
         id_transportadora = ?,
         prazo = ?,
         nome_transportadora = ?,
-        cotador_id_2 = ?
+        cotador_id_2 = ?,
+        cod_cot = ?
         WHERE id = ?
-    `, [today, body.valor, body.transp_nome_select, body.prazo, body.transp_nome2_select, body.cotador_id_2, id]);
+    `, [today, valorMaisImposto, body[0].transp_nome_select, body[0].prazo, body[0].transp_nome2_select, body[0].cotador_id_2, body[0].codcot, id]);
     conn.end();
 };
 
-const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido)=>{
+const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido, filial)=>{
     const conn = await connect();
     await conn.query(
-        `INSERT INTO docspro.proposta_frete (
+        `INSERT INTO PRODUCAO.proposta_frete (
             pedido,
             cotador_id,
             data_solicit,
@@ -86,17 +87,18 @@ const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedid
             id_transportadora,
             prazo,
             cliente,
-            valor_pedido
+            valor_pedido,
+            filial
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [numped, cotador, today, null, revisao, 0, 1, null, null, cliente, valor_pedido]);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [numped, cotador, today, null, revisao, 0, 1, null, null, cliente, valor_pedido, filial]);
     conn.end();
 };
 
 const novosItens = async(numped, body)=>{
     const conn = await connect();
     await conn.query(
-        `INSERT INTO docspro.proposta_frete_itens (
+        `INSERT INTO PRODUCAO.proposta_frete_itens (
             proposta_frete_id,
             produto,
             qtdven,
