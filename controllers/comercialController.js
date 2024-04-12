@@ -208,7 +208,15 @@ router.post("/proposta-de-frete/:id", async(req, res)=>{
         const yyyy = today.getFullYear();
         today = dd + '/' + mm + '/' + yyyy;
 
-        await comercialModel.freteUpdate(req.body, req.params.id, today);
+        let valorMaisImposto = req.body[0].valor
+
+        if(req.body[1] == '0101001' || req.body[1] == '0101002'){
+            valorMaisImposto *= 1.3
+        }else{
+            valorMaisImposto *= 1.2
+        }
+
+        await comercialModel.freteUpdate(req.body, req.params.id, today, valorMaisImposto);
         res.sendStatus(200);
     } catch (error) {
         console.log(error);
