@@ -25,7 +25,7 @@ connect();
 const preparaArquivaFrete = async(pedido, revisao)=>{
     const conn = await connect();
     await conn.query(`
-        UPDATE INTRANET_2.proposta_frete SET
+        UPDATE proposta_frete SET
         arquivar = 1
         WHERE pedido = ? AND revisao = ?
     `, [pedido, revisao]);
@@ -35,7 +35,7 @@ const preparaArquivaFrete = async(pedido, revisao)=>{
 const arquivaFrete = async(id)=>{
     const conn = await connect();
     await conn.query(`
-        UPDATE INTRANET_2.proposta_frete SET
+        UPDATE proposta_frete SET
         status = 0
         WHERE id = ?
     `, [id]);
@@ -44,28 +44,28 @@ const arquivaFrete = async(id)=>{
 
 const all = async(setor, designado)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM INTRANET_2.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 1 order by id`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 1 order by id`);
     conn.end();
     return rows;
 };
 
 const allSemRevisao = async(setor, designado)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM INTRANET_2.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id where status = 1`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id where status = 1`);
     conn.end();
     return rows;
 };
 
 const search = async(codigo, resultados, vendedor)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM INTRANET_2.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' and u.name LIKE '%${vendedor}%' and status = 1 order by id LIMIT ${resultados}`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' and u.name LIKE '%${vendedor}%' and status = 1 order by id LIMIT ${resultados}`);
     conn.end();
     return rows;
 };
 
 const searchSemRevisao = async(codigo, resultados, vendedor)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM INTRANET_2.proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id WHERE pedido LIKE '%${codigo}%' and and u.name LIKE '%${vendedor}%' and status = 1 LIMIT ${resultados}`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id WHERE pedido LIKE '%${codigo}%' and and u.name LIKE '%${vendedor}%' and status = 1 LIMIT ${resultados}`);
     conn.end();
     return rows;
 };
@@ -80,7 +80,7 @@ const proposta = async(id)=>{
 const freteUpdate = async(body, id, today, valorMaisImposto)=>{
     const conn = await connect();
     await conn.query(`
-        UPDATE INTRANET_2.proposta_frete SET
+        UPDATE proposta_frete SET
         data_resp = ?,
         valor = ?,
         id_transportadora = ?,
@@ -96,7 +96,7 @@ const freteUpdate = async(body, id, today, valorMaisImposto)=>{
 const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido, filial)=>{
     const conn = await connect();
     await conn.query(
-        `INSERT INTO INTRANET_2.proposta_frete (
+        `INSERT INTO proposta_frete (
             pedido,
             cotador_id,
             data_solicit,
@@ -119,7 +119,7 @@ const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedid
 const novosItens = async(numped, body)=>{
     const conn = await connect();
     await conn.query(
-        `INSERT INTO INTRANET_2.proposta_frete_itens (
+        `INSERT INTO proposta_frete_itens (
             proposta_frete_id,
             produto,
             qtdven,

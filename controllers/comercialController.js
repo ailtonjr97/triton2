@@ -266,9 +266,19 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=
         const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.params.numped}&empresa=${req.params.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
 
         let valorTotal = 0.0
+        let ipi = 0.0
         for(let i = 0; i < req.body.length; i++){
-            valorTotal = valorTotal + req.body[i].valor
+            let imposto = await axios.get(process.env.APITOTVS + `CONSULTA_SBZ/unico?filial=${req.params.filial}&cod=${req.body[i].produto}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+            if(imposto.data.objects[0].BZ_IPI != 0.0){
+                ipi = (req.body[i].valor * imposto.data.objects[0].BZ_IPI) / 100
+            }else{
+                ipi = 0.0
+            }
+            valorTotal = valorTotal + (req.body[i].valor + ipi)
+            console.log(req.body[i].valor + ipi)
         };
+        console.log(valorTotal)
+        valorTotal.toFixed(2)
 
         //Necessário criar 3 cotações
         if(revisao.length == 0){
@@ -277,7 +287,6 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             for(let i = 0; i < req.body.length; i++){
                 await comercialModel.novosItens(req.params.numped, req.body[i]);
-                console.log('controller: ' + req.body[i])
             };
         }else{
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
@@ -671,6 +680,7 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_XEXPEDI: response.C5_XEXPEDI,
                 C5_XHEXPED: response.C5_XHEXPED,
                 C5_XNEXPED: response.C5_XNEXPED,
+                C5_CLIENTE: response.C5_CLIENTE,                
                 C5_FECENT: formatDate (response.C5_FECENT),
                 itens: [
                 ]

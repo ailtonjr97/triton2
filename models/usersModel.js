@@ -45,7 +45,7 @@ let allInactives = async()=>{
 
 let register = async(name, email, password, admin, setor)=>{
     const conn = await connect();
-    const [rows] = await conn.query('INSERT INTO INTRANET_2.users (name, email, password, salt, active, admin, jwt, intranet_id, dpo, setor) VALUES (?, ?, ?, 10, 1, ?, 0, 0, 0, ?)', [
+    const [rows] = await conn.query('INSERT INTO users (name, email, password, salt, active, admin, jwt, intranet_id, dpo, setor) VALUES (?, ?, ?, 10, 1, ?, 0, 0, 0, ?)', [
         name,
         email,
         password,
@@ -58,7 +58,7 @@ let register = async(name, email, password, admin, setor)=>{
 
 let alterPassword = async(password, id)=>{
     const conn = await connect();
-    await conn.query('UPDATE INTRANET_2.users SET password = ? WHERE id = ?', [password, id]);
+    await conn.query('UPDATE users SET password = ? WHERE id = ?', [password, id]);
     conn.end();
 }
 
@@ -71,19 +71,19 @@ let userRegisterConfirmation = async(email)=>{
 
 let inactivateUser = async(id)=>{
     const conn = await connect();
-    await conn.query('UPDATE INTRANET_2.users SET active = 0 WHERE id = ?', [id]);
+    await conn.query('UPDATE users SET active = 0 WHERE id = ?', [id]);
     conn.end();
 }
 
 let reactivateUser = async(id)=>{
     const conn = await connect();
-    await conn.query('UPDATE INTRANET_2.users SET active = 1 WHERE id = ?', [id]);
+    await conn.query('UPDATE users SET active = 1 WHERE id = ?', [id]);
     conn.end();
 }
 
 let updateOne = async(name, email, admin, dpo, setor, intranet_id, intranet_department_id, intranet_setor_chamado, id)=>{
     const conn = await connect();
-    const [rows] = await conn.query('UPDATE INTRANET_2.users SET name = ?, email = ?, admin = ?, dpo = ?, setor = ?, intranet_id = ?, intranet_department_id = ?, intranet_setor_chamado = ? WHERE id = ?', [
+    const [rows] = await conn.query('UPDATE users SET name = ?, email = ?, admin = ?, dpo = ?, setor = ?, intranet_id = ?, intranet_department_id = ?, intranet_setor_chamado = ? WHERE id = ?', [
         name,
         email,
         admin,
@@ -100,25 +100,25 @@ let updateOne = async(name, email, admin, dpo, setor, intranet_id, intranet_depa
 
 let passwordReset = async(password, id)=>{
     const conn = await connect();
-    await conn.query('UPDATE INTRANET_2.users SET password = ? WHERE id = ?', [password, id])
+    await conn.query('UPDATE users SET password = ? WHERE id = ?', [password, id])
     return true;
 }
 
 let emailCheck = async(email)=>{
     const conn = await connect();
-    const [rows] = await conn.query('SELECT * FROM INTRANET_2.users WHERE email = ? AND active = 1', [email])
+    const [rows] = await conn.query('SELECT * FROM users WHERE email = ? AND active = 1', [email])
     return rows;
 }
 
 let passwordReturn = async(email)=>{
     const conn = await connect();
-    const [rows] = await conn.query('SELECT password FROM INTRANET_2.users WHERE email = ? AND active = 1', [email])
+    const [rows] = await conn.query('SELECT password FROM users WHERE email = ? AND active = 1', [email])
     return rows;
 }
 
 let getUserJwt = async(email)=>{
     const conn = await connect();
-    const [rows] = await conn.query('SELECT id FROM INTRANET_2.users WHERE email = ? AND active = 1', [email])
+    const [rows] = await conn.query('SELECT id FROM users WHERE email = ? AND active = 1', [email])
     return rows;
 }
 
