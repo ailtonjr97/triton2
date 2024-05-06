@@ -10,7 +10,7 @@ router.post("/login", async(req, res)=>{
         const userPassword = await Users.passwordReturn(req.body.email);
         const userId = await Users.getUserJwt(req.body.email);
         if(bcrypt.compareSync(req.body.password, userPassword[0].password)){
-            const token = jwt.sign({id: userId[0].id}, process.env.JWTSECRET, {expiresIn: 28800})
+            const token = jwt.sign({id: userId[0].id}, process.env.JWTSECRET, {expiresIn: 43200})
             res.send(token)
         }else{
             res.sendStatus(500)

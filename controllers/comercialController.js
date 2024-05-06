@@ -25,6 +25,16 @@ router.get("/proposta-de-frete-semrev", async(req, res)=>{
     }
 });
 
+router.post("/arquiva-frete", async(req, res)=>{
+    try {
+        await comercialModel.arquivaFrete(req.body[0])
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
 router.get("/proposta-de-frete/pesquisa", async(req, res)=>{
     try {
         let resultados
@@ -34,7 +44,7 @@ router.get("/proposta-de-frete/pesquisa", async(req, res)=>{
         }else{
             resultados = req.query.resultados
         }
-        res.json(await comercialModel.search(req.query.pedido, resultados));
+        res.json(await comercialModel.search(req.query.pedido, resultados, req.query.vendedor));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -50,7 +60,7 @@ router.get("/proposta-de-frete-semrev/pesquisa", async(req, res)=>{
         }else{
             resultados = req.query.resultados
         }
-        res.json(await comercialModel.searchSemRevisao(req.query.pedido, resultados));
+        res.json(await comercialModel.searchSemRevisao(req.query.pedido, resultados, req.query.vendedor));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -224,9 +234,9 @@ router.post("/proposta-de-frete/:id", async(req, res)=>{
     }
 });
 
-router.get("/sck/:numped", async(req, res)=>{
+router.get("/sck/:numped/:filial", async(req, res)=>{
     try {
-        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SCK/get_all_id?idN=" + req.params.numped, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCK/get_all_id?idN=${req.params.numped}&filial=${req.params.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         res.send(response.data)
     } catch (error) {
         console.log(error)
@@ -267,6 +277,7 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             for(let i = 0; i < req.body.length; i++){
                 await comercialModel.novosItens(req.params.numped, req.body[i]);
+                console.log('controller: ' + req.body[i])
             };
         }else{
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
@@ -312,6 +323,7 @@ router.get("/transportadoras/:nome", async(req, res)=>{
 router.get("/update-frete-cot", async(req, res)=>{
     try {
         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${req.query.valor}&transp=${req.query.transp}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        await comercialModel.preparaArquivaFrete(req.query.cj_num, req.query.revisao)
         res.sendStatus(200);
     } catch (error) {
         console.log(error);
