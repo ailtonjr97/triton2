@@ -116,7 +116,7 @@ const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedid
     conn.end();
 };
 
-const novosItens = async(numped, body)=>{
+const novosItens = async(numped, body, revisao)=>{
     const conn = await connect();
     await conn.query(
         `INSERT INTO proposta_frete_itens (
@@ -125,16 +125,17 @@ const novosItens = async(numped, body)=>{
             qtdven,
             loja,
             descri,
-            obs
+            obs,
+            proposta_frete_revisao
         )
-        VALUES (?, ?, ?, ?, ?, ?)`,
-        [numped, body.produto, body.qtdven, body.loja, body.descri, body.obs]);
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [numped, body.produto, body.qtdven, body.loja, body.descri, body.obs, revisao]);
     conn.end();
 };
 
-const freteItens = async(numped)=>{
+const freteItens = async(numped, revisao)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`select * from proposta_frete_itens WHERE proposta_frete_id = ${numped}`);
+    const [rows] = await conn.query(`select * from proposta_frete_itens WHERE proposta_frete_id = ${numped} and proposta_frete_revisao = ${revisao}`);
     conn.end();
     return rows;
 };

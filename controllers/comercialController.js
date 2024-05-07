@@ -277,7 +277,6 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=
             valorTotal = valorTotal + (req.body[i].valor + ipi)
             console.log(req.body[i].valor + ipi)
         };
-        console.log(valorTotal)
         valorTotal.toFixed(2)
 
         //Necessário criar 3 cotações
@@ -286,12 +285,15 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             for(let i = 0; i < req.body.length; i++){
-                await comercialModel.novosItens(req.params.numped, req.body[i]);
+                await comercialModel.novosItens(req.params.numped, req.body[i], 1);
             };
         }else{
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial);
+            for(let i = 0; i < req.body.length; i++){
+                await comercialModel.novosItens(req.params.numped, req.body[i], parseInt(revisao[0].revisao) + 1);
+            };
         };
 
         res.sendStatus(200);
@@ -301,9 +303,9 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial", async(req, res)=
     }
 });
 
-router.get("/proposta-frete-itens/:numped", async(req, res)=>{
+router.get("/proposta-frete-itens/:numped/:revisao", async(req, res)=>{
     try {
-        res.json(await comercialModel.freteItens(req.params.numped));
+        res.json(await comercialModel.freteItens(req.params.numped, req.params.revisao));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
