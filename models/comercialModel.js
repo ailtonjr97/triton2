@@ -93,7 +93,7 @@ const freteUpdate = async(body, id, today, valorMaisImposto)=>{
     conn.end();
 };
 
-const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido, filial)=>{
+const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido, filial, loja)=>{
     const conn = await connect();
     await conn.query(
         `INSERT INTO proposta_frete (
@@ -109,10 +109,11 @@ const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedid
             cliente,
             valor_pedido,
             filial,
-            arquivar
+            arquivar,
+            loja_cliente
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [numped, cotador, today, null, revisao, 0, 1, null, null, cliente, valor_pedido, filial, 0]);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [numped, cotador, today, null, revisao, 0, 1, null, null, cliente, valor_pedido, filial, 0, loja]);
     conn.end();
 };
 
