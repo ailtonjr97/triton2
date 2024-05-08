@@ -659,6 +659,7 @@ router.get("/track_order/get_all", async(req, res)=>{
 
         sc5.data.objects.forEach(response => {
             values.push({
+                C5_LOJACLI: response.C5_LOJACLI,
                 C5_FILIAL: response.C5_FILIAL,
                 C5_NUM: response.C5_NUM,
                 R_E_C_N_O_: response.R_E_C_N_O_,
