@@ -6,6 +6,7 @@ const path = require('path')
 const fs = require('fs')
 const PDFKit = require('pdfkit');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -44,7 +45,7 @@ router.get("/proposta-de-frete/pesquisa", async(req, res)=>{
         }else{
             resultados = req.query.resultados
         }
-        res.json(await comercialModel.search(req.query.pedido, resultados, req.query.vendedor));
+        res.json(await comercialModel.search(req.query.pedido, resultados, req.query.vendedor, req.query.identificador));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -746,6 +747,37 @@ router.get("/track_order/update_c6xsepcd/:filial/:num/:item/:produto/:logado", a
             {
                 auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS},
             });
+
+            if(req.query.vendedor.trim().length != 0){
+                const vendedor = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/unico?codigo=${req.query.vendedor}`,
+                {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
+                const cliente = await axios.get(process.env.APITOTVS + `CONSULTA_SA1/get_id?id=${req.query.cliente}`,
+                {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
+    
+                const transporter = nodemailer.createTransport({
+                    host: "outlook.maiex13.com.br",
+                    port: 587,
+                    auth: {
+                      user: "suporte@fibracem.com",
+                      pass: process.env.SUPORTEPASSWORD,
+                    },
+                  });
+
+                let mailOptions = {
+                    from: 'suporte@fibracem.com',
+                    to: [`${vendedor.data.objects[0].A3_EMAIL}`],
+                    subject: `Avisos Track Order.`,
+                    text: `Pedido ${req.params.num} do cliente ${cliente.data.nome} da filial ${req.params.filial} foi separado no CD.`
+                };
+        
+                transporter.sendMail(mailOptions, function(err, data) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            }
         }
 
         res.sendStatus(200)
