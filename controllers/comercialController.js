@@ -17,6 +17,15 @@ router.get("/proposta-de-frete", async(req, res)=>{
     }
 });
 
+router.get("/proposta-de-frete-arquivadas", async(req, res)=>{
+    try {
+        res.json(await comercialModel.allArquivadas());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
 router.get("/proposta-de-frete-semrev", async(req, res)=>{
     try {
         res.json(await comercialModel.allSemRevisao());
@@ -46,6 +55,22 @@ router.get("/proposta-de-frete/pesquisa", async(req, res)=>{
             resultados = req.query.resultados
         }
         res.json(await comercialModel.search(req.query.pedido, resultados, req.query.vendedor, req.query.identificador));
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/proposta-de-frete-arquivadas/pesquisa", async(req, res)=>{
+    try {
+        let resultados
+        if(req.query.resultados == 'null' || req.query.resultados == undefined || req.query.resultados == '')
+        {
+            resultados = 1000
+        }else{
+            resultados = req.query.resultados
+        }
+        res.json(await comercialModel.searchArquivadas(req.query.pedido, resultados, req.query.vendedor, req.query.identificador));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -647,11 +672,32 @@ router.get("/track_order/get_all", async(req, res)=>{
         
         let values = [];
         let sc5;
+        let pcampo = '';
+        let scampo = '';
+        let pvalor = '';
+        let svalor = '';
+
+        if (req.query.pcampo){
+            pcampo = req.query.pcampo
+        };
+
+        if (req.query.scampo){
+            scampo = req.query.scampo
+        };
+
+        if (req.query.pvalor){
+            pvalor = req.query.pvalor
+        };
+
+        if (req.query.svalor){
+            svalor = req.query.svalor
+        };
+
         if(!req.query.data_ent){
-            sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}`,
+            sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}`,
             {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         }else{
-            sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}`,
+            sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}`,
             {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         }
  
@@ -703,6 +749,7 @@ router.get("/track_order/get_all", async(req, res)=>{
         values = values.filter(item => item.R_E_C_D_E_L_ == 0)
         res.json(values);
     } catch (error) {
+        console.log(error)
         if(error.response.status == 404){
             res.sendStatus(404);
         }else{

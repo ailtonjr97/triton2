@@ -49,6 +49,13 @@ const all = async(setor, designado)=>{
     return rows;
 };
 
+const allArquivadas = async()=>{
+    const conn = await connect();
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 0 order by id`);
+    conn.end();
+    return rows;
+};
+
 const allSemRevisao = async(setor, designado)=>{
     const conn = await connect();
     const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id where status = 1`);
@@ -59,6 +66,13 @@ const allSemRevisao = async(setor, designado)=>{
 const search = async(codigo, resultados, vendedor, identificador)=>{
     const conn = await connect();
     const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' and u.name LIKE '%${vendedor}%' and pf.id like '%${identificador}%' and status = 1 order by id LIMIT ${resultados}`);
+    conn.end();
+    return rows;
+};
+
+const searchArquivadas = async(codigo, resultados, vendedor, identificador)=>{
+    const conn = await connect();
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' and u.name LIKE '%${vendedor}%' and pf.id like '%${identificador}%' and status = 0 order by id LIMIT ${resultados}`);
     conn.end();
     return rows;
 };
@@ -160,5 +174,7 @@ module.exports = {
     allSemRevisao,
     searchSemRevisao,
     arquivaFrete,
-    preparaArquivaFrete
+    preparaArquivaFrete,
+    allArquivadas,
+    searchArquivadas
 };
