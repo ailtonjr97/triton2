@@ -7,6 +7,7 @@ const fs = require('fs')
 const PDFKit = require('pdfkit');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
+const moment = require('moment');
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -872,6 +873,25 @@ router.get("/track_order/update_campo/:filial/:num/:campo/:booleano/:logado/:cam
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
+    }
+});
+
+router.get("/vira-fob", async(req, res)=>{
+    try {
+        const formatDate = (date) => {
+            return moment(date).format('DD/MM/YYYY HH:mm');
+        };
+
+        const now = new Date();
+        formatDate(now)
+
+        await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.query.numped}&empresa=${req.query.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/vira_fob?numero=${req.query.numped}&filial=${req.query.filial}`, "", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        await comercialModel.insertLogSistema(req.query.logado, formatDate(now), `Alterado orçamento ${req.query.numped}, filial ${req.query.filial} para FOB e zerado valor de frete.`)
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(404)
     }
 });
 

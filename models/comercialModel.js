@@ -162,6 +162,19 @@ const revisaoCotacao = async(numped)=>{
     return rows;
 };
 
+const insertLogSistema = async(nome, data, descricao)=>{
+    const conn = await connect();
+    await conn.query(
+        `INSERT INTO log_sistema (
+            nome,
+            data,
+            descricao
+        )
+        VALUES (?, ?, ?)`,
+        [nome, data, descricao]);
+    conn.end();
+};
+
 module.exports = {
     all,
     search,
@@ -176,5 +189,6 @@ module.exports = {
     arquivaFrete,
     preparaArquivaFrete,
     allArquivadas,
-    searchArquivadas
+    searchArquivadas,
+    insertLogSistema
 };
