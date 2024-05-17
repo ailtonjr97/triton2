@@ -162,16 +162,17 @@ const revisaoCotacao = async(numped)=>{
     return rows;
 };
 
-const insertLogSistema = async(nome, data, descricao)=>{
+const insertLogSistema = async(nome, data, descricao, data_hora)=>{
     const conn = await connect();
     await conn.query(
         `INSERT INTO log_sistema (
             nome,
             data,
-            descricao
+            descricao,
+            data_hora
         )
-        VALUES (?, ?, ?)`,
-        [nome, data, descricao]);
+        VALUES (?, ?, ?, ?)`,
+        [nome, data, descricao, data_hora]);
     conn.end();
 };
 

@@ -914,4 +914,32 @@ router.get("/vira-cif", async(req, res)=>{
     }
 });
 
+router.post("/log", async(req, res)=>{
+    try {
+        const formatDate = (date) => {
+            return moment(date).format('DD/MM/YYYY HH:mm');
+        };
+
+        const now = new Date();
+        formatDate(now)
+
+        function formatDateToMySQL(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+          
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        await comercialModel.insertLogSistema(req.body[0], formatDate(now), req.body[1], formatDateToMySQL(now))
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(404)
+    }
+});
+
 module.exports = router;
