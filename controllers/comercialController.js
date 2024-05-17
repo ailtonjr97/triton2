@@ -752,12 +752,13 @@ router.get("/track_order/get_all", async(req, res)=>{
         values.forEach(element => {
             let filtrado = filterArray(sc6.data.objects, 'C6_NUM', element.C5_NUM)
             filtrado = filterArray(filtrado, 'C6_FILIAL', element.C5_FILIAL)
+            filtrado = filterArray(filtrado, 'R_E_C_D_E_L_', 0)
             element.itens.push(
                 filtrado
             )
         });
 
-        values = values.filter(item => item.R_E_C_D_E_L_ == 0)
+        values = values.filter(item => item.R_E_C_D_E_L_ != item.R_E_C_N_O_)
         res.json(values);
     } catch (error) {
         console.log(error)
