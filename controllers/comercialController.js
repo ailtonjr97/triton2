@@ -888,7 +888,6 @@ router.get("/vira-fob", async(req, res)=>{
 
         await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.query.numped}&empresa=${req.query.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/vira_fob?numero=${req.query.numped}&filial=${req.query.filial}`, "", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-        await comercialModel.insertLogSistema(req.query.logado, formatDate(now), `Alterado orçamento ${req.query.numped}, filial ${req.query.filial} para FOB e zerado valor de frete.`)
         res.sendStatus(200);
     } catch (error) {
         console.log(error);
@@ -907,7 +906,6 @@ router.get("/vira-cif", async(req, res)=>{
 
         await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.query.numped}&empresa=${req.query.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/vira_cif?numero=${req.query.numped}&filial=${req.query.filial}`, "", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-        await comercialModel.insertLogSistema(req.query.logado, formatDate(now), `Alterado orçamento ${req.query.numped}, filial ${req.query.filial} para CIF e zerado valor de frete.`)
         res.sendStatus(200);
     } catch (error) {
         console.log(error);
@@ -917,12 +915,12 @@ router.get("/vira-cif", async(req, res)=>{
 
 router.post("/log", async(req, res)=>{
     try {
+        const now = new Date();
+        formatDate(now)
+
         const formatDate = (date) => {
             return moment(date).format('DD/MM/YYYY HH:mm');
         };
-
-        const now = new Date();
-        formatDate(now)
 
         function formatDateToMySQL(date) {
             const year = date.getFullYear();

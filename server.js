@@ -14,6 +14,7 @@ const engenharia = require("./controllers/engenhariaController.js");
 const comercial = require("./controllers/comercialController.js");
 const files = require("./controllers/filesController.js");
 const financeiro = require("./controllers/financeiroController.js");
+const credito = require("./controllers/CreditoController.js");
 
 var corsOptions = {
 origin: [process.env.ORIGIN1, process.env.ORIGIN2, process.env.ORIGIN3],
@@ -76,6 +77,7 @@ app.use("/engenharia", cors(corsOptions), authenticationMiddleware, engenharia);
 app.use("/totvs", cors(corsOptions), authenticationMiddlewareApi, totvs);
 app.use("/comercial", cors(corsOptions), authenticationMiddleware, comercial);
 app.use("/financeiro", cors(corsOptions), authenticationMiddleware, financeiro);
+app.use("/credito", cors(corsOptions),  credito);
 app.use("/files", cors(corsOptions), files);
 
 

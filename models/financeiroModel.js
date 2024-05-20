@@ -22,13 +22,37 @@ async function connect(){
 
 connect();
 
-const analiseDeCredito = async(setor, designado)=>{
+const analiseDeCredito = async()=>{
     const conn = await connect();
     const [rows] = await conn.query(`select * from ANALISE_CREDITO`);
     conn.end();
     return rows;
 };
 
+const documento = async(id)=>{
+    const conn = await connect();
+    const [rows] = await conn.query(`select * from ANALISE_CREDITO WHERE ID = ${id}`);
+    conn.end();
+    return rows;
+};
+
+const solicitCliente = async(id, data)=>{
+    const conn = await connect();
+    const [rows] = await conn.query(`UPDATE ANALISE_CREDITO SET DT_SOLICIT_DOCUMENTO = '${data}' WHERE ID = ${id}`);
+    conn.end();
+    return rows;
+};
+
+const dataDocOk = async(id, data, aprovador)=>{
+    const query = `UPDATE ANALISE_CREDITO SET DATA_DOC_OK = ?, RESPONSAVEL_APROV = ? WHERE ID = ?`;
+    const conn = await connect();
+    const [rows] = await conn.execute(query, [data, aprovador, id]);
+    conn.end();
+};
+
 module.exports = {
-    analiseDeCredito
+    analiseDeCredito,
+    documento,
+    solicitCliente,
+    dataDocOk
 };
