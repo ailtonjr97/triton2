@@ -816,12 +816,8 @@ router.get("/track_order/update_c6xsepcd/:filial/:num/:item/:produto/:logado", a
 
     
                 const transporter = nodemailer.createTransport({
-                    host: "outlook.maiex13.com.br",
-                    port: 587,
-                    auth: {
-                      user: "suporte@fibracem.com",
-                      pass: process.env.SUPORTEPASSWORD,
-                    },
+                    host: process.env.EMAIL_HOST,
+                    port: process.env.EMAIL_PORT,
                   });
 
                 let mailOptions = {
@@ -915,12 +911,13 @@ router.get("/vira-cif", async(req, res)=>{
 
 router.post("/log", async(req, res)=>{
     try {
-        const now = new Date();
-        formatDate(now)
 
         const formatDate = (date) => {
             return moment(date).format('DD/MM/YYYY HH:mm');
         };
+        
+        const now = new Date();
+        formatDate(now)
 
         function formatDateToMySQL(date) {
             const year = date.getFullYear();

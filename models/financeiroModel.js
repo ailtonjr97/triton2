@@ -43,10 +43,10 @@ const solicitCliente = async(id, data)=>{
     return rows;
 };
 
-const dataDocOk = async(id, data, aprovador)=>{
-    const query = `UPDATE ANALISE_CREDITO SET DATA_DOC_OK = ?, RESPONSAVEL_APROV = ? WHERE ID = ?`;
+const dataDocOk = async(id, data, aprovador, obs)=>{
+    const query = `UPDATE ANALISE_CREDITO SET DATA_DOC_OK = ?, RESPONSAVEL_APROV = ?, OBS_CADASTRO = ? WHERE ID = ?`;
     const conn = await connect();
-    const [rows] = await conn.execute(query, [data, aprovador, id]);
+    const [rows] = await conn.execute(query, [data, aprovador, obs, id]);
     conn.end();
 };
 
