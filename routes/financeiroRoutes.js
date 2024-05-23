@@ -6,7 +6,8 @@ const {
     documento, 
     vendedor, 
     sendDocumentRequestEmail, 
-    docOk 
+    docOk,
+    credFinaliza
 } = require('../controllers/financeiroController');
 
 router.get("/analise-de-credito", analiseDeCredito);
@@ -15,5 +16,6 @@ router.get("/documento", documento);
 router.get("/vendedor", vendedor);
 router.get("/email", sendDocumentRequestEmail);
 router.get("/docok", docOk);
+router.post("/cred-finaliza", credFinaliza);
 
 module.exports = router;

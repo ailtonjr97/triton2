@@ -22,37 +22,93 @@ async function connect(){
 
 connect();
 
-const analiseDeCredito = async()=>{
-    const conn = await connect();
-    const [rows] = await conn.query(`select * from ANALISE_CREDITO`);
-    conn.end();
-    return rows;
-};
-
-const documento = async(id)=>{
-    const conn = await connect();
-    const [rows] = await conn.query(`select * from ANALISE_CREDITO WHERE ID = ${id}`);
-    conn.end();
-    return rows;
-};
-
-const solicitCliente = async(id, data)=>{
-    const conn = await connect();
-    const [rows] = await conn.query(`UPDATE ANALISE_CREDITO SET DT_SOLICIT_DOCUMENTO = '${data}' WHERE ID = ${id}`);
-    conn.end();
-    return rows;
-};
-
-const dataDocOk = async(id, data, aprovador, obs)=>{
+const analiseDeCredito = async () => {
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO`);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+      if (conn) {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      }
+    }
+  };
+  
+  const documento = async (id) => {
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ID = ?`, [id]);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+      if (conn) {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      }
+    }
+  };
+  
+  const solicitCliente = async (id, data) => {
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.query(`UPDATE ANALISE_CREDITO SET DT_SOLICIT_DOCUMENTO = ? WHERE ID = ?`, [data, id]);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+      if (conn) {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      }
+    }
+  };
+  
+  const dataDocOk = async (id, data, aprovador, obs) => {
     const query = `UPDATE ANALISE_CREDITO SET DATA_DOC_OK = ?, RESPONSAVEL_APROV = ?, OBS_CADASTRO = ? WHERE ID = ?`;
-    const conn = await connect();
-    const [rows] = await conn.execute(query, [data, aprovador, obs, id]);
-    conn.end();
-};
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.execute(query, [data, aprovador, obs, id]);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+      if (conn) {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      }
+    }
+  };
+
+const credFinaliza  = async (resultado_analise, limite_atual, id) => {
+    const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, NOVO_LIMITE = ? WHERE ID = ?`;
+
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.execute(query, [resultado_analise, limite_atual, id]);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error;
+    } finally {
+      if (conn) {
+        await conn.end();
+      }
+    }
+  };
 
 module.exports = {
     analiseDeCredito,
     documento,
     solicitCliente,
-    dataDocOk
+    dataDocOk,
+    credFinaliza
 };

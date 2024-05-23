@@ -175,7 +175,22 @@ async function docOk(req, res) {
         console.log(error);
         res.sendStatus(500);
     }
-}
+};
+
+async function credFinaliza(req, res) {
+    try {
+        const diferenca = req.body[1].diferenca;
+        const limite = req.body[2].limite;
+        const id = req.body[3].id;
+        if(req.body[0].result == 'APROVADO'){
+            await financeiroModel.credFinaliza(req.body[0].result, Math.abs(diferenca + limite), id);
+        };
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
 
 module.exports = { 
     analiseDeCredito, 
@@ -183,5 +198,6 @@ module.exports = {
     documento, 
     vendedor, 
     sendDocumentRequestEmail, 
-    docOk 
+    docOk,
+    credFinaliza
 };

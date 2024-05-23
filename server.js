@@ -17,6 +17,7 @@ const files = require("./controllers/filesController.js");
 const financeiroRoutes = require('./routes/financeiroRoutes');
 const credito = require("./controllers/CreditoController.js");
 const consulta = require("./routes/consultaRoutes");
+const { authenticationMiddleware, authenticationMiddlewareApi } = require('./middlewares/authentication.js');
 
 var corsOptions = {
 origin: [process.env.ORIGIN1, process.env.ORIGIN2, process.env.ORIGIN3],
@@ -28,47 +29,6 @@ const app = express();
 app.use(express.static("public"));
 app.use(bodyParser.json());
 
-function authenticationMiddleware(req, res, next){
-    try {
-        const token = req.headers.authorization.replace('jwt=', '');
-        if(token){
-            jwt.verify(token, process.env.JWTSECRET, (err)=>{
-              if(err){
-                  res.sendStatus(401)
-              } else {
-                next();
-              }
-            })
-          }else{
-              res.sendStatus(401)
-          }
-    } catch (error) {
-        console.log(error)
-        res.sendStatus(401)
-    }
-}
-
-function authenticationMiddlewareApi(req, res, next){
-    try {
-        let token = req.headers.authorization.replace('jwt=', '');
-        token = token.replace('Bearer ', '');
-        if(token){
-            jwt.verify(token, process.env.JWTSECRET, (err)=>{
-              if(err){
-                  res.sendStatus(401)
-              } else {
-                next();
-              }
-            })
-          }else{
-              res.sendStatus(401)
-          }
-    } catch (error) {
-        console.log(error)
-        res.sendStatus(401)
-    }
-}
-
 app.use("/auth", cors(corsOptions), auth);
 app.use("/users", cors(corsOptions), authenticationMiddleware, users);
 app.use("/rh", cors(corsOptions), authenticationMiddleware, rh);
@@ -79,7 +39,6 @@ app.use("/engenharia", cors(corsOptions), authenticationMiddleware, engenharia);
 app.use("/totvs", cors(corsOptions), authenticationMiddlewareApi, totvs);
 app.use("/comercial", cors(corsOptions), authenticationMiddleware, comercial);
 app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRoutes);
-//app.use("/financeiro", cors(corsOptions), authenticationMiddleware, financeiro);
 app.use("/credito", cors(corsOptions),  credito);
 app.use("/files", cors(corsOptions), files);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareApi, consulta);
