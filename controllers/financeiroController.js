@@ -165,7 +165,7 @@ async function docOk(req, res) {
         await sendEmail(
             recipient,
             'Requisição de Documentos.',
-            `Você tem uma nova solicitação de análise de Credito. ID ${req.query.id}.`
+            `Você tem uma nova solicitação de análise de crédito. ID ${req.query.id}.`
         );
 
         await financeiroModel.dataDocOk(req.query.id, formatDateToMySQL(now), approver, req.query.obs);
