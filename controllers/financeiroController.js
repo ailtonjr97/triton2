@@ -1,7 +1,9 @@
 const financeiroModel = require('../models/financeiroModel');
 const axios = require('axios');
-const { formatDateToMySQL } = require('../utils/dateUtils');
+const { formatDateToMySQL, formatCurrentDateTimeForMySQL } = require('../utils/dateUtils');
 const { sendEmail } = require('../services/emailService');
+const { formatarParaMoedaBrasileira } = require('../utils/formatarParaMoedaBrasileira');
+const { adicionarHorasUteis } = require('../utils/businessHours');
 
 async function analiseDeCredito(req, res) {
     try {
@@ -46,8 +48,9 @@ async function atualizaPropostaDeFrete(req, res) {
                 VALOR_PEDIDO,
                 LIMITE_ATUAL,
                 CLIENTE,
-                EMAIL_CLIENTE
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                EMAIL_CLIENTE,
+                PRAZO_RESPOSTA
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 record.CJ_XDTSOLI || null,
                 record.CJ_NUM || null,
                 record.CJ_FILIAL || null,
@@ -60,6 +63,7 @@ async function atualizaPropostaDeFrete(req, res) {
                 record.A1_LC || null,
                 record.A1_NOME || null,
                 record.A1_EMAIL || null,
+                adicionarHorasUteis(record.CJ_XDTSOLI, 48, record.CJ_XHRSOLI)
             ]);
         }
 
@@ -145,7 +149,7 @@ async function sendDocumentRequestEmail(req, res) {
             Tel: 3661-2585  
         `;
 
-        await sendEmail('informatica04@fibracem.com', 'Requisição de Documentos.', emailContent);
+        await sendEmail(req.query.email, 'Requisição de Documentos.', emailContent);
         await financeiroModel.solicitCliente(req.query.id, formatDateToMySQL(now));
         
         res.sendStatus(200);
@@ -159,7 +163,7 @@ async function docOk(req, res) {
     try {
         const now = new Date();
 
-        const recipient = req.query.valor <= 20000.00 ? 'informatica04@fibracem.com' : 'informatica04@fibracem.com';
+        const recipient = req.query.valor <= 20000.00 ? 'aux.adm@fibracem.com' : 'financeiro@fibracem.com';
         const approver = req.query.valor <= 20000.00 ? 'Natali Evelin Peres Pereira' : 'Kesley Machado';
 
         await sendEmail(
@@ -179,12 +183,92 @@ async function docOk(req, res) {
 
 async function credFinaliza(req, res) {
     try {
+        const emailCli = req.body[6].emailCli;
+        //const emailVend = req.body[6].email;
         const diferenca = req.body[1].diferenca;
         const limite = req.body[2].limite;
         const id = req.body[3].id;
-        if(req.body[0].result == 'APROVADO'){
-            await financeiroModel.credFinaliza(req.body[0].result, Math.abs(diferenca + limite), id);
-        };
+        const checkEmailCli = req.body[4].checkEmailCli;
+        const checkEmailVend = req.body[5].checkEmailVend;
+        const numPedido = req.body[7].pedido;
+        const filial = req.body[8].filial;
+        const vendCod = req.body[9].vendCod;
+        const porcentagem = req.body[10].porcentagem;
+        const valorPedido = req.body[11].valor;
+        const respostaAnalise = req.body[12].respostaAnalise;
+        const obsResposta = req.body[13].obsResposta;
+
+        const emailVendApi = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/unico?codigo=${vendCod}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const emailVend = emailVendApi.data.objects[0].A3_EMAIL;
+
+        await financeiroModel.credFinalizaData(formatCurrentDateTimeForMySQL(), id);
+
+        if(req.body[0].result != 'REPROVADO'){
+
+            if(req.body[0].result == 'APROVADO'){
+                if(checkEmailCli){
+                    await sendEmail(
+                        emailCli,
+                        'Crédito liberado',
+                        `Olá. Informamos que após análise financeira o orçamento ${numPedido} foi liberado para faturamento.`
+                    );
+                };
+    
+                if(checkEmailVend){
+                    await sendEmail(
+                        emailVend,
+                        'Crédito liberado',
+                        `Olá. Informamos que após análise financeira o orçamento ${numPedido} da filial ${filial} foi liberado para faturamento.`
+                    );
+                };
+
+                await financeiroModel.credFinaliza(req.body[0].result, Math.abs(diferenca + limite), respostaAnalise, obsResposta, id);
+
+            }else if(req.body[0].result == 'PARCIAL'){
+                const valor_adiant = (valorPedido * porcentagem) / 100;
+                if(checkEmailCli){
+                    await sendEmail(
+                        emailCli,
+                        'Crédito liberado parcialmente',
+                        `Informamos que, após avaliação financeira para o orçamento ${numPedido} no valor aproximado de R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que ${porcentagem}% deste valor deverá ser antecipado, ficando o restante para faturamento a prazo.`
+                    );
+                };
+    
+                if(checkEmailVend){
+                    await sendEmail(
+                        emailVend,
+                        'Crédito liberado parcialmente',
+                        `Informamos que, após avaliação financeira para o orçamento ${numPedido} da filial ${filial} no valor aproximado de R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que ${porcentagem}% deste valor deverá ser antecipado, ficando o restante para faturamento a prazo.`
+                    );
+                };
+
+                await financeiroModel.credFinalizaParcial(req.body[0].result, porcentagem, valor_adiant, respostaAnalise, obsResposta, id);
+            }
+        }else{
+            if(checkEmailCli){
+                await sendEmail(
+                    emailCli,
+                    'Liberação de crédito reprovada',
+                    `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `
+                );
+            }
+
+            if(checkEmailVend){
+                await sendEmail(
+                    emailVend,
+                    'Liberação de crédito reprovada',
+                    `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `
+                );
+            }
+
+            await financeiroModel.credFinalizaReprov(req.body[0].result, respostaAnalise, obsResposta, id);
+        }
         res.sendStatus(200)
     } catch (error) {
         console.log(error);

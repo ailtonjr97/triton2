@@ -87,13 +87,13 @@ const analiseDeCredito = async () => {
     }
   };
 
-const credFinaliza  = async (resultado_analise, limite_atual, id) => {
-    const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, NOVO_LIMITE = ? WHERE ID = ?`;
+const credFinaliza  = async (resultado_analise, limite_atual, respostaAnalise, obsResposta, id) => {
+    const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, NOVO_LIMITE = ?, RESPOSTA_ANALISE = ?, OBS_RESPOSTA = ? WHERE ID = ?`;
 
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.execute(query, [resultado_analise, limite_atual, id]);
+      const [rows] = await conn.execute(query, [resultado_analise, limite_atual, respostaAnalise, obsResposta, id]);
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);
@@ -105,10 +105,67 @@ const credFinaliza  = async (resultado_analise, limite_atual, id) => {
     }
   };
 
+const credFinalizaParcial  = async (resultado_analise, porcentagem, valor_adiant, respostaAnalise, obsResposta, id) => {
+  const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, PERCENTUAL_ADIANT = ?, VALOR_ADIANT = ?, RESPOSTA_ANALISE = ?, OBS_RESPOSTA = ? WHERE ID = ?`;
+
+  let conn;
+  try {
+    conn = await connect();
+    const [rows] = await conn.execute(query, [resultado_analise, porcentagem, valor_adiant, respostaAnalise, obsResposta, id]);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error;
+  } finally {
+    if (conn) {
+      await conn.end();
+    }
+  }
+};
+
+const credFinalizaReprov  = async (resultado_analise, respostaAnalise, obsResposta, id) => {
+  const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, RESPOSTA_ANALISE = ?, OBS_RESPOSTA = ? WHERE ID = ?`;
+
+  let conn;
+  try {
+    conn = await connect();
+    const [rows] = await conn.execute(query, [resultado_analise, respostaAnalise, obsResposta, id]);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error;
+  } finally {
+    if (conn) {
+      await conn.end();
+    }
+  }
+};
+
+const credFinalizaData  = async (agora, id) => {
+  const query = `UPDATE ANALISE_CREDITO SET DATA_RESP = ? WHERE ID = ?`;
+
+  let conn;
+  try {
+    conn = await connect();
+    const [rows] = await conn.execute(query, [agora, id]);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error;
+  } finally {
+    if (conn) {
+      await conn.end();
+    }
+  }
+};
+
 module.exports = {
     analiseDeCredito,
     documento,
     solicitCliente,
     dataDocOk,
-    credFinaliza
+    credFinaliza,
+    credFinalizaParcial,
+    credFinalizaReprov,
+    credFinalizaData
 };
