@@ -14,6 +14,15 @@ async function analiseDeCredito(req, res) {
     }
 }
 
+async function analiseDeCreditoArquivadas(req, res) {
+    try {
+        res.json(await financeiroModel.analiseDeCreditoArquivadas());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
 async function atualizaPropostaDeFrete(req, res) {
     try {
         const mysql = require('mysql2/promise');
@@ -49,8 +58,10 @@ async function atualizaPropostaDeFrete(req, res) {
                 LIMITE_ATUAL,
                 CLIENTE,
                 EMAIL_CLIENTE,
-                PRAZO_RESPOSTA
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                PRAZO_RESPOSTA,
+                ARQUIVA,
+                ARQUIVADO
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 record.CJ_XDTSOLI || null,
                 record.CJ_NUM || null,
                 record.CJ_FILIAL || null,
@@ -63,7 +74,9 @@ async function atualizaPropostaDeFrete(req, res) {
                 record.A1_LC || null,
                 record.A1_NOME || null,
                 record.A1_EMAIL || null,
-                adicionarHorasUteis(record.CJ_XDTSOLI, 48, record.CJ_XHRSOLI)
+                adicionarHorasUteis(record.CJ_XDTSOLI, 48, record.CJ_XHRSOLI),
+                0,
+                0
             ]);
         }
 
@@ -207,7 +220,7 @@ async function credFinaliza(req, res) {
 
         const emailVend = emailVendApi.data.objects[0].A3_EMAIL;
 
-        await financeiroModel.credFinalizaData(formatCurrentDateTimeForMySQL(), id);
+        await financeiroModel.credFinalizaData(formatCurrentDateTimeForMySQL(), 1, id);
 
         if(req.body[0].result != 'REPROVADO'){
 
@@ -276,6 +289,66 @@ async function credFinaliza(req, res) {
     }
 };
 
+async function arquivar(req, res) {
+    try {
+        await financeiroModel.arquivar(req.body.id);
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
+async function parcelas(req, res) {
+    try {
+        let cgc = req.query.cgc;
+
+        // Verificação de entrada
+        if (!cgc || cgc.length < 8) {
+            return res.status(400).send({ error: 'CGC deve ter pelo menos 8 caracteres.' });
+        }
+
+        const cgcRoot = cgc.slice(0, 8);
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SE1/CRED_PARC?stats_parc=A&raiz_cnpj=${cgcRoot}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        let resposta = []
+
+        response.data.objects.forEach(element => {
+            const formatDate = (dateStr) => {
+                const [year, month, day] = [dateStr.slice(0, 4), dateStr.slice(4, 6), dateStr.slice(6)];
+                return `${day}/${month}/${year}`;
+            };
+        
+            resposta.push({
+                'E1_FILIAL': element.E1_FILIAL,
+                'E1_PREFIXO': element.E1_PREFIXO,
+                'E1_NUM': element.E1_NUM,
+                'E1_PARCELA': element.E1_PARCELA,
+                'E1_VENCTO': formatDate(element.E1_VENCTO),
+                'E1_VALOR': formatarParaMoedaBrasileira(element.E1_VALOR),
+                'E1_SALDO': formatarParaMoedaBrasileira(element.E1_SALDO),
+                'E1_CLIENTE': element.E1_CLIENTE,
+                'E1_LOJA': element.E1_LOJA,
+                'E1_EMISSAO': formatDate(element.E1_EMISSAO),
+                'E1_STATUS': element.E1_STATUS,
+                'A1_NOME': element.A1_NOME,
+                'A1_LC': element.A1_LC,
+                'A1_CGC': element.A1_CGC
+            });
+        });
+
+        res.send(resposta);
+    } catch (error) {
+        console.error('Erro ao consultar parcelas:', error.message);
+        res.status(500).send({ error: 'Erro interno do servidor.' });
+    }
+}
+
 module.exports = { 
     analiseDeCredito, 
     atualizaPropostaDeFrete, 
@@ -283,5 +356,8 @@ module.exports = {
     vendedor, 
     sendDocumentRequestEmail, 
     docOk,
-    credFinaliza
+    credFinaliza,
+    arquivar,
+    analiseDeCreditoArquivadas,
+    parcelas
 };

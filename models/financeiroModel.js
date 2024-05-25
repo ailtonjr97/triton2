@@ -26,7 +26,7 @@ const analiseDeCredito = async () => {
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO`);
+      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 0`);
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);
@@ -38,6 +38,22 @@ const analiseDeCredito = async () => {
     }
   };
   
+  const analiseDeCreditoArquivadas = async () => {
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 1`);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+      if (conn) {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      }
+    }
+  };
+
   const documento = async (id) => {
     let conn;
     try {
@@ -141,13 +157,31 @@ const credFinalizaReprov  = async (resultado_analise, respostaAnalise, obsRespos
   }
 };
 
-const credFinalizaData  = async (agora, id) => {
-  const query = `UPDATE ANALISE_CREDITO SET DATA_RESP = ? WHERE ID = ?`;
+const credFinalizaData  = async (agora, arquiva, id) => {
+  const query = `UPDATE ANALISE_CREDITO SET DATA_RESP = ?, ARQUIVA = ? WHERE ID = ?`;
 
   let conn;
   try {
     conn = await connect();
-    const [rows] = await conn.execute(query, [agora, id]);
+    const [rows] = await conn.execute(query, [agora, arquiva, id]);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error;
+  } finally {
+    if (conn) {
+      await conn.end();
+    }
+  }
+};
+
+const arquivar  = async (id) => {
+  const query = `UPDATE ANALISE_CREDITO SET ARQUIVADO = ? WHERE ID = ?`;
+
+  let conn;
+  try {
+    conn = await connect();
+    const [rows] = await conn.execute(query, [1, id]);
     return rows;
   } catch (error) {
     console.error('Erro ao executar a consulta:', error);
@@ -167,5 +201,7 @@ module.exports = {
     credFinaliza,
     credFinalizaParcial,
     credFinalizaReprov,
-    credFinalizaData
+    credFinalizaData,
+    arquivar,
+    analiseDeCreditoArquivadas
 };

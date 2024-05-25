@@ -7,15 +7,21 @@ const {
     vendedor, 
     sendDocumentRequestEmail, 
     docOk,
-    credFinaliza
+    credFinaliza,
+    arquivar,
+    analiseDeCreditoArquivadas,
+    parcelas
 } = require('../controllers/financeiroController');
 
 router.get("/analise-de-credito", analiseDeCredito);
+router.get("/analise-de-credito-arquivadas", analiseDeCreditoArquivadas);
 router.get("/atualiza-proposta-de-frete", atualizaPropostaDeFrete);
 router.get("/documento", documento);
 router.get("/vendedor", vendedor);
 router.get("/email", sendDocumentRequestEmail);
 router.get("/docok", docOk);
+router.get("/parcelas", parcelas);
 router.post("/cred-finaliza", credFinaliza);
+router.post("/arquivar", arquivar);
 
 module.exports = router;
