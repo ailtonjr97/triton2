@@ -22,11 +22,11 @@ async function connect(){
 
 connect();
 
-const analiseDeCredito = async () => {
+const analiseDeCredito = async (orcamento) => {
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 0`);
+      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 0 AND NUMERO_PEDIDO LIKE '%${orcamento}%'`);
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);
@@ -38,11 +38,11 @@ const analiseDeCredito = async () => {
     }
   };
   
-  const analiseDeCreditoArquivadas = async () => {
+  const analiseDeCreditoArquivadas = async (orcamento) => {
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 1`);
+      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 1 AND NUMERO_PEDIDO LIKE '%${orcamento}%'`);
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);
@@ -86,12 +86,12 @@ const analiseDeCredito = async () => {
     }
   };
   
-  const dataDocOk = async (id, data, aprovador, obs) => {
-    const query = `UPDATE ANALISE_CREDITO SET DATA_DOC_OK = ?, RESPONSAVEL_APROV = ?, OBS_CADASTRO = ? WHERE ID = ?`;
+  const dataDocOk = async (id, data, aprovador, obs, prazo_resposta) => {
+    const query = `UPDATE ANALISE_CREDITO SET DATA_DOC_OK = ?, RESPONSAVEL_APROV = ?, OBS_CADASTRO = ?, PRAZO_RESPOSTA = ? WHERE ID = ?`;
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.execute(query, [data, aprovador, obs, id]);
+      const [rows] = await conn.execute(query, [data, aprovador, obs, prazo_resposta, id]);
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);

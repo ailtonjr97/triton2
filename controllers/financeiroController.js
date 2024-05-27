@@ -7,7 +7,9 @@ const { adicionarHorasUteis } = require('../utils/businessHours');
 
 async function analiseDeCredito(req, res) {
     try {
-        res.json(await financeiroModel.analiseDeCredito());
+        const orcamento = req.query.orcamento ? req.query.orcamento : '';
+
+        res.json(await financeiroModel.analiseDeCredito(orcamento));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -16,7 +18,9 @@ async function analiseDeCredito(req, res) {
 
 async function analiseDeCreditoArquivadas(req, res) {
     try {
-        res.json(await financeiroModel.analiseDeCreditoArquivadas());
+        const orcamento = req.query.orcamento ? req.query.orcamento : '';
+
+        res.json(await financeiroModel.analiseDeCreditoArquivadas(orcamento));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -58,10 +62,9 @@ async function atualizaPropostaDeFrete(req, res) {
                 LIMITE_ATUAL,
                 CLIENTE,
                 EMAIL_CLIENTE,
-                PRAZO_RESPOSTA,
                 ARQUIVA,
                 ARQUIVADO
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 record.CJ_XDTSOLI || null,
                 record.CJ_NUM || null,
                 record.CJ_FILIAL || null,
@@ -74,7 +77,6 @@ async function atualizaPropostaDeFrete(req, res) {
                 record.A1_LC || null,
                 record.A1_NOME || null,
                 record.A1_EMAIL || null,
-                adicionarHorasUteis(record.CJ_XDTSOLI, 48, record.CJ_XHRSOLI),
                 0,
                 0
             ]);
@@ -185,7 +187,7 @@ async function docOk(req, res) {
             `Você tem uma nova solicitação de análise de crédito. ID ${req.query.id}.`
         );
 
-        await financeiroModel.dataDocOk(req.query.id, formatDateToMySQL(now), approver, req.query.obs);
+        await financeiroModel.dataDocOk(req.query.id, formatDateToMySQL(now), approver, req.query.obs, adicionarHorasUteis(now, 48));
 
         res.sendStatus(200);
     } catch (error) {
@@ -210,6 +212,7 @@ async function credFinaliza(req, res) {
         const valorPedido = req.body[11].valor;
         const respostaAnalise = req.body[12].respostaAnalise;
         const obsResposta = req.body[13].obsResposta;
+        const novoLimite = req.body[14].novo_limite;
 
         const emailVendApi = await axios.get(process.env.APITOTVS + `CONSULTA_SA3/unico?codigo=${vendCod}`, {
             auth: {
@@ -241,7 +244,7 @@ async function credFinaliza(req, res) {
                     );
                 };
 
-                await financeiroModel.credFinaliza(req.body[0].result, Math.abs(diferenca + limite), respostaAnalise, obsResposta, id);
+                await financeiroModel.credFinaliza(req.body[0].result, novoLimite, respostaAnalise, obsResposta, id);
 
             }else if(req.body[0].result == 'PARCIAL'){
                 const valor_adiant = (valorPedido * porcentagem) / 100;
