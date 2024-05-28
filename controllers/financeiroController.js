@@ -8,8 +8,9 @@ const { adicionarHorasUteis } = require('../utils/businessHours');
 async function analiseDeCredito(req, res) {
     try {
         const orcamento = req.query.orcamento ? req.query.orcamento : '';
+        const cliente = req.query.cliente ? req.query.cliente : '';
 
-        res.json(await financeiroModel.analiseDeCredito(orcamento));
+        res.json(await financeiroModel.analiseDeCredito(orcamento, cliente));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -19,8 +20,9 @@ async function analiseDeCredito(req, res) {
 async function analiseDeCreditoArquivadas(req, res) {
     try {
         const orcamento = req.query.orcamento ? req.query.orcamento : '';
+        const cliente = req.query.cliente ? req.query.cliente : '';
 
-        res.json(await financeiroModel.analiseDeCreditoArquivadas(orcamento));
+        res.json(await financeiroModel.analiseDeCreditoArquivadas(orcamento, cliente));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
