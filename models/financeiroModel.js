@@ -26,7 +26,45 @@ const analiseDeCredito = async (orcamento) => {
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 0 AND NUMERO_PEDIDO LIKE '%${orcamento}%'`);
+      const [rows] = await conn.query(`
+              SELECT DISTINCT ac.NUMERO_PEDIDO, 
+              ac.ID, 
+              ac.DATA_SOLICIT, 
+              ac.LEGENDA, 
+              ac.FILIAL, 
+              ac.LOJA, 
+              ac.COD_CLIENTE, 
+              ac.CLIENTE, 
+              ac.LOJA_ENTREGA, 
+              ac.VALOR_PEDIDO, 
+              ac.LIMITE_ATUAL, 
+              ac.VENDEDOR, 
+              ac.PERCENTUAL_ADIANT, 
+              ac.VALOR_ADIANT, 
+              ac.USUARIO_RESPOSTA, 
+              ac.DATA_RESP, 
+              ac.STATUS_CLI, 
+              ac.RESPONSAVEL_APROV, 
+              ac.DT_SOLICIT_DOCUMENTO, 
+              ac.DATA_DOC_OK, 
+              ac.FLAG_DOC_OK, 
+              ac.OBS_CADASTRO, 
+              ac.MONITORAR, 
+              ac.RESULTADO_ANALISE, 
+              ac.OBS_RESPOSTA, 
+              ac.PRAZO_RESPOSTA, 
+              ac.EMAIL_CLIENTE, 
+              ac.EMAIL_VENDEDOR, 
+              ac.HORA_SOLICIT, 
+              ac.NOVO_LIMITE, 
+              ac.RESPOSTA_ANALISE, 
+              ac.ARQUIVA, 
+              ac.ARQUIVADO
+        FROM ANALISE_CREDITO ac 
+        WHERE ac.ARQUIVADO = 0 AND NUMERO_PEDIDO LIKE '%${orcamento}%' 
+        ORDER BY ac.PRAZO_RESPOSTA ASC, ac.DATA_SOLICIT ASC
+        `
+      );
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);
@@ -42,7 +80,44 @@ const analiseDeCredito = async (orcamento) => {
     let conn;
     try {
       conn = await connect();
-      const [rows] = await conn.query(`SELECT * FROM ANALISE_CREDITO WHERE ARQUIVADO = 1 AND NUMERO_PEDIDO LIKE '%${orcamento}%'`);
+      const [rows] = await conn.query(`
+            SELECT DISTINCT ac.NUMERO_PEDIDO, 
+            ac.ID, 
+            ac.DATA_SOLICIT, 
+            ac.LEGENDA, 
+            ac.FILIAL, 
+            ac.LOJA, 
+            ac.COD_CLIENTE, 
+            ac.CLIENTE, 
+            ac.LOJA_ENTREGA, 
+            ac.VALOR_PEDIDO, 
+            ac.LIMITE_ATUAL, 
+            ac.VENDEDOR, 
+            ac.PERCENTUAL_ADIANT, 
+            ac.VALOR_ADIANT, 
+            ac.USUARIO_RESPOSTA, 
+            ac.DATA_RESP, 
+            ac.STATUS_CLI, 
+            ac.RESPONSAVEL_APROV, 
+            ac.DT_SOLICIT_DOCUMENTO, 
+            ac.DATA_DOC_OK, 
+            ac.FLAG_DOC_OK, 
+            ac.OBS_CADASTRO, 
+            ac.MONITORAR, 
+            ac.RESULTADO_ANALISE, 
+            ac.OBS_RESPOSTA, 
+            ac.PRAZO_RESPOSTA, 
+            ac.EMAIL_CLIENTE, 
+            ac.EMAIL_VENDEDOR, 
+            ac.HORA_SOLICIT, 
+            ac.NOVO_LIMITE, 
+            ac.RESPOSTA_ANALISE, 
+            ac.ARQUIVA, 
+            ac.ARQUIVADO
+      FROM ANALISE_CREDITO ac 
+      WHERE ac.ARQUIVADO = 1 AND NUMERO_PEDIDO LIKE '%${orcamento}%' 
+      ORDER BY ac.PRAZO_RESPOSTA ASC, ac.DATA_SOLICIT ASC
+      `);
       return rows;
     } catch (error) {
       console.error('Erro ao executar a consulta:', error);
