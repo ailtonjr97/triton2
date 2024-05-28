@@ -646,6 +646,16 @@ router.get("/sa3/pesquisa", async(req, res)=>{
     }
 });
 
+router.get("/itens", async(req, res)=>{
+    try {
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SC6/unico?filial=${req.query.filial}&num=${req.query.numero}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.json(response.data.objects)
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500);
+    }
+});
+
 router.get("/track_order/get_all", async(req, res)=>{
     try {
         const filterArray = (array, fields, value) => {
@@ -711,9 +721,7 @@ router.get("/track_order/get_all", async(req, res)=>{
                 {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
             }
         }
- 
-        const sc6 = await axios.get(process.env.APITOTVS + `CONSULTA_SC6/get_track`,
-        {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+
 
         sc5.data.objects.forEach(response => {
             values.push({
@@ -749,16 +757,6 @@ router.get("/track_order/get_all", async(req, res)=>{
             })
         });
 
-        values.forEach(element => {
-            let filtrado = filterArray(sc6.data.objects, 'C6_NUM', element.C5_NUM)
-            filtrado = filterArray(filtrado, 'C6_FILIAL', element.C5_FILIAL)
-            filtrado = filterArray(filtrado, 'R_E_C_D_E_L_', 0)
-            element.itens.push(
-                filtrado
-            )
-        });
-
-        values = values.filter(item => item.R_E_C_D_E_L_ != item.R_E_C_N_O_)
         res.json(values);
     } catch (error) {
         console.log(error)
