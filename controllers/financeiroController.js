@@ -349,8 +349,12 @@ async function parcelas(req, res) {
 
         res.send(resposta);
     } catch (error) {
-        console.error('Erro ao consultar parcelas:', error.message);
-        res.status(500).send({ error: 'Erro interno do servidor.' });
+        if(error.response.data.errorId == 'ALL003'){
+            res.status(404).send({ error: 'Parcelas não encontradas.' });
+        }else{
+            console.error('Erro ao consultar parcelas:', error.message);
+            res.status(500).send({ error: 'Erro interno do servidor.' });
+        }
     }
 }
 
