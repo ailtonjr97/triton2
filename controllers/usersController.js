@@ -119,4 +119,13 @@ router.get("/password-reset/:id", async(req, res)=>{
     }
 })
 
+router.get("/buscar-por-setor/:setor", async(req, res)=>{
+    try {
+        res.send(await Users.setores(req.params.setor))
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+})
+
 module.exports = router;

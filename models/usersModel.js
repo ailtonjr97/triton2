@@ -122,6 +122,13 @@ let getUserJwt = async(email)=>{
     return rows;
 }
 
+let setores = async(setor)=>{
+    const conn = await connect();
+    const [rows] = await conn.query('select * from users u where setor = ?', [setor])
+    conn.end()
+    return rows;
+}
+
 module.exports = {
     all,
     register,
@@ -135,5 +142,6 @@ module.exports = {
     emailCheck,
     passwordReturn,
     getUserJwt,
-    alterPassword
+    alterPassword,
+    setores
 };
