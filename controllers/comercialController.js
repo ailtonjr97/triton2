@@ -749,7 +749,8 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_XHEXPED: response.C5_XHEXPED,
                 C5_XNEXPED: response.C5_XNEXPED,
                 C5_CLIENTE: response.C5_CLIENTE,    
-                C5_XPEDTR: response.C5_XPEDTR,  
+                C5_XPEDTR: response.C5_XPEDTR, 
+                C5_NOTA: response.C5_NOTA,                 
                 C5_VEND1: response.C5_VEND1,                           
                 C5_FECENT: formatDate (response.C5_FECENT),
                 itens: [
