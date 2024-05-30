@@ -169,7 +169,7 @@ async function sendDocumentRequestEmail(req, res) {
 
         const checkEmail = JSON.parse(req.query.checkemail.toLowerCase());
         if(!checkEmail){
-            await sendEmailCadastro('informatica04@fibracem.com', 'Requisição de Documentos.', emailContent);
+            await sendEmailCadastro(req.query.email, 'Requisição de Documentos.', emailContent);
             await financeiroModel.solicitCliente(req.query.id, formatDateToMySQL(now));
         }else{
             await financeiroModel.solicitCliente(req.query.id, formatDateToMySQL(now));
