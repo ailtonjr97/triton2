@@ -2,6 +2,7 @@ const financeiroModel = require('../models/financeiroModel');
 const axios = require('axios');
 const { formatDateToMySQL, formatCurrentDateTimeForMySQL } = require('../utils/dateUtils');
 const { sendEmail } = require('../services/emailService');
+const { sendEmailCadastro } = require('../services/emailServiceCadastro');
 const { formatarParaMoedaBrasileira } = require('../utils/formatarParaMoedaBrasileira');
 const { adicionarHorasUteis } = require('../utils/businessHours');
 
@@ -166,7 +167,7 @@ async function sendDocumentRequestEmail(req, res) {
             Tel: 3661-2585  
         `;
 
-        await sendEmail(req.query.email, 'Requisição de Documentos.', emailContent);
+        await sendEmailCadastro(req.query.email, 'Requisição de Documentos.', emailContent);
         await financeiroModel.solicitCliente(req.query.id, formatDateToMySQL(now));
         
         res.sendStatus(200);
@@ -183,7 +184,7 @@ async function docOk(req, res) {
         const recipient = req.query.valor <= 20000.00 ? 'aux.adm@fibracem.com' : 'financeiro@fibracem.com';
         const approver = req.query.valor <= 20000.00 ? 'Natali Evelin Peres Pereira' : 'Kesley Machado';
 
-        await sendEmail(
+        await sendEmailCadastro(
             recipient,
             'Requisição de Documentos.',
             `Você tem uma nova solicitação de análise de crédito. ID ${req.query.id}.`
@@ -231,7 +232,7 @@ async function credFinaliza(req, res) {
 
             if(req.body[0].result == 'APROVADO'){
                 if(checkEmailCli){
-                    await sendEmail(
+                    await sendEmailCadastro(
                         emailCli,
                         'Crédito liberado',
                         `Olá. Informamos que após análise financeira o orçamento ${numPedido} foi liberado para faturamento.`
@@ -239,7 +240,7 @@ async function credFinaliza(req, res) {
                 };
     
                 if(checkEmailVend){
-                    await sendEmail(
+                    await sendEmailCadastro(
                         emailVend,
                         'Crédito liberado',
                         `Olá. Informamos que após análise financeira o orçamento ${numPedido} da filial ${filial} foi liberado para faturamento.`
@@ -251,7 +252,7 @@ async function credFinaliza(req, res) {
             }else if(req.body[0].result == 'PARCIAL'){
                 const valor_adiant = (valorPedido * porcentagem) / 100;
                 if(checkEmailCli){
-                    await sendEmail(
+                    await sendEmailCadastro(
                         emailCli,
                         'Crédito liberado parcialmente',
                         `Informamos que, após avaliação financeira para o orçamento ${numPedido} no valor aproximado de R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que ${porcentagem}% deste valor deverá ser antecipado, ficando o restante para faturamento a prazo.`
@@ -259,7 +260,7 @@ async function credFinaliza(req, res) {
                 };
     
                 if(checkEmailVend){
-                    await sendEmail(
+                    await sendEmailCadastro(
                         emailVend,
                         'Crédito liberado parcialmente',
                         `Informamos que, após avaliação financeira para o orçamento ${numPedido} da filial ${filial} no valor aproximado de R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que ${porcentagem}% deste valor deverá ser antecipado, ficando o restante para faturamento a prazo.`
@@ -270,7 +271,7 @@ async function credFinaliza(req, res) {
             }
         }else{
             if(checkEmailCli){
-                await sendEmail(
+                await sendEmailCadastro(
                     emailCli,
                     'Liberação de crédito reprovada',
                     `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `
@@ -278,7 +279,7 @@ async function credFinaliza(req, res) {
             }
 
             if(checkEmailVend){
-                await sendEmail(
+                await sendEmailCadastro(
                     emailVend,
                     'Liberação de crédito reprovada',
                     `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `

@@ -38,7 +38,7 @@ app.use("/chamados", cors(corsOptions), authenticationMiddleware, chamados);
 app.use("/korp", cors(corsOptions), authenticationMiddleware, korp);
 app.use("/engenharia", cors(corsOptions), authenticationMiddleware, engenharia);
 app.use("/totvs", cors(corsOptions), authenticationMiddlewareApi, totvs);
-app.use("/nf", cors(corsOptions),  nf);
+app.use("/nf", cors(corsOptions),  authenticationMiddleware, nf);
 app.use("/comercial", cors(corsOptions), authenticationMiddleware, comercial);
 app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRoutes);
 app.use("/credito", cors(corsOptions),  credito);
