@@ -787,7 +787,8 @@ router.get("/track_order/update_c6xsepcd/:filial/:num/:item/:produto/:logado", a
         const hoje = dd + '/' + mm + '/' + yyyy;
         const hora = hour + ':' + minutes
         let horarioAtual = hoje + ' ' + hora
-        await axios.put(process.env.APITOTVS + `CONSULTA_SC6/update_xsepcd?filial=${req.params.filial}&num=${req.params.num}&item=${req.params.item}&produto=${req.params.produto}&hora=${horarioAtual}&logado=${req.params.logado}`, '',
+
+        await axios.put(process.env.APITOTVS + `CONSULTA_SC6/update_xsepcd?filial=${req.params.filial}&num=${req.params.num}&item=${req.params.item}&produto=${req.params.produto}&hora=${horarioAtual}&logado=${req.params.logado}&marcado=${req.query.marcado}`, '',
         {
             auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}, 
         });
@@ -799,6 +800,13 @@ router.get("/track_order/update_c6xsepcd/:filial/:num/:item/:produto/:logado", a
         listSepcd.data.objects.forEach(e => {
             values.push(e.C6_XSEPCD)
         });
+
+        if(req.query.marcado == 'true'){
+            await axios.put(process.env.APITOTVS + `CONSULTA_SC5/update_campo?filial=${req.params.filial}&num=${req.params.num}&campo=C5_XSEPCD&booleano=F&logado=${req.params.logado}&campo_logado=C5_XNSEPCD&hora=${horarioAtual}&campo_hora=C5_XHSEPCD`, '',
+            {
+                auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS},
+            });
+        }
 
         if(!values.includes(false)){
             await axios.put(process.env.APITOTVS + `CONSULTA_SC5/update_campo?filial=${req.params.filial}&num=${req.params.num}&campo=C5_XSEPCD&booleano=T&logado=${req.params.logado}&campo_logado=C5_XNSEPCD&hora=${horarioAtual}&campo_hora=C5_XHSEPCD`, '',
