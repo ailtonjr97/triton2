@@ -706,18 +706,18 @@ router.get("/track_order/get_all", async(req, res)=>{
 
         if(!req.query.pcampo || req.query.pcampo == 'undefined'){
             if(!req.query.data_ent){
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}`,
+                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&cliente=${req.query.clientenome}`,
                 {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
             }else{
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}`,
+                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}&cliente=${req.query.clientenome}`,
                 {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
             }
         }else{
             if(!req.query.data_ent){
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/filtro_trck?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}`,
+                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/filtro_trck?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}&cliente=${req.query.clientenome}`,
                 {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
             }else{
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/filtro_trck?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}`,
+                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/filtro_trck?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}&cliente=${req.query.clientenome}`,
                 {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
             }
         }
@@ -751,7 +751,8 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_CLIENTE: response.C5_CLIENTE,    
                 C5_XPEDTR: response.C5_XPEDTR, 
                 C5_NOTA: response.C5_NOTA,                 
-                C5_VEND1: response.C5_VEND1,                           
+                C5_VEND1: response.C5_VEND1,
+                A1_NOME: response.A1_NOME,                           
                 C5_FECENT: formatDate (response.C5_FECENT),
                 itens: [
                 ]
