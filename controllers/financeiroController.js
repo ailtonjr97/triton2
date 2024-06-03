@@ -364,6 +364,41 @@ async function parcelas(req, res) {
     }
 }
 
+async function nfcte(req, res) {
+    try {
+        const numero = !req.query.numero ? ''  : req.query.numero;
+
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SF2/grid?numero=${numero}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const items = [];
+
+        response.data.objects.forEach(element => {
+            items.push({
+                F2_DOC:     element.F2_DOC,
+                F2_SERIE:   element.F2_SERIE,
+                F2_FRETE:   formatarParaMoedaBrasileira(element.F2_FRETE),
+                F2_ICMFRET: formatarParaMoedaBrasileira(element.F2_ICMFRET),
+                C5_NUM:     element.C5_NUM,
+                C5_FRETE:   formatarParaMoedaBrasileira(element.C5_FRETE),
+                R_E_C_N_O_: element.R_E_C_N_O_
+            })
+        });
+
+        res.json(items);
+    } catch (error) {
+        if(error.response.status == 404){
+            res.sendStatus(404)
+        }else{
+            res.sendStatus(500); 
+        }
+    }
+}
+
 module.exports = { 
     analiseDeCredito, 
     atualizaPropostaDeFrete, 
@@ -374,5 +409,6 @@ module.exports = {
     credFinaliza,
     arquivar,
     analiseDeCreditoArquivadas,
-    parcelas
+    parcelas,
+    nfcte
 };
