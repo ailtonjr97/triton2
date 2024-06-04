@@ -59,16 +59,7 @@ const analiseDeCreditoArquivadas = async (orcamento, cliente) => {
   try {
     conn = await connect();
     const query = `
-      SELECT * 
-      FROM ANALISE_CREDITO ac
-      WHERE ac.id IN (
-        SELECT MAX(sub_ac.ID) as id
-        FROM ANALISE_CREDITO sub_ac
-        GROUP BY sub_ac.NUMERO_PEDIDO
-      ) and ac.ARQUIVADO = 1 
-      AND ac.NUMERO_PEDIDO LIKE ? 
-      AND ac.CLIENTE LIKE ?
-    `;
+      SELECT * FROM ANALISE_CREDITO ac WHERE ac.ARQUIVADO = 1 AND ac.NUMERO_PEDIDO LIKE ? AND ac.CLIENTE LIKE ? ORDER BY ID DESC LIMIT 100`;
     const [rows] = await conn.query(query, [`%${orcamento}%`, `%${cliente}%`]);
     return rows;
   } catch (error) {
