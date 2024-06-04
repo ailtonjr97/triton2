@@ -29,6 +29,11 @@ function formatCurrentDateTimeForMySQL() {
     // Formata a data e hora no padrão desejado
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
+
+  function convertDateFormat(dateString) {
+    const [year, month, day] = dateString.split('/');
+    return `${day}/${month}/${year}`;
+}
   
 
-module.exports = { formatDateToMySQL, formatDate, formatCurrentDateTimeForMySQL};
+module.exports = { formatDateToMySQL, formatDate, formatCurrentDateTimeForMySQL, convertDateFormat};

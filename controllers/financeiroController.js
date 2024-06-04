@@ -204,6 +204,16 @@ async function docOk(req, res) {
     }
 };
 
+async function trocaResp(req, res) {
+    try {
+        await financeiroModel.trocaResp(req.query.id, req.query.resp);
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function credFinaliza(req, res) {
     try {
         const emailCli = req.body[6].emailCli;
@@ -410,5 +420,6 @@ module.exports = {
     arquivar,
     analiseDeCreditoArquivadas,
     parcelas,
-    nfcte
+    nfcte,
+    trocaResp
 };

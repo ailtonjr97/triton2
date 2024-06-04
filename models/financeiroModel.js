@@ -134,6 +134,23 @@ const analiseDeCreditoArquivadas = async (orcamento, cliente) => {
     }
   };
 
+  const trocaResp = async (id, resp) => {
+    const query = `UPDATE ANALISE_CREDITO SET RESPONSAVEL_APROV = ? WHERE ID = ?`;
+    let conn;
+    try {
+      conn = await connect();
+      const [rows] = await conn.execute(query, [resp, id]);
+      return rows;
+    } catch (error) {
+      console.error('Erro ao executar a consulta:', error);
+      throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+      if (conn) {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      }
+    }
+  };
+
 const credFinaliza  = async (resultado_analise, limite_atual, respostaAnalise, obsResposta, id) => {
     const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, NOVO_LIMITE = ?, RESPOSTA_ANALISE = ?, OBS_RESPOSTA = ? WHERE ID = ?`;
 
@@ -234,5 +251,6 @@ module.exports = {
     credFinalizaReprov,
     credFinalizaData,
     arquivar,
-    analiseDeCreditoArquivadas
+    analiseDeCreditoArquivadas,
+    trocaResp
 };

@@ -11,7 +11,8 @@ const {
     arquivar,
     analiseDeCreditoArquivadas,
     parcelas,
-    nfcte
+    nfcte,
+    trocaResp
 } = require('../controllers/financeiroController');
 
 router.get("/analise-de-credito", analiseDeCredito);
@@ -25,5 +26,6 @@ router.get("/parcelas", parcelas);
 router.post("/cred-finaliza", credFinaliza);
 router.post("/arquivar", arquivar);
 router.get("/nfcte", nfcte);
+router.get("/troca_resp", trocaResp);
 
 module.exports = router;

@@ -8,6 +8,7 @@ const PDFKit = require('pdfkit');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
+const {convertDateFormat} = require('../utils/dateUtils.js')
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -722,7 +723,6 @@ router.get("/track_order/get_all", async(req, res)=>{
             }
         }
 
-
         sc5.data.objects.forEach(response => {
             values.push({
                 C5_LOJACLI: response.C5_LOJACLI,
@@ -739,6 +739,9 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_XLIBFAT: response.C5_XLIBFAT,
                 C5_XHLIBFA: response.C5_XHLIBFA,
                 C5_XNLIBFA: response.C5_XNLIBFA,
+                C5_XRETFIS: response.C5_XRETFIS,
+                C5_XHRETFI: response.C5_XHRETFI,
+                C5_XNRETFI: response.C5_XNRETFI,
                 C5_XFATURD: response.C5_XFATURD,
                 C5_XHFATUR: response.C5_XHFATUR,
                 C5_XNFATUR: response.C5_XNFATUR,
@@ -945,5 +948,85 @@ router.post("/log", async(req, res)=>{
         res.sendStatus(404)
     }
 });
+
+router.get("/orcamentos", async(req, res)=>{
+    try {
+        const filial   = !req.query.filial   ? ''  : req.query.filial;
+        const numero   = !req.query.numero   ? ''  : req.query.numero;
+        const cliente  = !req.query.cliente  ? ''  : req.query.cliente;
+        const vendedor = !req.query.vendedor ? '' : req.query.vendedor;
+
+        const response = await axios.get(`${process.env.APITOTVS}MODULO_ORC/grid?filial=${filial}&numero=${numero}&cliente=${cliente}&vendedor=${vendedor}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const items = []
+
+        response.data.objects.forEach(e => {
+            items.push({
+                CJ_FILIAL:  e.CJ_FILIAL,
+                CJ_NUM:     e.CJ_NUM,
+                CJ_CLIENTE: e.CJ_CLIENTE,
+                CJ_LOJA:    e.CJ_LOJA,
+                A1_NOME:    e.A1_NOME.trimEnd(),
+                A3_NOME:    e.A3_NOME.trimEnd(),
+                R_E_C_N_O_: e.R_E_C_N_O_
+                
+            })
+        });
+
+        res.json(items);
+    } catch (error) {
+        res.sendStatus(error.response.status)
+        console.log(error)
+    }
+})
+
+router.get("/orcamento-info", async(req, res)=>{
+    try {
+        const filial  = !req.query.filial  ? '' : req.query.filial;
+        const numero  = !req.query.numero  ? '' : req.query.numero;
+        const cliente = !req.query.cliente ? '' : req.query.cliente;
+        const loja    = !req.query.loja    ? '' : req.query.loja;
+
+        const response = await axios.get(`${process.env.APITOTVS}MODULO_ORC/unico?filial=${filial}&numero=${numero}&cliente=${cliente}&loja=${loja}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const apiObject = response.data.objects[0]
+
+        res.json({
+            CJ_FILIAL:  apiObject.CJ_FILIAL,
+            CJ_NUM:     apiObject.CJ_NUM,
+            CJ_EMISSAO: convertDateFormat(apiObject.CJ_EMISSAO),
+            CJ_CLIENTE: apiObject.CJ_CLIENTE,
+            CJ_LOJA:    apiObject.CJ_LOJA
+        });
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+})
+
+router.get("/cliente-info", async(req, res)=>{
+    try {
+        const cliente    = !req.query.cliente  ? '' : req.query.cliente;
+        const loja       = !req.query.loja     ? '' : req.query.loja;
+        const filial     = !req.query.filial   ? '' : req.query.filial;
+
+        console.log([cliente, loja, filial])
+
+        res.sendStatus(200)
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+})
 
 module.exports = router;
