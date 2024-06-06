@@ -409,6 +409,37 @@ async function nfcte(req, res) {
     }
 }
 
+async function nfcteEntrada(req, res) {
+    try {
+        const numero = !req.query.numero ? ''  : req.query.numero;
+
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SF1/grid?numero=${numero}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const items = [];
+
+        response.data.objects.forEach(element => {
+            items.push({
+                F1_DOC:     element.F1_DOC,
+                F1_FRETE:   formatarParaMoedaBrasileira(element.F1_FRETE),
+                R_E_C_N_O_: element.R_E_C_N_O_
+            })
+        });
+
+        res.json(items);
+    } catch (error) {
+        if(error.response.status == 404){
+            res.sendStatus(404)
+        }else{
+            res.sendStatus(500); 
+        }
+    }
+}
+
 module.exports = { 
     analiseDeCredito, 
     atualizaPropostaDeFrete, 
@@ -421,5 +452,6 @@ module.exports = {
     analiseDeCreditoArquivadas,
     parcelas,
     nfcte,
+    nfcteEntrada,
     trocaResp
 };
