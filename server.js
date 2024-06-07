@@ -42,6 +42,7 @@ app.use("/nf", cors(corsOptions),  authenticationMiddleware, nf);
 app.use("/comercial", cors(corsOptions), authenticationMiddleware, comercial);
 app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRoutes);
 app.use("/credito", cors(corsOptions),  credito);
+app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/files", cors(corsOptions), files);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareApi, consulta);
 

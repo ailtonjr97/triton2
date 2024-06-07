@@ -9,6 +9,7 @@ const axios = require('axios');
 const nodemailer = require('nodemailer');
 const moment = require('moment');
 const {convertDateFormat} = require('../utils/dateUtils.js')
+const {formatarParaMoedaBrasileira} = require('../utils/formatarParaMoedaBrasileira.js')
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -1007,7 +1008,16 @@ router.get("/orcamento-info", async(req, res)=>{
             CJ_NUM:     apiObject.CJ_NUM,
             CJ_EMISSAO: convertDateFormat(apiObject.CJ_EMISSAO),
             CJ_CLIENTE: apiObject.CJ_CLIENTE,
-            CJ_LOJA:    apiObject.CJ_LOJA
+            CJ_LOJA:    apiObject.CJ_LOJA,
+            CJ_CLIENT:  apiObject.CJ_CLIENT,
+            CJ_LOJAENT: apiObject.CJ_LOJAENT,
+            CJ_CONDPAG: apiObject.CJ_CONDPAG,
+            CJ_TABELA:  apiObject.CJ_TABELA,
+            CJ_TPFRETE: apiObject.CJ_TPFRETE,
+            CJ_XREDESP: apiObject.CJ_XREDESP,
+            CJ_XVEND1:  apiObject.CJ_XVEND1,
+            CJ_TIPLIB:  apiObject.CJ_TIPLIB,
+            CJ_XESTADO: apiObject.CJ_XESTADO,
         });
     } catch (error) {
         console.log(error);
@@ -1015,15 +1025,36 @@ router.get("/orcamento-info", async(req, res)=>{
     }
 })
 
-router.get("/cliente-info", async(req, res)=>{
+router.get("/orcamento-items", async(req, res)=>{
     try {
-        const cliente    = !req.query.cliente  ? '' : req.query.cliente;
-        const loja       = !req.query.loja     ? '' : req.query.loja;
-        const filial     = !req.query.filial   ? '' : req.query.filial;
+        const filial  = !req.query.filial  ? '' : req.query.filial;
+        const numero  = !req.query.numero  ? '' : req.query.numero;
 
-        console.log([cliente, loja, filial])
+        const response = await axios.get(`${process.env.APITOTVS}MODULO_ORC/items?numero=${numero}&filial=${filial}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
 
-        res.sendStatus(200)
+        const items = [];
+
+        response.data.objects.forEach(element => {
+            items.push({
+                CJ_FILIAL:  element.CJ_FILIAL,
+                CK_ITEM:    element.CK_ITEM,
+                CK_PRODUTO: element.CK_PRODUTO.trimEnd(),
+                CK_UM:      element.CK_UM,
+                CK_QTDVEN:  element.CK_QTDVEN,
+                CK_PRCVEN:  formatarParaMoedaBrasileira(element.CK_PRCVEN),
+                CK_VALOR:   formatarParaMoedaBrasileira(element.CK_VALOR),
+                CK_DESCRI:  element.CK_DESCRI,
+                CK_NUM:     element.CK_NUM,
+            })
+        });
+
+        res.json(items);
+
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
