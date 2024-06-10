@@ -5,7 +5,8 @@ const {
     cliente,
     vendedor,
     condicaoDePagamento,
-    tabelaDePreco
+    tabelaDePreco,
+    transportadora
 } = require('../controllers/consultasController.js');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -15,6 +16,7 @@ router.get("/sbf-get-all", sbfGetAll);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);
+router.get("/transportadora", transportadora);
 router.get("/cond-pag", condicaoDePagamento);
 router.get("/tab-preco", tabelaDePreco);
 module.exports = router;

@@ -102,9 +102,37 @@ async function vendedor(req, res) {
     }
 }
 
+async function transportadora(req, res) {
+    try {
+
+        let {filial, codigo} = req.query
+
+        filial = filial.substring(0, 4) //Filial com somente 4 digitos.
+
+        const response = await axios.get(`${process.env.APITOTVS}PADRAO_SA4/one`, {
+            params: {filial, codigo},
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+        
+        const item = response.data.objects[0]
+
+        res.json({
+            0:  item.A4_COD,
+            1:  item.A4_NOME.trimEnd(),
+        })
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(error.response?.status || 500);
+    }
+}
+
 module.exports = { 
     cliente,
     condicaoDePagamento,
     tabelaDePreco,
-    vendedor
+    vendedor,
+    transportadora
 };
