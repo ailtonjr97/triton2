@@ -22,6 +22,29 @@ async function connect(){
 
 connect();
 
+const vendedor = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            SELECT pf.id as idpf, pf.valor as valor, u.email as email, pf.pedido as pedido, pf.cliente, pf.loja_cliente FROM proposta_frete pf
+            inner join users u on pf.cotador_id = u.intranet_id
+            where pf.id = ?
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+
 const preparaArquivaFrete = async(pedido, revisao)=>{
     const conn = await connect();
     await conn.query(`
@@ -44,7 +67,7 @@ const arquivaFrete = async(id)=>{
 
 const all = async(setor, designado)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 1 order by id`);
+    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 1 order by id limit 300`);
     conn.end();
     return rows;
 };
@@ -191,5 +214,6 @@ module.exports = {
     preparaArquivaFrete,
     allArquivadas,
     searchArquivadas,
-    insertLogSistema
+    insertLogSistema,
+    vendedor
 };

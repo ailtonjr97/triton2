@@ -10,6 +10,7 @@ const nodemailer = require('nodemailer');
 const moment = require('moment');
 const {convertDateFormat, convertDateForInput} = require('../utils/dateUtils.js')
 const {formatarParaMoedaBrasileira} = require('../utils/formatarParaMoedaBrasileira.js')
+const { sendEmail } = require('../services/emailService');
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -256,6 +257,24 @@ router.post("/proposta-de-frete/:id", async(req, res)=>{
         }
 
         await comercialModel.freteUpdate(req.body, req.params.id, today, valorMaisImposto);
+        const vendedor = await comercialModel.vendedor(req.params.id);
+
+        const id   = vendedor[0].cliente;
+        const loja = vendedor[0].loja_cliente;
+
+        const cliente = await axios.get(`${process.env.APITOTVS}CONSULTA_SA1/unico`, {
+            params: {id, loja},
+            auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+        });
+
+        const nomeCliente = cliente.data.objects[0].A1_NOME.trimEnd();
+
+        await sendEmail(
+            vendedor[0].email,
+            'Cotação de frete',
+            `Cotado o orçamento ${vendedor[0].pedido} do cliente ${nomeCliente}.`
+        );
+
         res.sendStatus(200);
     } catch (error) {
         console.log(error);
