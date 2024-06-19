@@ -663,9 +663,7 @@ async function pdfNf(req, res) {
     try {
         const { chave } = req.query;
         const puppeteer = require('puppeteer');
-        const browser = await puppeteer.launch({
-            args: ['--no-sandbox'],
-        });
+        const browser = await puppeteer.launch({args: ['--disable-setuid-sandbox', '--no-sandbox']});
         const page = await browser.newPage();
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
     
