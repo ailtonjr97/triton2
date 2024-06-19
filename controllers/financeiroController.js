@@ -713,11 +713,10 @@ async function pdfNf(req, res) {
         }
     
         // Baixar o PDF
-        const response = await fetch(pdfUrl);
-        const arrayBuffer = await response.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
+        const buffer = Buffer.from(response.data);
 
-        const storagePath = path.join(__dirname, 'storage');
+        const storagePath = path.join(__dirname, 'storage', 'nf');
         await fs.mkdir(storagePath, { recursive: true });
 
         await fs.writeFile(`./storage/nf/${chave}.pdf`, buffer);
