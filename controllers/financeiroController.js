@@ -8,7 +8,8 @@ const { adicionarHorasUteis } = require('../utils/businessHours');
 const fs = require('fs').promises;
 const xml2js = require('xml2js');
 const Client = require('ssh2-sftp-client');
-const {formatCurrency} = require('../utils/protheus')
+const {formatCurrency} = require('../utils/protheus');
+const path = require('path');
 
 async function analiseDeCredito(req, res) {
     try {
@@ -639,6 +640,102 @@ async function arquivaCte(req, res) {
     }
 }
 
+async function pdfNf(req, res) {
+    const {numero = ''} = req.query;
+
+    try {
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SF2/pdfnf`, {
+            params: {numero},
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        res.json(response.data.objects)
+    } catch (error) {
+        res.sendStatus(500)
+        console.error('Erro ao fazer a requisição:', error);
+    }
+  }
+
+  async function roboBusca(req, res) {
+    try {
+        const { chave } = req.query;
+        const puppeteer = require('puppeteer');
+        const browser = await puppeteer.launch({
+            args: ['--no-sandbox'],
+        });
+        const page = await browser.newPage();
+        const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+    
+        // Monitorar novas páginas
+        const [newPagePromise] = await Promise.all([
+          new Promise(resolve => browser.once('targetcreated', target => resolve(target.page()))),
+          // Navegar para a URL e preencher a chave
+          page.goto('https://meudanfe.com.br/').then(async () => {
+            await page.waitForSelector('input[placeholder="Digite a CHAVE DE ACESSO"]');
+            await page.type('input[placeholder="Digite a CHAVE DE ACESSO"]', chave);
+            await page.keyboard.press('Tab');
+            await delay(1000);
+            await page.keyboard.press('Enter');
+            await delay(1000);
+            await page.keyboard.press('Tab');
+            await page.keyboard.press('Tab');
+            await page.keyboard.press('Tab');
+            await page.keyboard.press('Enter');
+          })
+        ]);
+    
+        const newPage = await newPagePromise;
+    
+        // Esperar a nova página carregar completamente
+        await newPage.waitForSelector('embed, iframe, object', { timeout: 30000 });
+    
+        // Capturar a URL do PDF
+        const pdfUrl = await newPage.evaluate(() => {
+          const embed = document.querySelector('embed');
+          if (embed && embed.src) {
+            return embed.src;
+          }
+          const iframe = document.querySelector('iframe');
+          if (iframe && iframe.src) {
+            return iframe.src;
+          }
+          const object = document.querySelector('object');
+          if (object && object.data) {
+            return object.data;
+          }
+          return null;
+        });
+    
+        if (!pdfUrl) {
+          await browser.close();
+          return res.status(500).send('Não foi possível encontrar o PDF.');
+        }
+    
+        // Baixar o PDF
+        const response = await fetch(pdfUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const storagePath = path.join(__dirname, 'storage');
+        await fs.mkdir(storagePath, { recursive: true });
+
+        await fs.writeFile(`./storage/nf/${chave}.pdf`, buffer);
+
+        await browser.close();
+
+        await delay(1000);
+
+        res.download(path.join(__dirname, '../storage/nf', `${chave}.pdf`));
+
+    } catch (error) {
+        res.sendStatus(500)
+        console.error(error);
+    }
+  }
+
 module.exports = { 
     analiseDeCredito, 
     atualizaPropostaDeFrete, 
@@ -655,5 +752,7 @@ module.exports = {
     trocaResp,
     refreshCte,
     gridCte,
-    arquivaCte
+    arquivaCte,
+    pdfNf,
+    roboBusca
 };

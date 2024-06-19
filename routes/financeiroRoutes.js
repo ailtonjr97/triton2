@@ -16,7 +16,9 @@ const {
     trocaResp,
     gridCte,
     refreshCte,
-    arquivaCte
+    arquivaCte,
+    pdfNf,
+    roboBusca
 } = require('../controllers/financeiroController');
 
 router.get("/analise-de-credito", analiseDeCredito);
@@ -35,5 +37,7 @@ router.get("/troca_resp", trocaResp);
 router.get("/grid", gridCte);
 router.get("/refresh-cte", refreshCte);
 router.put("/arquiva-cte", arquivaCte);
+router.get("/pdf-nf", pdfNf);
+router.get("/robo-busca", roboBusca);
 
 module.exports = router;
