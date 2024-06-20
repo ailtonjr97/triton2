@@ -654,8 +654,8 @@ async function pdfNf(req, res) {
 
         res.json(response.data.objects)
     } catch (error) {
-        res.sendStatus(500)
-        console.error('Erro ao fazer a requisição:', error);
+        console.log(error);
+        res.sendStatus(error.response?.status || 500);
     }
   }
 
