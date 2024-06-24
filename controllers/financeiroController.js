@@ -735,23 +735,11 @@ async function pdfNf(req, res) {
 
   async function guiaNf(req, res){
     try {
-        const {numero = ''} = req.query
+        const {numero = ''} = req.query;
 
-        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_SF2/guianf`, {
-            params: {numero},
-            auth: {
-                username: process.env.USERTOTVS,
-                password: process.env.SENHAPITOTVS
-            }
-        });
+        const guias = await financeiroModel.guiasNf(numero);
 
-        const notasFormat = notas.data.objects.map(e => ({
-            F2_FILIAL: e.F2_FILIAL,
-            F2_DOC:    e.F2_DOC,
-            A1_NOME:   e.A1_NOME.trimEnd()
-        }))
-
-        res.json(notasFormat)
+        res.json(guias)
 
     } catch (error) {
         res.sendStatus(500)

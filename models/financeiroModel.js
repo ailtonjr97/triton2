@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
+const { sql, connectToDatabase } = require('../services/dbConfig.js');
 
 async function connect(){
     const mysql = require("mysql2/promise");
@@ -301,6 +302,24 @@ const arquivaCteNf = async (id) => {
   }
 };
 
+const guiasNf = async (numero) => {
+  try {
+    // Certifique-se de que a conexão com o banco de dados está aberta
+    const pool = await connectToDatabase();
+    const request = pool.request();
+
+    const query = `SELECT TOP 100 * FROM GUIA_NF WHERE F2_DOC LIKE @numero`;
+    const result = await request
+      .input('numero', sql.NVarChar, `%${numero}%`)
+      .query(query);
+
+    return result.recordset;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  }
+};
+
 module.exports = {
     analiseDeCredito,
     documento,
@@ -315,5 +334,6 @@ module.exports = {
     trocaResp,
     gridCteNf,
     insertCteNf,
-    arquivaCteNf
+    arquivaCteNf,
+    guiasNf
 };

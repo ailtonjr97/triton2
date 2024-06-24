@@ -1,4 +1,3 @@
-// dbConfig.js
 const sql = require('mssql');
 
 const config = {
@@ -9,14 +8,21 @@ const config = {
     options: {
         encrypt: true, // Use this if you're on Windows Azure
         trustServerCertificate: true // Change to true for local dev / self-signed certs
-    }
+    },
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 1433 // Adicione a porta, se necessário
 };
+
+let pool;
 
 async function connectToDatabase() {
     try {
-        await sql.connect(config);
+        if (!pool) {
+            pool = await sql.connect(config);
+        }
+        return pool;
     } catch (err) {
         console.error('Failed to connect to SQL Server', err);
+        throw err;
     }
 }
 
