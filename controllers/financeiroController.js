@@ -1,6 +1,6 @@
 const financeiroModel = require('../models/financeiroModel');
 const axios = require('axios');
-const { formatDateToMySQL, formatCurrentDateTimeForMySQL } = require('../utils/dateUtils');
+const { formatDateToMySQL, formatCurrentDateTimeForMySQL, sqlServerDateTimeToString } = require('../utils/dateUtils');
 const { sendEmail } = require('../services/emailService');
 const { sendEmailCadastro } = require('../services/emailServiceCadastro');
 const { formatarParaMoedaBrasileira } = require('../utils/formatarParaMoedaBrasileira');
@@ -739,8 +739,27 @@ async function pdfNf(req, res) {
 
         const guias = await financeiroModel.guiasNf(numero);
 
-        res.json(guias)
+        const resposta = guias.map(e =>({
+            F2_FILIAL: e.F2_FILIAL,
+            F2_DOC: e.F2_DOC,
+            GUIA: e.GUIA,
+            GUIA_DATA: sqlServerDateTimeToString(e.GUIA_DATA),
+            PASTA: e.PASTA,
+            PASTA_DATA: sqlServerDateTimeToString(e.PASTA_DATA)
+        }))
 
+        res.json(resposta)
+
+    } catch (error) {
+        res.sendStatus(500)
+        console.error(error);
+    }
+  }
+
+  async function marcarGuia(req, res){
+    try {
+        await financeiroModel.marcarBox(req.body);
+        res.sendStatus(200);
     } catch (error) {
         res.sendStatus(500)
         console.error(error);
@@ -766,5 +785,6 @@ module.exports = {
     arquivaCte,
     pdfNf,
     roboBusca,
-    guiaNf
+    guiaNf,
+    marcarGuia
 };

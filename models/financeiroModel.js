@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 dotenv.config();
 const { sql, connectToDatabase } = require('../services/dbConfig.js');
+const { getCurrentDateTimeForSQLServer } = require('../utils/dateUtils');
 
 async function connect(){
     const mysql = require("mysql2/promise");
@@ -308,7 +309,7 @@ const guiasNf = async (numero) => {
     const pool = await connectToDatabase();
     const request = pool.request();
 
-    const query = `SELECT TOP 100 * FROM GUIA_NF WHERE F2_DOC LIKE @numero`;
+    const query = `SELECT TOP 100 * FROM GUIA_NF WHERE F2_DOC LIKE @numero ORDER BY ID DESC`;
     const result = await request
       .input('numero', sql.NVarChar, `%${numero}%`)
       .query(query);
@@ -316,6 +317,27 @@ const guiasNf = async (numero) => {
     return result.recordset;
   } catch (error) {
     console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  }
+};
+
+const marcarBox = async (body) => {
+  try {
+    // Certifique-se de que a conexão com o banco de dados está aberta
+    const pool = await connectToDatabase();
+    const request = pool.request();
+
+    // Construa a consulta dinamicamente
+    const query = `UPDATE GUIA_NF SET ${body.box} = 1, ${body.box}_DATA = @TIME WHERE F2_FILIAL = @FILIAL AND F2_DOC = @DOC`;
+    const result = await request
+      .input('TIME', sql.DateTime, getCurrentDateTimeForSQLServer())
+      .input('FILIAL', sql.VarChar, body.filial)
+      .input('DOC', sql.VarChar, body.doc)
+      .query(query);
+
+    return result.recordset;
+  } catch (error) {
+    console.error('Erro ao executar UPDATE:', error);
     throw error; // Propaga o erro para que o chamador possa tratá-lo
   }
 };
@@ -335,5 +357,6 @@ module.exports = {
     gridCteNf,
     insertCteNf,
     arquivaCteNf,
-    guiasNf
+    guiasNf,
+    marcarBox
 };

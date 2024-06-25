@@ -95,10 +95,10 @@ async function atualizarScjMassa(req, res) {
 
         // Esperar a conclusão de todas as promessas
         await Promise.all(promises);
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010 - MASSA', ${getCurrentSQLServerDateTime()}, 200)`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010M', ${getCurrentSQLServerDateTime()}, 200)`
     } catch (error) {
         await connectToDatabase();
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010 - MASSA', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error)
     }
 }
@@ -172,10 +172,10 @@ async function atualizarSf2Massa(req, res) {
 
         // Esperar a conclusão de todas as promessas
         await Promise.all(promises);
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SF2010 MASSA', ${getCurrentSQLServerDateTime()}, 200)`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SF2010M', ${getCurrentSQLServerDateTime()}, 200)`
     } catch (error) {
         await connectToDatabase();
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SF2010 MASSA', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SF2010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error)
     }
 }

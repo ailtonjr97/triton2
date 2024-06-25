@@ -60,4 +60,36 @@ function convertDateForInput(dateString) {
     return formattedDate;
 }
 
-module.exports = { formatDateToMySQL, formatDate, formatCurrentDateTimeForMySQL, convertDateFormat, convertDateForInput};
+function getCurrentDateTimeForSQLServer() {
+    const now = new Date();
+  
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const milliseconds = String(now.getMilliseconds()).padStart(3, '0');
+  
+    const dateTimeForSQLServer = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${milliseconds}`;
+  
+    return dateTimeForSQLServer;
+  }
+
+  function sqlServerDateTimeToString(sqlDateTime) {
+    if (!sqlDateTime) {
+      return '';
+    }
+  
+    const date = new Date(sqlDateTime);
+  
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = date.getFullYear();
+  
+    return `${hours}:${minutes} ${day}/${month}/${year}`;
+  }
+
+module.exports = { formatDateToMySQL, formatDate, formatCurrentDateTimeForMySQL, convertDateFormat, convertDateForInput, getCurrentDateTimeForSQLServer, sqlServerDateTimeToString};

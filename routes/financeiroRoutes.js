@@ -19,7 +19,8 @@ const {
     arquivaCte,
     pdfNf,
     roboBusca,
-    guiaNf
+    guiaNf,
+    marcarGuia
 } = require('../controllers/financeiroController');
 
 router.get("/analise-de-credito", analiseDeCredito);
@@ -41,5 +42,6 @@ router.put("/arquiva-cte", arquivaCte);
 router.get("/pdf-nf", pdfNf);
 router.get("/robo-busca", roboBusca);
 router.get("/guia-nf", guiaNf);
+router.post("/marcar-box", marcarGuia);
 
 module.exports = router;
