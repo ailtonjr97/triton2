@@ -746,7 +746,7 @@ async function pdfNf(req, res) {
             GUIA_DATA: sqlServerDateTimeToString(e.GUIA_DATA),
             PASTA: e.PASTA,
             PASTA_DATA: sqlServerDateTimeToString(e.PASTA_DATA),
-            D2_CLASFIS: e.D2_CLASFIS,
+            D2_CLASFIS: e.CLASFIS,
             D2_PEDIDO: e.D2_PEDIDO
         }))
 
