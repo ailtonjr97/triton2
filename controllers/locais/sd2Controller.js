@@ -44,18 +44,18 @@ async function atualizarSd2(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, D2_CF, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SD2010 WHERE D2_FILIAL = ${D2_FILIAL} AND D2_DOC = ${D2_DOC}`;
 
             if (result.recordset.length > 0) {
                 // Registro existe, realizar o update
-                await sql.query`UPDATE SD2010 SET D2_FILIAL = ${D2_FILIAL}, D2_DOC = ${D2_DOC}, D2_CLASFIS = ${D2_CLASFIS}, D2_PEDIDO = ${D2_PEDIDO}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
+                await sql.query`UPDATE SD2010 SET D2_FILIAL = ${D2_FILIAL}, D2_DOC = ${D2_DOC}, D2_CLASFIS = ${D2_CLASFIS}, D2_PEDIDO = ${D2_PEDIDO}, D2_CF = ${D2_CF}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
                                 WHERE D2_FILIAL = ${D2_FILIAL} AND D2_DOC = ${D2_DOC}`;
             } else {
                 // Registro não existe, realizar o insert
-                await sql.query`INSERT INTO SD2010 (D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${D2_FILIAL}, ${D2_DOC}, ${D2_CLASFIS}, ${D2_PEDIDO}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                await sql.query`INSERT INTO SD2010 (D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, D2_CF, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${D2_FILIAL}, ${D2_DOC}, ${D2_CLASFIS}, ${D2_PEDIDO}, ${D2_CF}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
             }
         });
 
@@ -89,8 +89,8 @@ async function atualizarSd2Massa(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
-            await sql.query`INSERT INTO SD2010 (D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${D2_FILIAL}, ${D2_DOC}, ${D2_CLASFIS}, ${D2_PEDIDO}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+            const { D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, D2_CF, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            await sql.query`INSERT INTO SD2010 (D2_FILIAL, D2_DOC, D2_CLASFIS, D2_PEDIDO, D2_CF, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${D2_FILIAL}, ${D2_DOC}, ${D2_CLASFIS}, ${D2_PEDIDO}, ${D2_CF}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
         });
 
         // Esperar a conclusão de todas as promessas
