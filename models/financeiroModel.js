@@ -309,7 +309,7 @@ const guiasNf = async (numero) => {
     const pool = await connectToDatabase();
     const request = pool.request();
 
-    const query = `SELECT DISTINCT TOP 100 D2_DOC, SUBSTRING(D2_CLASFIS, 2, 3) AS CLASFIS, D2_FILIAL, D2_PEDIDO, GUIA, GUIA_DATA, PASTA, PASTA_DATA FROM GUIA_NF WHERE SUBSTRING(D2_CLASFIS, 2, 3) IN ('70', '10') AND D2_DOC LIKE @numero`;
+    const query = `SELECT DISTINCT TOP 100 D2_DOC, SUBSTRING(D2_CLASFIS, 2, 3) AS CLASFIS, D2_FILIAL, D2_PEDIDO, GUIA, GUIA_DATA, PASTA, PASTA_DATA, D2_CF FROM GUIA_NF WHERE SUBSTRING(D2_CLASFIS, 2, 3) IN ('70', '10') AND D2_DOC LIKE @numero`;
     const result = await request
       .input('numero', sql.NVarChar, `%${numero}%`)
       .query(query);
