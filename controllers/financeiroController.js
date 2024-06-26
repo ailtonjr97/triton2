@@ -740,12 +740,14 @@ async function pdfNf(req, res) {
         const guias = await financeiroModel.guiasNf(numero);
 
         const resposta = guias.map(e =>({
-            F2_FILIAL: e.F2_FILIAL,
-            F2_DOC: e.F2_DOC,
+            D2_FILIAL: e.D2_FILIAL,
+            D2_DOC: e.D2_DOC,
             GUIA: e.GUIA,
             GUIA_DATA: sqlServerDateTimeToString(e.GUIA_DATA),
             PASTA: e.PASTA,
-            PASTA_DATA: sqlServerDateTimeToString(e.PASTA_DATA)
+            PASTA_DATA: sqlServerDateTimeToString(e.PASTA_DATA),
+            D2_CLASFIS: e.D2_CLASFIS,
+            D2_PEDIDO: e.D2_PEDIDO
         }))
 
         res.json(resposta)

@@ -309,7 +309,7 @@ const guiasNf = async (numero) => {
     const pool = await connectToDatabase();
     const request = pool.request();
 
-    const query = `SELECT TOP 100 * FROM GUIA_NF WHERE F2_DOC LIKE @numero ORDER BY ID DESC`;
+    const query = `SELECT DISTINCT TOP 100 D2_DOC, SUBSTRING(D2_CLASFIS, 2, 3) AS CLASFIS, D2_FILIAL, D2_PEDIDO FROM SD2010 WHERE D2_CLASFIS IN ('70', '10') AND D2_DOC = @numero`;
     const result = await request
       .input('numero', sql.NVarChar, `%${numero}%`)
       .query(query);
@@ -328,7 +328,7 @@ const marcarBox = async (body) => {
     const request = pool.request();
 
     // Construa a consulta dinamicamente
-    const query = `UPDATE GUIA_NF SET ${body.box} = 1, ${body.box}_DATA = @TIME WHERE F2_FILIAL = @FILIAL AND F2_DOC = @DOC`;
+    const query = `UPDATE GUIA_NF SET ${body.box} = 1, ${body.box}_DATA = @TIME WHERE D2_FILIAL = @FILIAL AND D2_DOC = @DOC`;
     const result = await request
       .input('TIME', sql.DateTime, getCurrentDateTimeForSQLServer())
       .input('FILIAL', sql.VarChar, body.filial)
