@@ -44,18 +44,127 @@ async function atualizarScj(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { CJ_FILIAL, CJ_NUM, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const {
+                CJ_FILIAL,
+                CJ_NUM,
+                S_T_A_M_P_,
+                R_E_C_N_O_,
+                R_E_C_D_E_L_,
+                CJ_EMISSAO,
+                CJ_PROSPE,
+                CJ_LOJPRO,
+                CJ_CLIENTE,
+                CJ_LOJA,
+                CJ_CLIENT,
+                CJ_LOJAENT,
+                CJ_CONDPAG,
+                CJ_XESTADO,
+                CJ_XPVKORP,
+                CJ_TABELA,
+                CJ_CST_FTS,
+                CJ_TIPOCLI,
+                CJ_TPFRETE,
+                CJ_XFREMA,
+                CJ_XFREIMP,
+                CJ_XFRESIM,
+                CJ_XTRANSP,
+                CJ_TIPLIB,
+                CJ_DESC3
+            } = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SCJ010 WHERE CJ_FILIAL = ${CJ_FILIAL} AND CJ_NUM = ${CJ_NUM}`;
 
             if (result.recordset.length > 0) {
                 // Registro existe, realizar o update
-                await sql.query`UPDATE SCJ010 SET CJ_FILIAL = ${CJ_FILIAL}, CJ_NUM = ${CJ_NUM}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
-                                WHERE CJ_FILIAL = ${CJ_FILIAL} AND CJ_NUM = ${CJ_NUM}`;
+                await sql.query`
+                UPDATE SCJ010
+                SET CJ_FILIAL = ${CJ_FILIAL},
+                    CJ_NUM = ${CJ_NUM},
+                    S_T_A_M_P_ = ${S_T_A_M_P_},
+                    R_E_C_N_O_ = ${R_E_C_N_O_},
+                    R_E_C_D_E_L_ = ${R_E_C_D_E_L_},
+                    CJ_EMISSAO = ${CJ_EMISSAO},
+                    CJ_PROSPE = ${CJ_PROSPE},
+                    CJ_LOJPRO = ${CJ_LOJPRO},
+                    CJ_CLIENTE = ${CJ_CLIENTE},
+                    CJ_LOJA = ${CJ_LOJA},
+                    CJ_CLIENT = ${CJ_CLIENT},
+                    CJ_LOJAENT = ${CJ_LOJAENT},
+                    CJ_CONDPAG = ${CJ_CONDPAG},
+                    CJ_XESTADO = ${CJ_XESTADO},
+                    CJ_XPVKORP = ${CJ_XPVKORP},
+                    CJ_TABELA = ${CJ_TABELA},
+                    CJ_CST_FTS = ${CJ_CST_FTS},
+                    CJ_TIPOCLI = ${CJ_TIPOCLI},
+                    CJ_TPFRETE = ${CJ_TPFRETE},
+                    CJ_XFREMA = ${CJ_XFREMA},
+                    CJ_XFREIMP = ${CJ_XFREIMP},
+                    CJ_XFRESIM = ${CJ_XFRESIM},
+                    CJ_XTRANSP = ${CJ_XTRANSP},
+                    CJ_TIPLIB = ${CJ_TIPLIB},
+                    CJ_DESC3 = ${CJ_DESC3}
+                WHERE CJ_FILIAL = ${CJ_FILIAL}
+                  AND CJ_NUM = ${CJ_NUM};
+            `;
             } else {
                 // Registro não existe, realizar o insert
-                await sql.query`INSERT INTO SCJ010 (CJ_FILIAL, CJ_NUM, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${CJ_FILIAL}, ${CJ_NUM}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                await sql.query`
+                INSERT INTO SCJ010 (
+                    CJ_FILIAL,
+                    CJ_NUM,
+                    S_T_A_M_P_,
+                    R_E_C_N_O_,
+                    R_E_C_D_E_L_,
+                    CJ_EMISSAO,
+                    CJ_PROSPE,
+                    CJ_LOJPRO,
+                    CJ_CLIENTE,
+                    CJ_LOJA,
+                    CJ_CLIENT,
+                    CJ_LOJAENT,
+                    CJ_CONDPAG,
+                    CJ_XESTADO,
+                    CJ_XPVKORP,
+                    CJ_TABELA,
+                    CJ_CST_FTS,
+                    CJ_TIPOCLI,
+                    CJ_TPFRETE,
+                    CJ_XFREMA,
+                    CJ_XFREIMP,
+                    CJ_XFRESIM,
+                    CJ_XTRANSP,
+                    CJ_TIPLIB,
+                    CJ_DESC3
+                ) VALUES (
+                    ${CJ_FILIAL},
+                    ${CJ_NUM},
+                    ${S_T_A_M_P_},
+                    ${R_E_C_N_O_},
+                    ${R_E_C_D_E_L_},
+                    ${CJ_EMISSAO},
+                    ${CJ_PROSPE},
+                    ${CJ_LOJPRO},
+                    ${CJ_CLIENTE},
+                    ${CJ_LOJA},
+                    ${CJ_CLIENT},
+                    ${CJ_LOJAENT},
+                    ${CJ_CONDPAG},
+                    ${CJ_XESTADO},
+                    ${CJ_XPVKORP},
+                    ${CJ_TABELA},
+                    ${CJ_CST_FTS},
+                    ${CJ_TIPOCLI},
+                    ${CJ_TPFRETE},
+                    ${CJ_XFREMA},
+                    ${CJ_XFREIMP},
+                    ${CJ_XFRESIM},
+                    ${CJ_XTRANSP},
+                    ${CJ_TIPLIB},
+                    ${CJ_DESC3}
+                );
+                `;
+
             }
         });
 
@@ -63,10 +172,13 @@ async function atualizarScj(req, res) {
         await Promise.all(promises);
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010', ${getCurrentSQLServerDateTime()}, 200)`
     } catch (error) {
+        console.log(error)
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
     }
 }
+
+
 
 async function atualizarScjMassa(req, res) {
     try {
@@ -84,13 +196,93 @@ async function atualizarScjMassa(req, res) {
         // Conectar ao banco de dados
         await connectToDatabase();
 
-        //Remover todos os registros do banco
+        // Remover todos os registros do banco
         await sql.query`TRUNCATE TABLE SCJ010`
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { CJ_FILIAL, CJ_NUM, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
-            await sql.query`INSERT INTO SCJ010 (CJ_FILIAL, CJ_NUM, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${CJ_FILIAL}, ${CJ_NUM}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+            const {
+                CJ_FILIAL,
+                CJ_NUM,
+                S_T_A_M_P_,
+                R_E_C_N_O_,
+                R_E_C_D_E_L_,
+                CJ_EMISSAO,
+                CJ_PROSPE,
+                CJ_LOJPRO,
+                CJ_CLIENTE,
+                CJ_LOJA,
+                CJ_CLIENT,
+                CJ_LOJAENT,
+                CJ_CONDPAG,
+                CJ_XESTADO,
+                CJ_XPVKORP,
+                CJ_TABELA,
+                CJ_CST_FTS,
+                CJ_TIPOCLI,
+                CJ_TPFRETE,
+                CJ_XFREMA,
+                CJ_XFREIMP,
+                CJ_XFRESIM,
+                CJ_XTRANSP,
+                CJ_TIPLIB,
+                CJ_DESC3
+            } = element;
+            await sql.query`
+                INSERT INTO SCJ010 (
+                    CJ_FILIAL,
+                    CJ_NUM,
+                    S_T_A_M_P_,
+                    R_E_C_N_O_,
+                    R_E_C_D_E_L_,
+                    CJ_EMISSAO,
+                    CJ_PROSPE,
+                    CJ_LOJPRO,
+                    CJ_CLIENTE,
+                    CJ_LOJA,
+                    CJ_CLIENT,
+                    CJ_LOJAENT,
+                    CJ_CONDPAG,
+                    CJ_XESTADO,
+                    CJ_XPVKORP,
+                    CJ_TABELA,
+                    CJ_CST_FTS,
+                    CJ_TIPOCLI,
+                    CJ_TPFRETE,
+                    CJ_XFREMA,
+                    CJ_XFREIMP,
+                    CJ_XFRESIM,
+                    CJ_XTRANSP,
+                    CJ_TIPLIB,
+                    CJ_DESC3
+                ) VALUES (
+                    ${CJ_FILIAL},
+                    ${CJ_NUM},
+                    ${S_T_A_M_P_},
+                    ${R_E_C_N_O_},
+                    ${R_E_C_D_E_L_},
+                    ${CJ_EMISSAO},
+                    ${CJ_PROSPE},
+                    ${CJ_LOJPRO},
+                    ${CJ_CLIENTE},
+                    ${CJ_LOJA},
+                    ${CJ_CLIENT},
+                    ${CJ_LOJAENT},
+                    ${CJ_CONDPAG},
+                    ${CJ_XESTADO},
+                    ${CJ_XPVKORP},
+                    ${CJ_TABELA},
+                    ${CJ_CST_FTS},
+                    ${CJ_TIPOCLI},
+                    ${CJ_TPFRETE},
+                    ${CJ_XFREMA},
+                    ${CJ_XFREIMP},
+                    ${CJ_XFRESIM},
+                    ${CJ_XTRANSP},
+                    ${CJ_TIPLIB},
+                    ${CJ_DESC3}
+                );
+            `;
         });
 
         // Esperar a conclusão de todas as promessas
@@ -102,6 +294,8 @@ async function atualizarScjMassa(req, res) {
         console.log(error)
     }
 }
+
+
 
 async function atualizarSf2(req, res) {
     try {
