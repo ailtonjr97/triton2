@@ -10,6 +10,7 @@ const xml2js = require('xml2js');
 const Client = require('ssh2-sftp-client');
 const {formatCurrency} = require('../utils/protheus');
 const path = require('path');
+const puppeteer = require('puppeteer');
 
 async function analiseDeCredito(req, res) {
     try {
@@ -662,61 +663,62 @@ async function pdfNf(req, res) {
   async function roboBusca(req, res) {
     try {
         const { chave } = req.query;
-        const puppeteer = require('puppeteer');
-        const browser = await puppeteer.launch({args: ['--disable-setuid-sandbox', '--no-sandbox']});
+        const browser = await puppeteer.launch({ headless: true, args: ['--disable-setuid-sandbox', '--no-sandbox'] });
         const page = await browser.newPage();
         const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
-    
-        // Monitorar novas páginas
-        const [newPagePromise] = await Promise.all([
-          new Promise(resolve => browser.once('targetcreated', target => resolve(target.page()))),
-          // Navegar para a URL e preencher a chave
-          page.goto('https://meudanfe.com.br/').then(async () => {
-            await page.waitForSelector('input[placeholder="Digite a CHAVE DE ACESSO"]');
-            await page.type('input[placeholder="Digite a CHAVE DE ACESSO"]', chave);
-            await page.keyboard.press('Tab');
-            await delay(1000);
-            await page.keyboard.press('Enter');
-            await delay(1000);
-            await page.keyboard.press('Tab');
-            await page.keyboard.press('Tab');
-            await page.keyboard.press('Tab');
-            await page.keyboard.press('Enter');
-          })
-        ]);
-    
+
+        // Navegar para a URL e preencher a chave
+        await page.goto('https://meudanfe.com.br/');
+        await page.waitForSelector('input[placeholder="Digite a CHAVE DE ACESSO"]');
+        await page.type('input[placeholder="Digite a CHAVE DE ACESSO"]', chave);
+        await page.click('button.absolute.m-1.inset-y-0.right-0.px-4.rounded-full.bg-meuDanfeColors-700.hover\\:bg-meuDanfeColors-600.text-white.text-lg.font-semibold.focus\\:ring-2.focus\\:ring-meuDanfeColors-600.focus\\:outline-none');
+        await delay(2000);
+        await page.click('button.flex.col-span-4.sm\\:col-span-1.sm\\:w-80.px-3.py-3.text-sm.font-semibold.leading-6.text-white.cursor-pointer.inline-flex.items-center.justify-center.rounded-full.shadow-lg.shadow-contrast-orange\\/50.bg-contrast-orange.hover\\:bg-contrast-orange\\/80.transition.duration-300.ease-in-out');
+
+        // Aguardar a nova página (ou aba) ser criada
+        const newPagePromise = new Promise(resolve => browser.once('targetcreated', async target => {
+            const newTargetPage = await target.page();
+            if (newTargetPage) {
+                resolve(newTargetPage);
+            }
+        }));
+
         const newPage = await newPagePromise;
-    
+
         // Esperar a nova página carregar completamente
         await newPage.waitForSelector('embed, iframe, object', { timeout: 30000 });
-    
+
         // Capturar a URL do PDF
         const pdfUrl = await newPage.evaluate(() => {
-          const embed = document.querySelector('embed');
-          if (embed && embed.src) {
-            return embed.src;
-          }
-          const iframe = document.querySelector('iframe');
-          if (iframe && iframe.src) {
-            return iframe.src;
-          }
-          const object = document.querySelector('object');
-          if (object && object.data) {
-            return object.data;
-          }
-          return null;
+            const embed = document.querySelector('embed');
+            if (embed && embed.src) {
+                return embed.src;
+            }
+            const iframe = document.querySelector('iframe');
+            if (iframe && iframe.src) {
+                return iframe.src;
+            }
+            const object = document.querySelector('object');
+            if (object && object.data) {
+                return object.data;
+            }
+            return null;
         });
-    
-        if (!pdfUrl) {
-          await browser.close();
-          return res.status(500).send('Não foi possível encontrar o PDF.');
-        }
-    
-        // Baixar o PDF
-        const response = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
-        const buffer = Buffer.from(response.data);
 
-        const storagePath = path.join(__dirname, 'storage', 'nf');
+        if (!pdfUrl) {
+            await browser.close();
+            return res.status(500).send('Não foi possível encontrar o PDF.');
+        }
+
+        // Importar o fetch dinamicamente
+        const fetch = (await import('node-fetch')).default;
+
+        // Baixar o PDF
+        const response = await fetch(pdfUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        const storagePath = path.join(__dirname, 'storage');
         await fs.mkdir(storagePath, { recursive: true });
 
         await fs.writeFile(`./storage/nf/${chave}.pdf`, buffer);
@@ -728,10 +730,10 @@ async function pdfNf(req, res) {
         res.download(path.join(__dirname, '../storage/nf', `${chave}.pdf`));
 
     } catch (error) {
-        res.sendStatus(500)
+        res.sendStatus(500);
         console.error(error);
     }
-  }
+}
 
   async function guiaNf(req, res){
     try {
