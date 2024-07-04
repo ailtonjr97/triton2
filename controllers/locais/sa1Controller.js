@@ -117,15 +117,12 @@ async function verificarHorario() {
         refreshed = false;
     } else if (hours !== 0 || minutes > 30) {
         refreshed = true;
-        await atualizarSa1Massa();
-        //await atualizarSa1();
+        await atualizarSa1();
     }
 }
 
 // Executar a verificação a cada 2 minutos
 setInterval(verificarHorario, 120000);
-
-verificarHorario();
 
 module.exports = { 
     atualizarSa1,
