@@ -342,6 +342,26 @@ const marcarBox = async (body) => {
   }
 };
 
+
+const cliente = async (cod, loja) => {
+  try {
+    // Certifique-se de que a conexão com o banco de dados está aberta
+    const pool = await connectToDatabase();
+    const request = pool.request();
+
+    const query = `SELECT * FROM SA1010 WHERE A1_COD = @COD AND A1_LOJA = @LOJA`;
+    const result = await request
+      .input('COD', sql.VarChar, `${cod}`)
+      .input('LOJA', sql.VarChar, `${loja}`)
+      .query(query);
+
+    return result.recordset;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  }
+};
+
 module.exports = {
     analiseDeCredito,
     documento,
@@ -358,5 +378,6 @@ module.exports = {
     insertCteNf,
     arquivaCteNf,
     guiasNf,
-    marcarBox
+    marcarBox,
+    cliente
 };

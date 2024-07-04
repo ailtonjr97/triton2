@@ -11,6 +11,7 @@ const moment = require('moment');
 const {convertDateFormat, convertDateForInput} = require('../utils/dateUtils.js')
 const {formatarParaMoedaBrasileira} = require('../utils/formatarParaMoedaBrasileira.js')
 const { sendEmail } = require('../services/emailService');
+const financeiroModel = require('../models/financeiroModel');
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -294,8 +295,8 @@ router.get("/sck/:numped/:filial", async(req, res)=>{
 
 router.get("/clientes/:numped/:loja", async(req, res)=>{
     try {
-        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SA1/unico?id=${req.params.numped}&loja=${req.params.loja}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-        res.send(response.data)
+        const resposta = await financeiroModel.cliente(req.params.numped, req.params.loja);
+        res.json(resposta[0])
     } catch (error) {
         console.log(error)
         res.sendStatus(500);
