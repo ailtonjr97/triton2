@@ -64,6 +64,7 @@ async function atualizarSa1(req, res) {
         await Promise.all(promises);
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SA1010', ${getCurrentSQLServerDateTime()}, 200)`
     } catch (error) {
+        console.log(error)
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SA1010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
     }
