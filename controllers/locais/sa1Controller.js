@@ -42,31 +42,42 @@ async function atualizarSa1(req, res) {
         // Conectar ao banco de dados
         await connectToDatabase();
 
-        // Criar uma matriz de promessas para verificar e atualizar/inserir registros
-        const promises = notas.data.objects.map(async element => {
-            const { A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+        // Função para processar lotes de registros
+        const processarLote = async (lote) => {
+            const promises = lote.map(async (element) => {
+                const { A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
-            // Verificar se o registro existe
-            const result = await sql.query`SELECT * FROM SA1010 WHERE A1_FILIAL = ${A1_FILIAL} AND A1_COD = ${A1_COD} AND A1_LOJA = ${A1_LOJA}`;
+                // Verificar se o registro existe
+                const result = await sql.query`SELECT * FROM SA1010 WHERE A1_FILIAL = ${A1_FILIAL} AND A1_COD = ${A1_COD} AND A1_LOJA = ${A1_LOJA}`;
 
-            if (result.recordset.length > 0) {
-                // Registro existe, realizar o update
-                await sql.query`UPDATE SA1010 SET A1_FILIAL = ${A1_FILIAL}, A1_COD = ${A1_COD}, A1_LOJA = ${A1_LOJA}, A1_NOME = ${A1_NOME}, A1_CGC = ${A1_CGC}, A1_END = ${A1_END}, A1_CODMUN = ${A1_CODMUN}, 
-                A1_MUN = ${A1_MUN}, A1_EST = ${A1_EST}, A1_CEP = ${A1_CEP}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
-                                 WHERE A1_FILIAL = ${A1_FILIAL} AND A1_COD = ${A1_COD} AND A1_LOJA = ${A1_LOJA}`;
-            } else {
-                // Registro não existe, realizar o insert
-                await sql.query`INSERT INTO SA1010 (A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${A1_FILIAL}, ${A1_COD}, ${A1_LOJA}, ${A1_NOME}, ${A1_CGC}, ${A1_END}, ${A1_CODMUN}, ${A1_MUN}, ${A1_EST}, ${A1_CEP}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
-            }
-        });
+                if (result.recordset.length > 0) {
+                    // Registro existe, realizar o update
+                    await sql.query`UPDATE SA1010 SET A1_FILIAL = ${A1_FILIAL}, A1_COD = ${A1_COD}, A1_LOJA = ${A1_LOJA}, A1_NOME = ${A1_NOME}, A1_CGC = ${A1_CGC}, A1_END = ${A1_END}, A1_CODMUN = ${A1_CODMUN}, 
+                    A1_MUN = ${A1_MUN}, A1_EST = ${A1_EST}, A1_CEP = ${A1_CEP}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
+                                    WHERE R_E_C_N_O_ = ${R_E_C_N_O_}`;
+                } else {
+                    // Registro não existe, realizar o insert
+                    await sql.query`INSERT INTO SA1010 (A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${A1_FILIAL}, ${A1_COD}, ${A1_LOJA}, ${A1_NOME}, ${A1_CGC}, ${A1_END}, ${A1_CODMUN}, ${A1_MUN}, ${A1_EST}, ${A1_CEP}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                }
+            });
 
-        // Esperar a conclusão de todas as promessas
-        await Promise.all(promises);
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SA1010', ${getCurrentSQLServerDateTime()}, 200)`
+            await Promise.all(promises);
+        };
+
+        // Dividir os registros em lotes de 1000
+        const batchSize = 1000;
+        for (let i = 0; i < notas.data.objects.length; i += batchSize) {
+            console.log(i);
+            const batch = notas.data.objects.slice(i, i + batchSize);
+            await processarLote(batch);
+        }
+
+        // Inserir log de sucesso
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SA1010', ${getCurrentSQLServerDateTime()}, 200)`;
     } catch (error) {
-        console.log(error)
+        console.log(error);
         await connectToDatabase();
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SA1010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SA1010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`;
     }
 }
 
@@ -124,6 +135,8 @@ async function verificarHorario() {
 
 // Executar a verificação a cada 2 minutos
 setInterval(verificarHorario, 120000);
+
+verificarHorario();
 
 module.exports = { 
     atualizarSa1,
