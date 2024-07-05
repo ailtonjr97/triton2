@@ -201,47 +201,98 @@ const pcpUpdate = async (body, id) => {
     }
 };
 
-const producaoUpdate = async(body, id)=>{
-    const conn = await connect();
-    await conn.query(`
-        UPDATE docs_qualidade SET
-        prod_tempo_realizado = ?,
-        prod_insumos = ?,
-        prod_sucata = ?,
-        prod_obs = ?,
-        prod_responsavel = ?,
-        prod_data = ?,
-        prod_status = ?,
-        producao_preenchido = 1
-        WHERE id = ?
-    `, [body.prod_tempo_realizado, body.prod_insumos, body.prod_sucata, body.prod_obs, body.prod_responsavel, body.prod_data, body.prod_status, id]);
-    conn.end();
-}
+const producaoUpdate = async (body, id) => {
+    let pool;
+    try {
+        pool = await connectToDatabase();
+        const request = pool.request();
 
-const qualidadeUpdate = async(body, id)=>{
-    const conn = await connect();
-    await conn.query(`
-        UPDATE docs_qualidade SET
-        quali_parecer = ?,
-        quali_responsavel = ?,
-        quali_data = ?,
-        quali_status = ?,
-        qualidade_preenchido = 1
-        WHERE id = ?
-    `, [body.quali_parecer, body.quali_responsavel, body.quali_data, body.quali_status, id]);
-    conn.end();
-}
+        const query = `
+            UPDATE DOCS_QUALIDADE SET
+                PROD_TEMPO_REALIZADO = @PROD_TEMPO_REALIZADO,
+                PROD_INSUMOS = @PROD_INSUMOS,
+                PROD_SUCATA = @PROD_SUCATA,
+                PROD_OBS = @PROD_OBS,
+                PROD_RESPONSAVEL = @PROD_RESPONSAVEL,
+                PROD_DATA = @PROD_DATA,
+                PROD_STATUS = @PROD_STATUS,
+                PRODUCAO_PREENCHIDO = 1
+            WHERE ID = @ID
+        `;
 
-const NcUpdate = async(body, id)=>{
-    const conn = await connect();
-    await conn.query(`
-        UPDATE docs_qualidade SET
-        motivo_nc = ?,
-        motivo_nc_preenchido = 1
-        WHERE id = ?
-    `, [body.motivo_nc, id]);
-    conn.end();
-}
+        await request
+            .input('PROD_TEMPO_REALIZADO', sql.VarChar(100), body.prod_tempo_realizado)
+            .input('PROD_INSUMOS', sql.VarChar(255), body.prod_insumos)
+            .input('PROD_SUCATA', sql.VarChar(255), body.prod_sucata)
+            .input('PROD_OBS', sql.Text, body.prod_obs)
+            .input('PROD_RESPONSAVEL', sql.VarChar(255), body.prod_responsavel)
+            .input('PROD_DATA', sql.VarChar(255), body.prod_data)
+            .input('PROD_STATUS', sql.VarChar(50), body.prod_status)
+            .input('ID', sql.Int, id)
+            .query(query);
+
+        return { message: 'Update successful' };
+    } catch (error) {
+        console.error('Erro ao executar UPDATE:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const qualidadeUpdate = async (body, id) => {
+    let pool;
+    try {
+        pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `
+            UPDATE DOCS_QUALIDADE SET
+                QUALI_PARECER = @QUALI_PARECER,
+                QUALI_RESPONSAVEL = @QUALI_RESPONSAVEL,
+                QUALI_DATA = @QUALI_DATA,
+                QUALI_STATUS = @QUALI_STATUS,
+                QUALIDADE_PREENCHIDO = 1
+            WHERE ID = @ID
+        `;
+
+        await request
+            .input('QUALI_PARECER', sql.VarChar(255), body.quali_parecer)
+            .input('QUALI_RESPONSAVEL', sql.VarChar(255), body.quali_responsavel)
+            .input('QUALI_DATA', sql.VarChar(255), body.quali_data)
+            .input('QUALI_STATUS', sql.VarChar(50), body.quali_status)
+            .input('ID', sql.Int, id)
+            .query(query);
+
+        return { message: 'Update successful' };
+    } catch (error) {
+        console.error('Erro ao executar UPDATE:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const ncUpdate = async (body, id) => {
+    let pool;
+    try {
+        pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `
+            UPDATE DOCS_QUALIDADE SET
+                MOTIVO_NC = @MOTIVO_NC,
+                MOTIVO_NC_PREENCHIDO = 1
+            WHERE ID = @ID
+        `;
+
+        await request
+            .input('MOTIVO_NC', sql.VarChar(255), body.motivo_nc)
+            .input('ID', sql.Int, id)
+            .query(query);
+
+        return { message: 'Update successful' };
+    } catch (error) {
+        console.error('Erro ao executar UPDATE:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
 
 const inactiveDocuments = async () => {
     try {
@@ -267,15 +318,28 @@ const inactiveDocument = async(id)=>{
 }
 
 
-const inactivateDocument = async(id)=>{
-    const conn = await connect();
-    await conn.query(`
-        UPDATE docs_qualidade SET
-        active = 0
-        WHERE id = ?
-    `, [id]);
-    conn.end();
-}
+const inactivateDocument = async (id) => {
+    let pool;
+    try {
+        pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `
+            UPDATE DOCS_QUALIDADE SET
+                ACTIVE = 0
+            WHERE ID = @ID
+        `;
+
+        await request
+            .input('ID', sql.Int, id)
+            .query(query);
+
+        return { message: 'Document inactivated successfully' };
+    } catch (error) {
+        console.error('Erro ao inativar documento:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
 
 const ultimoDocumento = async () => {
     try {
@@ -388,5 +452,9 @@ module.exports = {
     inactiveDocuments,
     listaAnexos,
     edpUpdate,
-    pcpUpdate
+    pcpUpdate,
+    producaoUpdate,
+    qualidadeUpdate,
+    ncUpdate,
+    inactivateDocument
 };

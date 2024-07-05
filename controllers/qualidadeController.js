@@ -59,7 +59,25 @@ router.post("/documentos/editarEdp/:id", async(req, res)=>{
 router.get("/documentos/get_all", async(req, res)=>{
     try {
         const resp = await qualidadeModel.all();
-        res.send(resp);
+
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        const resposta = resp.map(e =>({
+            ID:                     e.ID,
+            TIPO_DOC:               e.TIPO_DOC,
+            DATA:                   formatDate(e.DATA),
+            INSPETOR:               e.INSPETOR,
+            EDP_PREENCHIDO:         e.EDP_PREENCHIDO,
+            PCP_PREENCHIDO:         e.PCP_PREENCHIDO,
+            PRODUCAO_PREENCHIDO:    e.PRODUCAO_PREENCHIDO,
+            MOTIVO_NC_PREENCHIDO:   e.MOTIVO_NC_PREENCHIDO,
+            QUALIDADE_PREENCHIDO:   e.QUALIDADE_PREENCHIDO
+        }))
+
+        res.send(resposta);
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
@@ -68,7 +86,26 @@ router.get("/documentos/get_all", async(req, res)=>{
 
 router.get("/documentos/inactive", async(req, res)=>{
     try {
-        res.send(await qualidadeModel.inactiveDocuments());
+        const resp = await qualidadeModel.inactiveDocuments()
+
+        function formatDate(dateString) {
+            const [year, month, day] = dateString.split('-');
+            return `${day}/${month}/${year}`;
+        }
+
+        const resposta = resp.map(e =>({
+            ID:                     e.ID,
+            TIPO_DOC:               e.TIPO_DOC,
+            DATA:                   formatDate(e.DATA),
+            INSPETOR:               e.INSPETOR,
+            EDP_PREENCHIDO:         e.EDP_PREENCHIDO,
+            PCP_PREENCHIDO:         e.PCP_PREENCHIDO,
+            PRODUCAO_PREENCHIDO:    e.PRODUCAO_PREENCHIDO,
+            MOTIVO_NC_PREENCHIDO:   e.MOTIVO_NC_PREENCHIDO,
+            QUALIDADE_PREENCHIDO:   e.QUALIDADE_PREENCHIDO
+        }))
+
+        res.send(resposta);
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
@@ -125,7 +162,7 @@ router.post("/documentos/editarPcp/:id", async(req, res)=>{
 
 router.post("/documentos/editarProducao/:id", async(req, res)=>{
     try {
-        await Qualidade.producaoUpdate(req.body, req.params.id)
+        await qualidadeModel.producaoUpdate(req.body, req.params.id)
         res.sendStatus(200);
     } catch (error) {
         console.log(error)
@@ -135,7 +172,7 @@ router.post("/documentos/editarProducao/:id", async(req, res)=>{
 
 router.post("/documentos/editarQualidade/:id", async(req, res)=>{
     try {
-        await Qualidade.qualidadeUpdate(req.body, req.params.id)
+        await qualidadeModel.qualidadeUpdate(req.body, req.params.id)
         res.sendStatus(200);
     } catch (error) {
         console.log(error)
@@ -145,7 +182,7 @@ router.post("/documentos/editarQualidade/:id", async(req, res)=>{
 
 router.post("/documentos/editarNc/:id", async(req, res)=>{
     try {
-        await Qualidade.NcUpdate(req.body, req.params.id)
+        await qualidadeModel.ncUpdate(req.body, req.params.id)
         res.sendStatus(200);
     } catch (error) {
         console.log(error)
@@ -155,7 +192,7 @@ router.post("/documentos/editarNc/:id", async(req, res)=>{
 
 router.get("/documentos/inactivate/:id", async(req, res)=>{
     try {
-        await Qualidade.inactivateDocument(req.params.id)
+        await qualidadeModel.inactivateDocument(req.params.id)
         res.sendStatus(200);
     } catch (error) {
         console.log(error)
