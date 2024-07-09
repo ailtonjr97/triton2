@@ -14,9 +14,6 @@ function getCurrentDateString() {
 function getCurrentSQLServerDateTime() {
     const jsDate = new Date();
 
-    // Adicionar 3 horas devido ao horario do Protheus
-    jsDate.setHours(jsDate.getHours() + 3);
-
     const pad = (number) => number < 10 ? '0' + number : number;
 
     const year = jsDate.getFullYear();
