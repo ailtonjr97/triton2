@@ -20,7 +20,7 @@ function getCurrentSQLServerDateTime() {
     const month = pad(jsDate.getMonth() + 1);
     const day = pad(jsDate.getDate());
     const hours = pad(jsDate.getHours());
-    const minutes = pad(jsDate.getMinutes());
+    const minutes = pad(jsDate.getMinutes() - 5);
     const seconds = pad(jsDate.getSeconds());
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
