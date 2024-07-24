@@ -726,6 +726,8 @@ router.get("/track_order/get_all", async(req, res)=>{
             svalor = req.query.svalor
         };
 
+        console.log(req.query.clientenome)
+
         if(!req.query.pcampo || req.query.pcampo == 'undefined'){
             if(!req.query.data_ent){
                 sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&cliente=${req.query.clientenome}`,

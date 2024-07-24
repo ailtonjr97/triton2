@@ -58,6 +58,8 @@ async function atualizaPropostaDeFrete(req, res) {
         }
 
         async function insertNonMatchingRecord(connection, record) {
+            const revisao = await connection.execute(`SELECT * FROM ANALISE_CREDITO WHERE NUMERO_PEDIDO = ${record.CJ_NUM}`);
+
             await connection.execute(`INSERT INTO ANALISE_CREDITO (
                 DATA_SOLICIT,
                 NUMERO_PEDIDO,
@@ -72,8 +74,9 @@ async function atualizaPropostaDeFrete(req, res) {
                 CLIENTE,
                 EMAIL_CLIENTE,
                 ARQUIVA,
-                ARQUIVADO
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+                ARQUIVADO,
+                REVISAO
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
                 record.CJ_XDTSOLI || null,
                 record.CJ_NUM || null,
                 record.CJ_FILIAL || null,
@@ -87,7 +90,8 @@ async function atualizaPropostaDeFrete(req, res) {
                 record.A1_NOME || null,
                 record.A1_EMAIL || null,
                 0,
-                0
+                0,
+                revisao[0].length + 1
             ]);
         }
 
