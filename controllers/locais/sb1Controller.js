@@ -182,6 +182,3 @@ module.exports = {
     atualizarSb1,
     atualizarSb1Massa
 };
-
-atualizarSb1Massa();
-console.log('vrau')
