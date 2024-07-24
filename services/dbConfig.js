@@ -5,9 +5,13 @@ const config = {
     password: process.env.DB_PASSWORD,
     server: process.env.DB_SERVER,
     database: process.env.DB_NAME,
+    connectionTimeout: 180000,
+    requestTimeout: 180000,
     options: {
         encrypt: true, // Use this if you're on Windows Azure
-        trustServerCertificate: true // Change to true for local dev / self-signed certs
+        trustServerCertificate: true, // Change to true for local dev / self-signed certs
+        connectionTimeout: 180000,
+        requestTimeout: 180000,
     },
     port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 1433 // Adicione a porta, se necessário
 };
