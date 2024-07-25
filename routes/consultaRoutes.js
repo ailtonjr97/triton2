@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {consultaCassia, sb2GetAll, sb8GetAll, sbfGetAll} = require('../controllers/consultaController');
+const {consultaCassia, sb2GetAll, sb8GetAll, sbfGetAll, consultaAmandinha} = require('../controllers/consultaController');
 const { 
     cliente,
     vendedor,
@@ -10,6 +10,7 @@ const {
 } = require('../controllers/consultasController.js');
 
 router.get("/consulta-cassia", consultaCassia);
+router.get("/consulta-amandinha", consultaAmandinha);
 router.get("/sb2-get-all", sb2GetAll);
 router.get("/sb8-get-all", sb8GetAll);
 router.get("/sbf-get-all", sbfGetAll);
