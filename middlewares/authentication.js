@@ -92,4 +92,47 @@ function authenticationMiddlewareApi(req, res, next) {
     }
 }
 
-module.exports = { authenticationMiddleware, authenticationMiddlewareApi };
+function authenticationMiddlewareBasic(req, res, next) {
+    try {
+        const authHeader = req.headers.authorization;
+
+        // Verifica se o cabeçalho de autorização está presente
+        if (!authHeader) {
+            return res.status(401).json({ error: 'Authorization header is missing' });
+        }
+
+        // Verifica se o cabeçalho de autorização está no formato Basic
+        if (!authHeader.startsWith('Basic ')) {
+            return res.status(401).json({ error: 'Invalid authorization header format' });
+        }
+
+        // Decodifica o base64 e extrai usuário e senha
+        const base64Credentials = authHeader.split(' ')[1];
+        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+        const [username, password] = credentials.split(':');
+
+        // Verifica se usuário e senha estão presentes
+        if (!username || !password) {
+            return res.status(401).json({ error: 'Invalid authorization credentials' });
+        }
+
+        // Verifica o token (supondo que a senha é o token JWT)
+        jwt.verify(password, process.env.JWTSECRET, (err, decoded) => {
+            if (err) {
+                return res.status(401).json({ error: 'Invalid token' });
+            }
+
+            // Adiciona as informações decodificadas do token ao objeto de solicitação
+            req.user = decoded;
+
+            // Prossegue para o próximo middleware ou rota
+            next();
+        });
+    } catch (error) {
+        // Log de erro detalhado para fins de depuração
+        console.error('Authentication middleware error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+module.exports = { authenticationMiddleware, authenticationMiddlewareApi, authenticationMiddlewareBasic };

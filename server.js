@@ -19,7 +19,7 @@ const financeiroRoutes = require('./routes/financeiroRoutes');
 const credito = require("./controllers/CreditoController.js");
 const consulta = require("./routes/consultaRoutes");
 const local = require("./routes/localRoutes.js");
-const { authenticationMiddleware, authenticationMiddlewareApi } = require('./middlewares/authentication.js');
+const { authenticationMiddleware, authenticationMiddlewareApi, authenticationMiddlewareBasic } = require('./middlewares/authentication.js');
 
 var corsOptions = {
 origin: [process.env.ORIGIN1, process.env.ORIGIN2, process.env.ORIGIN3],
@@ -45,8 +45,8 @@ app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRo
 app.use("/credito", cors(corsOptions),  credito);
 app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/files", cors(corsOptions), files);
-app.use("/consultas", cors(corsOptions), consulta);
-app.use("/local", cors(corsOptions), local);
+app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta);
+app.use("/local", cors(corsOptions), authenticationMiddlewareApi,local);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
