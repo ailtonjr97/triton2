@@ -20,7 +20,7 @@ async function consultaCassia(req, res) {
 async function consultaAmandinha(req, res) {
     try {
         await connectToDatabase();
-        const query = await sql.query`SELECT 
+        const query = await sql.query`SELECT TOP 1
         B1_FILIAL,
         B1_COD,
         B1_DESC,
