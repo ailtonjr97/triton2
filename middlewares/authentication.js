@@ -55,24 +55,27 @@ function authenticationMiddlewareApi(req, res, next) {
             return res.status(401).json({ error: 'Authorization header is missing' });
         }
 
-        // Verifica se o cabeçalho de autorização está no formato Basic
-        if (!authHeader.startsWith('Basic ')) {
-            return res.status(401).json({ error: 'Invalid authorization header format' });
+        // Busca o token no cabeçalho de autorização que começa com 'jwt=' ou 'Bearer '
+        const jwtToken = authHeader.split(';').find(token => token.trim().startsWith('jwt=') || token.trim().startsWith('Bearer '));
+
+        // Verifica se o token foi encontrado e está no formato correto
+        if (!jwtToken || (!jwtToken.trim().startsWith('jwt=') && !jwtToken.trim().startsWith('Bearer '))) {
+            return res.status(401).json({ error: 'Token is missing or in an invalid format' });
         }
 
-        // Decodifica o base64 e extrai usuário e senha
-        const base64Credentials = authHeader.split(' ')[1];
-        const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
-        const [username, password] = credentials.split(':');
+        // Remove o prefixo 'jwt=' ou 'Bearer ' do token
+        let token = jwtToken.replace('jwt=', '').replace('Bearer ', '').trim();
 
-        // Verifica se usuário e senha estão presentes
-        if (!username || !password) {
-            return res.status(401).json({ error: 'Invalid authorization credentials' });
+        // Verifica se o token está vazio após a remoção dos prefixos
+        if (!token) {
+            return res.status(401).json({ error: 'Token is missing' });
         }
 
-        // Verifica o token (supondo que a senha é o token JWT)
-        jwt.verify(password, process.env.JWTSECRET, (err, decoded) => {
+        // Verifica o token
+        jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
             if (err) {
+                // Log de erro detalhado para fins de depuração
+                console.error('JWT verification error:', err);
                 return res.status(401).json({ error: 'Invalid token' });
             }
 
@@ -87,6 +90,6 @@ function authenticationMiddlewareApi(req, res, next) {
         console.error('Authentication middleware error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
-};
+}
 
 module.exports = { authenticationMiddleware, authenticationMiddlewareApi };

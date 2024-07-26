@@ -45,8 +45,8 @@ app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRo
 app.use("/credito", cors(corsOptions),  credito);
 app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/files", cors(corsOptions), files);
-app.use("/consultas", cors(corsOptions), authenticationMiddlewareApi, consulta);
-app.use("/local", cors(corsOptions), authenticationMiddleware, local);
+app.use("/consultas", cors(corsOptions), consulta);
+app.use("/local", cors(corsOptions), local);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
