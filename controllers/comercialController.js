@@ -257,7 +257,11 @@ router.post("/proposta-de-frete/:id", async(req, res)=>{
             valorMaisImposto *= 1.2
         }
 
-        await comercialModel.freteUpdate(req.body, req.params.id, today, valorMaisImposto);
+        // await axios.put(`${process.env.APITOTVS}CONSULTA_SCJ/update_frtori?valor=${req.body[0].valor}&filial=${req.body[1]}&orcamento=${req.body[2]}`, {}, {
+        //     auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+        // });
+
+        await comercialModel.freteUpdate(req.body, req.params.id, today, valorMaisImposto, req.body[0].valor);
         const vendedor = await comercialModel.vendedor(req.params.id);
 
         const id   = vendedor[0].cliente;
@@ -381,6 +385,12 @@ router.get("/transportadoras/:nome", async(req, res)=>{
 
 router.get("/update-frete-cot", async(req, res)=>{
     try {
+        const freteOriginal = await comercialModel.buscaValorOriginal(req.query.cj_cst_fts);
+
+        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_frtori?valor=${freteOriginal[0].CJ_FRTORI}&filial=${freteOriginal[0].filial}&orcamento=${freteOriginal[0].pedido}`,"", 
+            {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+        });
+
         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${req.query.valor}&transp=${req.query.transp}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         await comercialModel.preparaArquivaFrete(req.query.cj_num, req.query.revisao)
         res.sendStatus(200);

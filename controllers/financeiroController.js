@@ -391,9 +391,10 @@ async function parcelas(req, res) {
 
 async function nfcte(req, res) {
     try {
-        const numero = !req.query.numero ? ''  : req.query.numero;
+        const numero    = !req.query.numero    ? ''  : req.query.numero;
+        const orcamento = !req.query.orcamento ? ''  : req.query.orcamento;
 
-        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SF2/grid?numero=${numero}`, {
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SF2/grid?numero=${numero}&orcamento=${orcamento}`, {
             auth: {
                 username: process.env.USERTOTVS,
                 password: process.env.SENHAPITOTVS
@@ -404,18 +405,22 @@ async function nfcte(req, res) {
 
         response.data.objects.forEach(element => {
             items.push({
+                F2_FILIAL:  element.F2_FILIAL,
                 F2_DOC:     element.F2_DOC,
                 F2_SERIE:   element.F2_SERIE,
                 F2_FRETE:   formatarParaMoedaBrasileira(element.F2_FRETE),
                 F2_ICMFRET: formatarParaMoedaBrasileira(element.F2_ICMFRET),
                 C5_NUM:     element.C5_NUM,
                 C5_FRETE:   formatarParaMoedaBrasileira(element.C5_FRETE),
+                CJ_NUM:     element.CJ_NUM,
+                CJ_FRTORI:  element.CJ_FRTORI,
                 R_E_C_N_O_: element.R_E_C_N_O_
             })
         });
 
         res.json(items);
     } catch (error) {
+        console.log(error)
         if(error.response.status == 404){
             res.sendStatus(404)
         }else{

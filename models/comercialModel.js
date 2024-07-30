@@ -114,7 +114,14 @@ const proposta = async(id)=>{
     return rows;
 };
 
-const freteUpdate = async(body, id, today, valorMaisImposto)=>{
+const buscaValorOriginal = async(id)=>{
+    const conn = await connect();
+    const [rows] = await conn.query(`select * from proposta_frete pf where id = ${id}`);
+    conn.end();
+    return rows;
+};
+
+const freteUpdate = async(body, id, today, valorMaisImposto, freteOriginal)=>{
     const conn = await connect();
     await conn.query(`
         UPDATE proposta_frete SET
@@ -124,9 +131,10 @@ const freteUpdate = async(body, id, today, valorMaisImposto)=>{
         prazo = ?,
         nome_transportadora = ?,
         cotador_id_2 = ?,
-        cod_cot = ?
+        cod_cot = ?,
+        CJ_FRTORI = ?
         WHERE id = ?
-    `, [today, valorMaisImposto, body[0].transp_nome_select, body[0].prazo, body[0].transp_nome2_select, body[0].cotador_id_2, body[0].codcot, id]);
+    `, [today, valorMaisImposto, body[0].transp_nome_select, body[0].prazo, body[0].transp_nome2_select, body[0].cotador_id_2, body[0].codcot, freteOriginal, id]);
     conn.end();
 };
 
@@ -215,5 +223,6 @@ module.exports = {
     allArquivadas,
     searchArquivadas,
     insertLogSistema,
-    vendedor
+    vendedor,
+    buscaValorOriginal
 };
