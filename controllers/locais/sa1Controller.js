@@ -123,7 +123,7 @@ async function verificarHorario() {
 }
 
 // Executar a verificação a cada 2 minutos
-setInterval(verificarHorario, 120000);
+setInterval(verificarHorario, 1800000);
 
 module.exports = { 
     atualizarSa1,
