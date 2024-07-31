@@ -402,19 +402,30 @@ async function nfcte(req, res) {
         });
 
         const items = [];
+        let freteSemImposto = 0;
 
         response.data.objects.forEach(element => {
+
+            if(element.F2_FILIAL == '0101001' || element.F2_FILIAL == '0101002'){
+                freteSemImposto = element.C5_FRETE * 0.7
+            }else{
+                freteSemImposto = element.C5_FRETE * 0.8
+            }
+
+            freteSemImposto = parseFloat(freteSemImposto.toFixed(2));
+            console.log(freteSemImposto)
             items.push({
-                F2_FILIAL:  element.F2_FILIAL,
-                F2_DOC:     element.F2_DOC,
-                F2_SERIE:   element.F2_SERIE,
-                F2_FRETE:   formatarParaMoedaBrasileira(element.F2_FRETE),
-                F2_ICMFRET: formatarParaMoedaBrasileira(element.F2_ICMFRET),
-                C5_NUM:     element.C5_NUM,
-                C5_FRETE:   formatarParaMoedaBrasileira(element.C5_FRETE),
-                CJ_NUM:     element.CJ_NUM,
-                CJ_FRTORI:  element.CJ_FRTORI,
-                R_E_C_N_O_: element.R_E_C_N_O_
+                F2_FILIAL:       element.F2_FILIAL,
+                F2_DOC:          element.F2_DOC,
+                F2_SERIE:        element.F2_SERIE,
+                F2_FRETE:        formatarParaMoedaBrasileira(element.F2_FRETE),
+                F2_ICMFRET:      formatarParaMoedaBrasileira(element.F2_ICMFRET),
+                C5_NUM:          element.C5_NUM,
+                C5_FRETE:        formatarParaMoedaBrasileira(element.C5_FRETE),
+                CJ_NUM:          element.CJ_NUM,
+                CJ_FRTORI:       element.CJ_FRTORI,
+                FRETESEMIMPOSTO: freteSemImposto,
+                R_E_C_N_O_:      element.R_E_C_N_O_
             })
         });
 
