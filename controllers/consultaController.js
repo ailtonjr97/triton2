@@ -126,5 +126,6 @@ module.exports = {
     sb2GetAll,
     sb8GetAll,
     sbfGetAll,
-    consultaAmandinha
+    consultaAmandinha,
+    consultaHerica
 };
