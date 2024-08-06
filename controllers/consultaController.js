@@ -1,6 +1,18 @@
 const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
 
+async function consultaHerica(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`SELECT * FROM SA1010 WHERE A1_XCARTEI = '000042'`;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
 async function consultaCassia(req, res) {
     try {
         const response = await axios.get(process.env.APITOTVS + `CONSULTA_SB2/consulta_cassia`, {
