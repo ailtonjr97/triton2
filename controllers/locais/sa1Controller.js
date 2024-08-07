@@ -44,7 +44,7 @@ async function atualizarSa1(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, A1_VEND, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SA1010 WHERE A1_FILIAL = ${A1_FILIAL} AND A1_COD = ${A1_COD} AND A1_LOJA = ${A1_LOJA}`;
@@ -52,11 +52,11 @@ async function atualizarSa1(req, res) {
             if (result.recordset.length > 0) {
                 // Registro existe, realizar o update
                 await sql.query`UPDATE SA1010 SET A1_FILIAL = ${A1_FILIAL}, A1_COD = ${A1_COD}, A1_LOJA = ${A1_LOJA}, A1_NOME = ${A1_NOME}, A1_CGC = ${A1_CGC}, A1_END = ${A1_END}, A1_CODMUN = ${A1_CODMUN}, 
-                A1_MUN = ${A1_MUN}, A1_EST = ${A1_EST}, A1_CEP = ${A1_CEP}, A1_XCARTEI = ${A1_XCARTEI}, A1_GRPVEN = ${A1_GRPVEN}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
+                A1_MUN = ${A1_MUN}, A1_EST = ${A1_EST}, A1_CEP = ${A1_CEP}, A1_XCARTEI = ${A1_XCARTEI}, A1_GRPVEN = ${A1_GRPVEN}, A1_VEND = ${A1_VEND}, S_T_A_M_P_ = ${S_T_A_M_P_}, R_E_C_N_O_ = ${R_E_C_N_O_}, R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
                                  WHERE A1_FILIAL = ${A1_FILIAL} AND A1_COD = ${A1_COD} AND A1_LOJA = ${A1_LOJA}`;
             } else {
                 // Registro não existe, realizar o insert
-                await sql.query`INSERT INTO SA1010 (A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${A1_FILIAL}, ${A1_COD}, ${A1_LOJA}, ${A1_NOME}, ${A1_CGC}, ${A1_END}, ${A1_CODMUN}, ${A1_MUN}, ${A1_EST}, ${A1_CEP}, ${A1_XCARTEI}, ${A1_GRPVEN}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                await sql.query`INSERT INTO SA1010 (A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, A1_VEND, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${A1_FILIAL}, ${A1_COD}, ${A1_LOJA}, ${A1_NOME}, ${A1_CGC}, ${A1_END}, ${A1_CODMUN}, ${A1_MUN}, ${A1_EST}, ${A1_CEP}, ${A1_XCARTEI}, ${A1_GRPVEN}, ${A1_VEND}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
             }
         });
 
@@ -91,8 +91,8 @@ async function atualizarSa1Massa(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
-            await sql.query`INSERT INTO SA1010 (A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${A1_FILIAL}, ${A1_COD}, ${A1_LOJA}, ${A1_NOME}, ${A1_CGC}, ${A1_END}, ${A1_CODMUN}, ${A1_MUN}, ${A1_EST}, ${A1_CEP}, ${A1_XCARTEI}, ${A1_GRPVEN}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+            const { A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, A1_VEND, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            await sql.query`INSERT INTO SA1010 (A1_FILIAL, A1_COD, A1_LOJA, A1_NOME, A1_CGC, A1_END, A1_CODMUN, A1_MUN, A1_EST, A1_CEP, A1_XCARTEI, A1_GRPVEN, A1_VEND, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) VALUES (${A1_FILIAL}, ${A1_COD}, ${A1_LOJA}, ${A1_NOME}, ${A1_CGC}, ${A1_END}, ${A1_CODMUN}, ${A1_MUN}, ${A1_EST}, ${A1_CEP}, ${A1_XCARTEI}, ${A1_GRPVEN}, ${A1_VEND}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
         });
 
         // Esperar a conclusão de todas as promessas
