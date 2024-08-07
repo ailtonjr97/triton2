@@ -4,7 +4,7 @@ const { sql, connectToDatabase } = require('../services/dbConfig');
 async function consultaHerica(req, res) {
     try {
         await connectToDatabase();
-        const query = await sql.query`SELECT * FROM SA1010 WHERE A1_XCARTEI = '000042'`;
+        const query = await sql.query`SELECT * FROM SA1010 WHERE A1_XCARTEI = '000042' AND A1_VEND = '000008' `;
 
         res.send(query.recordset);
     } catch (error) {
