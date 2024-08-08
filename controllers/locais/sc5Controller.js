@@ -153,15 +153,12 @@ async function verificarHorario() {
         refreshed = false;
     } else if (hours !== 0 || minutes > 30) {
         refreshed = true;
-        await atualizarSc5Massa();
-        //await atualizarSc5();
+        await atualizarSc5();
     }
 }
 
 // Executar a verificação a cada 30 minutos
 setInterval(verificarHorario, 1800000);
-
-verificarHorario();
 
 module.exports = { 
     atualizarSc5,
