@@ -85,6 +85,7 @@ async function atualizarSb5(req, res) {
     } catch (error) {
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        console.log(error);
     }
 }
 

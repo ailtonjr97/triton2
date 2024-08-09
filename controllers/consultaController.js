@@ -1,6 +1,42 @@
 const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
 
+async function consultaMichelleAlguns(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`
+            SELECT A1_COD AS 'COD. CLIENTE', A1_NOME AS 'NOME CLIENTE', A1_MUN AS 'MUNICIPIO', 
+            A1_VEND AS 'COD. VENDEDOR', A3_NOME AS 'NOME VENDEDOR', C5_NUM AS 'NUMERO PEDIDO', 
+            C5_XHEXPED 'EXPEDIDO', A1_XCARTEI 'CARTEIRA', A1_GRPVEN 'GRUPO DE VENDA' FROM SA1010
+            INNER JOIN SA3010 VEND ON SA1010.A1_VEND = VEND.A3_COD
+            INNER JOIN SC5010 PED ON SA1010.A1_COD = PED.C5_CLIENTE AND SA1010.A1_LOJA = PED.C5_LOJACLI
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
+async function consultaMichelleTudo(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`
+            SELECT A1_COD AS 'COD. CLIENTE', A1_NOME AS 'NOME CLIENTE', A1_MUN AS 'MUNICIPIO', 
+            A1_VEND AS 'COD. VENDEDOR', A3_NOME AS 'NOME VENDEDOR', C5_NUM AS 'NUMERO PEDIDO', 
+            C5_XHEXPED 'EXPEDIDO', A1_XCARTEI 'CARTEIRA', A1_GRPVEN 'GRUPO DE VENDA' FROM SA1010
+            LEFT JOIN SA3010 VEND ON SA1010.A1_VEND = VEND.A3_COD
+            LEFT JOIN SC5010 PED ON SA1010.A1_COD = PED.C5_CLIENTE AND SA1010.A1_LOJA = PED.C5_LOJACLI
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+}
+
 async function consultaHerica(req, res) {
     try {
         await connectToDatabase();
@@ -127,5 +163,7 @@ module.exports = {
     sb8GetAll,
     sbfGetAll,
     consultaAmandinha,
-    consultaHerica
+    consultaHerica,
+    consultaMichelleAlguns,
+    consultaMichelleTudo
 };
