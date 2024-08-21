@@ -59,7 +59,7 @@ router.get("/proposta-de-frete/pesquisa", async(req, res)=>{
         }else{
             resultados = req.query.resultados
         }
-        res.json(await comercialModel.search(req.query.pedido, resultados, req.query.vendedor, req.query.identificador));
+        res.json(await comercialModel.search(req.query.pedido, resultados, req.query.vendedor, req.query.identificador, req.query.filial));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
