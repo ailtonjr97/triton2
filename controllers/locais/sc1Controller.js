@@ -160,7 +160,7 @@ async function verificarHorario() {
     const minutes = now.getMinutes();
 
     // Verificar se o horário do update em massa
-    if (hours === 0 && minutes > 25 && minutes <= 30 && refreshed) {
+    if (hours === 0 && minutes > 30 && minutes <= 35 && refreshed) {
         await atualizarSc1Massa();
         refreshed = false;
     } else if (hours !== 0 || minutes > 30) {
