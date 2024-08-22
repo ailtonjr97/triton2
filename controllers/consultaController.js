@@ -1,6 +1,18 @@
 const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
 
+async function consultaSolicitacoesDeCompra(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`SELECT * FROM SC1010`;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function consultaMichelleAlguns(req, res) {
     try {
         await connectToDatabase();
@@ -17,7 +29,7 @@ async function consultaMichelleAlguns(req, res) {
         console.log(error);
         res.sendStatus(500);
     }
-}
+};
 
 async function consultaMichelleTudo(req, res) {
     try {
@@ -35,7 +47,7 @@ async function consultaMichelleTudo(req, res) {
         console.log(error);
         res.sendStatus(500);
     }
-}
+};
 
 async function consultaHerica(req, res) {
     try {
@@ -47,7 +59,7 @@ async function consultaHerica(req, res) {
         console.log(error);
         res.sendStatus(500);
     }
-}
+};
 
 async function consultaCassia(req, res) {
     try {
@@ -89,7 +101,7 @@ async function consultaAmandinha(req, res) {
         console.log(error);
         res.sendStatus(500);
     }
-}
+};
 
 async function sb2GetAll(req, res) {
     try {
@@ -111,7 +123,7 @@ async function sb2GetAll(req, res) {
             res.sendStatus(500);
         }
     }
-}
+};
 
 async function sb8GetAll(req, res) {
     try {
@@ -133,7 +145,7 @@ async function sb8GetAll(req, res) {
             res.sendStatus(500);
         }
     }
-}
+};
 
 async function sbfGetAll(req, res) {
     try {
@@ -155,7 +167,7 @@ async function sbfGetAll(req, res) {
             res.sendStatus(500);
         }
     }
-}
+};
 
 module.exports = { 
     consultaCassia,
@@ -165,5 +177,6 @@ module.exports = {
     consultaAmandinha,
     consultaHerica,
     consultaMichelleAlguns,
-    consultaMichelleTudo
+    consultaMichelleTudo,
+    consultaSolicitacoesDeCompra
 };

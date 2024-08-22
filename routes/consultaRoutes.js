@@ -9,7 +9,8 @@ const {
         consultaAmandinha,
         consultaHerica,
         consultaMichelleAlguns,
-        consultaMichelleTudo
+        consultaMichelleTudo,
+        consultaSolicitacoesDeCompra
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -18,9 +19,9 @@ router.get("/sb2-get-all", sb2GetAll);
 router.get("/sb8-get-all", sb8GetAll);
 router.get("/sbf-get-all", sbfGetAll);
 router.get("/consulta-herica", consultaHerica);
-
 router.get("/consulta-michelle-tudo", consultaMichelleTudo);
 router.get("/consulta-michelle-alguns", consultaMichelleAlguns);
+router.get("/consulta-solicit-compras", consultaSolicitacoesDeCompra);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);
