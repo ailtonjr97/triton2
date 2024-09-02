@@ -736,8 +736,6 @@ router.get("/track_order/get_all", async(req, res)=>{
             svalor = req.query.svalor
         };
 
-        console.log(req.query.clientenome)
-
         if(!req.query.pcampo || req.query.pcampo == 'undefined'){
             if(!req.query.data_ent){
                 sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&cliente=${req.query.clientenome}`,
@@ -792,6 +790,8 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_XPEDTR: response.C5_XPEDTR, 
                 C5_NOTA: response.C5_NOTA,                 
                 C5_VEND1: response.C5_VEND1,
+                C5_XOBSV: response.C5_XOBSV,
+                C5_XOBSVBOOL: response.C5_XOBSV.trim().length > 0,
                 A1_NOME: response.A1_NOME,                           
                 C5_FECENT: formatDate (response.C5_FECENT),
                 itens: [
@@ -807,6 +807,16 @@ router.get("/track_order/get_all", async(req, res)=>{
         }else{
             res.sendStatus(500);
         }
+    }
+});
+
+router.post("/atualiza-obs-vend", async(req, res)=>{
+    try {
+        await axios.put(`${process.env.APITOTVS}CONSULTA_SC5/xobsv?filial=${req.query.filial}&num=${req.query.numero}&texto=${req.body.texto}`, {}, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500);
     }
 });
 
