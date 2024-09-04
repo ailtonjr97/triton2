@@ -111,10 +111,10 @@ async function verificarHorario() {
     const minutes = now.getMinutes();
 
     // Verificar se o horário do update em massa
-    if (hours === 0 && minutes > 5 && minutes <= 10 && refreshed) {
+    if (hours === 0 && minutes <= 55 && refreshed) {
         await atualizarSd2Massa();
         refreshed = false;
-    } else if (hours !== 0 || minutes > 30) {
+    } else if (hours !== 0 || minutes > 55) {
         refreshed = true;
         await atualizarSd2();
     }

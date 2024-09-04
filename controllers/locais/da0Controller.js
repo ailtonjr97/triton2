@@ -26,12 +26,12 @@ function getCurrentSQLServerDateTime() {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-async function atualizarSb5(req, res) {
+async function atualizarDa0(req, res) {
     try {
         const updated_at = getCurrentDateString();
 
         // Obter as notas da API
-        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_SB5/banco`, {
+        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_DA0/banco`, {
             params: { updated_at },
             auth: {
                 username: process.env.USERTOTVS,
@@ -44,34 +44,34 @@ async function atualizarSb5(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { B5_FILIAL, B5_COD, B5_CEME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { DA0_FILIAL, DA0_CODTAB, DA0_DESCRI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
             // Verificar se o registro existe
-            const result = await sql.query`SELECT * FROM SB5010 WHERE B5_FILIAL = ${B5_FILIAL} AND B5_COD = ${B5_COD}`;
+            const result = await sql.query`SELECT * FROM DA0010 WHERE DA0_FILIAL = ${DA0_FILIAL} AND DA0_CODTAB = ${DA0_CODTAB}`;
 
             if (result.recordset.length > 0) {
                 // Registro existe, realizar o update
-                await sql.query`UPDATE SB5010 SET 
-                B5_FILIAL = ${B5_FILIAL}, 
-                B5_COD = ${B5_COD}, 
-                B5_CEME = ${B5_CEME}, 
+                await sql.query`UPDATE DA0010 SET 
+                DA0_FILIAL = ${DA0_FILIAL}, 
+                DA0_CODTAB = ${DA0_CODTAB}, 
+                DA0_DESCRI = ${DA0_DESCRI}, 
                 S_T_A_M_P_ = ${S_T_A_M_P_}, 
                 R_E_C_N_O_ = ${R_E_C_N_O_}, 
                 R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
-                WHERE B5_FILIAL = ${B5_FILIAL} AND B5_COD = ${B5_COD}`;
+                WHERE DA0_FILIAL = ${DA0_FILIAL} AND DA0_CODTAB = ${DA0_CODTAB}`;
             } else {
                 // Registro não existe, realizar o insert
-                await sql.query`INSERT INTO SB5010 (
-                    B5_FILIAL, 
-                    B5_COD, 
-                    B5_CEME, 
+                await sql.query`INSERT INTO DA0010 (
+                    DA0_FILIAL, 
+                    DA0_CODTAB,
+                    DA0_DESCRI, 
                     S_T_A_M_P_, 
                     R_E_C_N_O_, 
                     R_E_C_D_E_L_
                 ) VALUES (
-                    ${B5_FILIAL}, 
-                    ${B5_COD}, 
-                    ${B5_CEME},
+                    ${DA0_FILIAL}, 
+                    ${DA0_CODTAB},
+                    ${DA0_DESCRI},
                     ${S_T_A_M_P_}, 
                     ${R_E_C_N_O_}, 
                     ${R_E_C_D_E_L_}
@@ -81,20 +81,20 @@ async function atualizarSb5(req, res) {
 
         // Esperar a conclusão de todas as promessas
         await Promise.all(promises);
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010', ${getCurrentSQLServerDateTime()}, 200)`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('DA0010', ${getCurrentSQLServerDateTime()}, 200)`
     } catch (error) {
         await connectToDatabase();
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('DA0010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error);
     }
 }
 
-async function atualizarSb5Massa(req, res) {
+async function atualizarDa0Massa(req, res) {
     try {
         const updated_at = '';
 
         // Obter as notas da API
-        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_SB5/banco`, {
+        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_DA0/banco`, {
             params: { updated_at },
             auth: {
                 username: process.env.USERTOTVS,
@@ -106,7 +106,7 @@ async function atualizarSb5Massa(req, res) {
         await connectToDatabase();
 
         // Remover todos os registros do banco
-        await sql.query`TRUNCATE TABLE SB5010`
+        await sql.query`TRUNCATE TABLE DA0010`
 
         // Função para inserir registros em lotes de mil
         const batchSize = 1000;
@@ -114,19 +114,19 @@ async function atualizarSb5Massa(req, res) {
             const batch = notas.data.objects.slice(i, i + batchSize);
 
             const promises = batch.map(async element => {
-                const { B5_FILIAL, B5_COD, B5_CEME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
-                await sql.query`INSERT INTO SB5010 ( B5_FILIAL, B5_COD, B5_CEME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ ) 
-                VALUES (${B5_FILIAL}, ${B5_COD}, ${B5_CEME}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                const { DA0_FILIAL, DA0_CODTAB, DA0_DESCRI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+                await sql.query`INSERT INTO DA0010 ( DA0_FILIAL, DA0_CODTAB, DA0_DESCRI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ ) 
+                VALUES (${DA0_FILIAL}, ${DA0_CODTAB}, ${DA0_DESCRI}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
             });
 
             // Esperar a conclusão das inserções do lote atual antes de continuar
             await Promise.all(promises);
         }
 
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010M', ${getCurrentSQLServerDateTime()}, 200)`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('DA0010M', ${getCurrentSQLServerDateTime()}, 200)`
     } catch (error) {
         await connectToDatabase();
-        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('DA0010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error)
     }
 }
@@ -140,18 +140,21 @@ async function verificarHorario() {
 
     // Verificar se o horário do update em massa
     if (hours === 0 && minutes <= 55 && refreshed) {
-        await atualizarSb5Massa();
+        await atualizarDa0Massa();
         refreshed = false;
     } else if (hours !== 0 || minutes > 55) {
         refreshed = true;
-        await atualizarSb5();
+        //await atualizarDa0();
+        await atualizarDa0Massa();
     }
 }
 
 // Executar a verificação a cada 2 minutos
 setInterval(verificarHorario, 1800000);
 
+verificarHorario();
+
 module.exports = { 
-    atualizarSb5,
-    atualizarSb5Massa
+    atualizarDa0,
+    atualizarDa0Massa
 };
