@@ -159,15 +159,12 @@ async function verificarHorario() {
         refreshed = false;
     } else if (hours !== 2 || minutes > 55) {
         refreshed = true;
-        //await atualizarDa1();
-        await atualizarDa1Massa();
+        await atualizarDa1();
     }
 }
 
 // Executar a verificação a cada 2 minutos
 setInterval(verificarHorario, 1800000);
-
-verificarHorario();
 
 module.exports = { 
     atualizarDa1,
