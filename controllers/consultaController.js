@@ -1,6 +1,30 @@
 const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
 
+async function consultaDa0010(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`SELECT * FROM DA0010`;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaDa1010(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`SELECT * FROM DA1010`;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function consultaSolicitacoesDeCompra(req, res) {
     try {
         await connectToDatabase();
@@ -178,5 +202,7 @@ module.exports = {
     consultaHerica,
     consultaMichelleAlguns,
     consultaMichelleTudo,
-    consultaSolicitacoesDeCompra
+    consultaSolicitacoesDeCompra,
+    consultaDa0010,
+    consultaDa1010
 };

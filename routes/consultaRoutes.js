@@ -10,7 +10,9 @@ const {
         consultaHerica,
         consultaMichelleAlguns,
         consultaMichelleTudo,
-        consultaSolicitacoesDeCompra
+        consultaSolicitacoesDeCompra,
+        consultaDa0010,
+        consultaDa1010
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -22,6 +24,9 @@ router.get("/consulta-herica", consultaHerica);
 router.get("/consulta-michelle-tudo", consultaMichelleTudo);
 router.get("/consulta-michelle-alguns", consultaMichelleAlguns);
 router.get("/consulta-solicit-compras", consultaSolicitacoesDeCompra);
+
+router.get("/consulta-da0010", consultaDa0010);
+router.get("/consulta-da1010", consultaDa1010);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);
