@@ -31,7 +31,7 @@ async function atualizarDa1(req, res) {
         const updated_at = getCurrentDateString();
 
         // Obter as notas da API
-        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_DA1/banco?limit=1`, {
+        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_DA1/banco`, {
             params: { updated_at },
             auth: {
                 username: process.env.USERTOTVS,
@@ -109,7 +109,7 @@ async function atualizarDa1Massa(req, res) {
         const updated_at = '';
 
         // Obter as notas da API
-        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_DA1/banco?limit=10000`, {
+        const notas = await axios.get(`${process.env.APITOTVS}CONSULTA_DA1/banco`, {
             params: { updated_at },
             auth: {
                 username: process.env.USERTOTVS,
