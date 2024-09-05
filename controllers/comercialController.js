@@ -400,6 +400,19 @@ router.get("/update-frete-cot", async(req, res)=>{
     }
 });
 
+router.post("/atualiza-val-frete", async(req, res)=>{
+    try {
+        await axios.put(process.env.APITOTVS + `CONSULTA_SC5/altera-frete-track?filial=${req.query.filial}&num=${req.query.numero}&texto=${req.body.texto}`,"", 
+            {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+        });
+
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
 router.get("/sa1", async(req, res)=>{
     try {
         res.json(await comercialModel.sa1());
