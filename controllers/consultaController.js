@@ -16,7 +16,7 @@ async function consultaDa0010(req, res) {
 async function consultaDa1010(req, res) {
     try {
         await connectToDatabase();
-        const query = await sql.query`SELECT * FROM DA1010`;
+        const query = await sql.query`SELECT CAST(DA1_PRCVEN AS DECIMAL(19,6)) AS 'PRECO', * FROM DA1010`;
 
         res.send(query.recordset);
     } catch (error) {
