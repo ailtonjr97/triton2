@@ -1,6 +1,27 @@
 const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
 
+async function consultaUniaoDa0Da1(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`
+            SELECT 
+            DA1_FILIAL AS FILIAL,
+            DA1_CODTAB AS TABELA,
+            DA1_CODPRO AS PRODUTO,
+            DA1_PRCVEN AS PRECO,
+            D2.DA0_DESCRI AS CARTEIRA,
+            CASE WHEN D1. R_E_C_D_E_L_ = 0 THEN 'ATIVO' ELSE 'INATIVO' END AS STATUS FROM DA1010 D1
+            INNER JOIN DA0010 D2 ON D2.DA0_FILIAL = D1.DA1_FILIAL AND D2.DA0_CODTAB = D1.DA1_CODTAB
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function consultaDa0010(req, res) {
     try {
         await connectToDatabase();
@@ -204,5 +225,6 @@ module.exports = {
     consultaMichelleTudo,
     consultaSolicitacoesDeCompra,
     consultaDa0010,
-    consultaDa1010
+    consultaDa1010,
+    consultaUniaoDa0Da1
 };
