@@ -46,7 +46,21 @@ async function atualizarSc5(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { C5_FILIAL, C5_NUM, C5_XHEXPED, C5_CLIENTE, C5_LOJACLI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_} = element;
+            const { 
+                C5_FILIAL, 
+                C5_NUM, 
+                C5_XHEXPED, 
+                C5_CLIENTE, 
+                C5_LOJACLI, 
+                S_T_A_M_P_, 
+                R_E_C_N_O_, 
+                R_E_C_D_E_L_,
+                C5_NOTA,
+                C5_FECENT,
+                C5_CONDPAG,
+                C5_VEND1,
+                C5_XOBS
+            } = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SC5010 WHERE C5_FILIAL = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}`;
@@ -55,14 +69,19 @@ async function atualizarSc5(req, res) {
                 // Registro existe, realizar o update
                 await sql.query`
                     UPDATE SC5010 SET
-                        C5_FILIAL = ${C5_FILIAL},
-                        C5_NUM    = ${C5_NUM},
+                        C5_FILIAL    = ${C5_FILIAL},
+                        C5_NUM       = ${C5_NUM},
                         C5_XHEXPED   = ${C5_XHEXPED},
                         C5_CLIENTE   = ${C5_CLIENTE},
                         C5_LOJACLI   = ${C5_LOJACLI},
-                        S_T_A_M_P_ = ${S_T_A_M_P_}, 
-                        R_E_C_N_O_ = ${R_E_C_N_O_}, 
-                        R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
+                        S_T_A_M_P_   = ${S_T_A_M_P_}, 
+                        R_E_C_N_O_   = ${R_E_C_N_O_}, 
+                        R_E_C_D_E_L_ = ${R_E_C_D_E_L_},
+                        C5_NOTA    = ${C5_NOTA},
+                        C5_FECENT  = ${C5_FECENT},
+                        C5_CONDPAG = ${C5_CONDPAG},
+                        C5_VEND1   = ${C5_VEND1},
+                        C5_XOBS    = ${C5_XOBS},
                     WHERE 
                         C5_FILIAL = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}
                 `;
@@ -70,9 +89,37 @@ async function atualizarSc5(req, res) {
                 // Registro não existe, realizar o insert
                 await sql.query`
                     INSERT INTO SC5010 
-                        (C5_FILIAL, C5_NUM, C5_XHEXPED, C5_CLIENTE, C5_LOJACLI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) 
+                    (
+                        C5_FILIAL, 
+                        C5_NUM, 
+                        C5_XHEXPED, 
+                        C5_CLIENTE, 
+                        C5_LOJACLI, 
+                        S_T_A_M_P_, 
+                        R_E_C_N_O_, 
+                        R_E_C_D_E_L_,
+                        C5_NOTA,
+                        C5_FECENT,
+                        C5_CONDPAG,
+                        C5_VEND1,
+                        C5_XOBS
+                    ) 
                     VALUES 
-                        (${C5_FILIAL}, ${C5_NUM}, ${C5_XHEXPED}, ${C5_CLIENTE}, ${C5_LOJACLI}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})
+                    (
+                        ${C5_FILIAL}, 
+                        ${C5_NUM}, 
+                        ${C5_XHEXPED}, 
+                        ${C5_CLIENTE}, 
+                        ${C5_LOJACLI}, 
+                        ${S_T_A_M_P_}, 
+                        ${R_E_C_N_O_}, 
+                        ${R_E_C_D_E_L_},
+                        ${C5_NOTA}, 
+                        ${C5_FECENT}, 
+                        ${C5_CONDPAG}, 
+                        ${C5_VEND1}, 
+                        ${C5_XOBS}
+                    )
                 `;
             }
         });
@@ -115,12 +162,54 @@ async function atualizarSc5Massa(req, res) {
 
         // Criar uma matriz de promessas para inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { C5_FILIAL,C5_NUM, C5_XHEXPED, C5_CLIENTE, C5_LOJACLI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { 
+                C5_FILIAL, 
+                C5_NUM, 
+                C5_XHEXPED, 
+                C5_CLIENTE, 
+                C5_LOJACLI, 
+                S_T_A_M_P_, 
+                R_E_C_N_O_, 
+                R_E_C_D_E_L_,
+                C5_NOTA,
+                C5_FECENT,
+                C5_CONDPAG,
+                C5_VEND1,
+                C5_XOBS
+            } = element;
             await sql.query`
                 INSERT INTO SC5010 
-                    (C5_FILIAL, C5_NUM, C5_XHEXPED, C5_CLIENTE, C5_LOJACLI, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) 
+                (
+                    C5_FILIAL, 
+                    C5_NUM, 
+                    C5_XHEXPED, 
+                    C5_CLIENTE, 
+                    C5_LOJACLI, 
+                    S_T_A_M_P_, 
+                    R_E_C_N_O_, 
+                    R_E_C_D_E_L_,
+                    C5_NOTA,
+                    C5_FECENT,
+                    C5_CONDPAG,
+                    C5_VEND1,
+                    C5_XOBS
+                ) 
                 VALUES 
-                    (${C5_FILIAL}, ${C5_NUM}, ${C5_XHEXPED}, ${C5_CLIENTE}, ${C5_LOJACLI}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})
+                (
+                    ${C5_FILIAL}, 
+                    ${C5_NUM}, 
+                    ${C5_XHEXPED}, 
+                    ${C5_CLIENTE}, 
+                    ${C5_LOJACLI}, 
+                    ${S_T_A_M_P_}, 
+                    ${R_E_C_N_O_}, 
+                    ${R_E_C_D_E_L_},
+                    ${C5_NOTA},
+                    ${C5_FECENT},
+                    ${C5_CONDPAG},
+                    ${C5_VEND1},
+                    ${C5_XOBS}
+                )
             `;
         });
 
@@ -153,12 +242,15 @@ async function verificarHorario() {
         refreshed = false;
     } else if (hours !== 0 || minutes > 55) {
         refreshed = true;
-        await atualizarSc5();
+        //await atualizarSc5();
+        await atualizarSc5Massa();
     }
 }
 
 // Executar a verificação a cada 30 minutos
 setInterval(verificarHorario, 1800000);
+
+verificarHorario()
 
 module.exports = { 
     atualizarSc5,

@@ -1,5 +1,62 @@
 const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
+const { sqlKorp, connectToDatabaseKorp } = require('../services/dbConfigKorp');
+
+async function consultaHistlise(req, res) {
+    try {
+        await connectToDatabaseKorp();
+        const query = await sqlKorp.query`
+            SELECT DISTINCT
+            H.ITEM,
+            H.DESCRI,
+            H.UNIDADE,
+            CATEGORIA,                                              
+            E.FAMILIA,
+            E.CODGRUPO, 
+            E.CODSUBGRUPO,
+            E.CT_NBM,
+            NBM.CLASSIFICACAO,
+            E.LTFORNECE,
+            E.LTRECEB,
+            E.LTTRANSP,
+            E.STATUS,
+            E.CT_ORIGEM_MERCADORIA ,
+            M.DESCRICAO,
+            E.CT_ICMS_GRUPO,
+            I.DESCRICAO AS DESC_GRUPO_ICMS,
+            E.RECNO_CT_ESPECIE_CFOP,
+            E.SITTRIBUT_IPI_AUX, 
+            E.SITTRIBUT_PIS_AUX,
+            E.SITTRIBUT_COFINS_AUX
+            FROM HISTLISE H (NOLOCK) 
+            INNER JOIN ESTOQUE E ON E.CODIGO = H.ITEM
+            INNER JOIN CT_ICMS_GRUPO I ON I.CODIGO = E.CT_ICMS_GRUPO
+            INNER JOIN CT_NBM NBM ON NBM.CODIGO = E.CT_NBM
+            INNER JOIN CT_ORIGEM_MERCADORIA M ON M.CODIGO = E.CT_ORIGEM_MERCADORIA
+            WHERE EFETUADOENTR = 'S'
+            ORDER BY ITEM
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaSb1(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`
+            SELECT * FROM SB1010
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
 
 async function consultaUniaoDa0Da1(req, res) {
     try {
@@ -226,5 +283,7 @@ module.exports = {
     consultaSolicitacoesDeCompra,
     consultaDa0010,
     consultaDa1010,
-    consultaUniaoDa0Da1
+    consultaUniaoDa0Da1,
+    consultaHistlise,
+    consultaSb1
 };
