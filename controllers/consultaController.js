@@ -28,7 +28,7 @@ async function consultaHistlise(req, res) {
             E.SITTRIBUT_IPI_AUX, 
             E.SITTRIBUT_PIS_AUX,
             E.SITTRIBUT_COFINS_AUX
-            FROM HISTLISE H (NOLOCK) 
+            FROM HISTLISE H (NOLOCK)  
             INNER JOIN ESTOQUE E ON E.CODIGO = H.ITEM
             INNER JOIN CT_ICMS_GRUPO I ON I.CODIGO = E.CT_ICMS_GRUPO
             INNER JOIN CT_NBM NBM ON NBM.CODIGO = E.CT_NBM
