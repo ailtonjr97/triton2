@@ -170,6 +170,8 @@ async function atualizarSckMassa(req, res) {
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) 
             VALUES ('SCK010M', ${getCurrentSQLServerDateTime()}, 200)
         `;
+
+        res.sendStatus(200)
     } catch (error) {
         await connectToDatabase();
         await sql.query`
