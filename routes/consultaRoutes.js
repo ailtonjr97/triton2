@@ -14,7 +14,7 @@ const {
         consultaDa0010,
         consultaDa1010,
         consultaUniaoDa0Da1,
-        consultaHistlise,
+        //consultaHistlise,
         consultaSb1
     } = require('../controllers/consultaController');
 
@@ -31,7 +31,7 @@ router.get("/consulta-da0010", consultaDa0010);
 router.get("/consulta-da1010", consultaDa1010);
 router.get("/consulta-uniao-da0-da1", consultaUniaoDa0Da1);
 
-router.get("/consulta-histlise", consultaHistlise);
+//router.get("/consulta-histlise", consultaHistlise);
 router.get("/consulta-sb1", consultaSb1);
 
 router.get("/cliente", cliente);
