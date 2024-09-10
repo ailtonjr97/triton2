@@ -284,6 +284,6 @@ module.exports = {
     consultaDa0010,
     consultaDa1010,
     consultaUniaoDa0Da1,
-    consultaHistlise,
+    //consultaHistlise,
     consultaSb1
 };
