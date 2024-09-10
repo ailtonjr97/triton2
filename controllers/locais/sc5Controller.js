@@ -135,7 +135,7 @@ async function atualizarSc5(req, res) {
         await connectToDatabase();
         await sql.query`
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS, MENSAGEM) 
-            VALUES ('SC5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || 500})
+            VALUES ('SC5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || '500'})
         `;
         console.log(error);
         res.sendStatus(200);
@@ -226,7 +226,7 @@ async function atualizarSc5Massa(req, res) {
         await connectToDatabase();
         await sql.query`
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS, MENSAGEM) 
-            VALUES ('SC5010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || 500})
+            VALUES ('SC5010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || '500'})
         `;
         console.log(error);
     }
