@@ -81,7 +81,7 @@ async function atualizarSc5(req, res) {
                         C5_FECENT  = ${C5_FECENT},
                         C5_CONDPAG = ${C5_CONDPAG},
                         C5_VEND1   = ${C5_VEND1},
-                        C5_XOBS    = ${C5_XOBS},
+                        C5_XOBS    = ${C5_XOBS}
                     WHERE 
                         C5_FILIAL = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}
                 `;
