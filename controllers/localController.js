@@ -171,10 +171,12 @@ async function atualizarScj(req, res) {
         // Esperar a conclusão de todas as promessas
         await Promise.all(promises);
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010', ${getCurrentSQLServerDateTime()}, 200)`
+        res.sendStatus(200);
     } catch (error) {
         console.log(error)
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        res.sendStatus(200);
     }
 }
 
@@ -294,6 +296,7 @@ async function atualizarScjMassa(req, res) {
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SCJ010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error)
+        res.sendStatus(500);
     }
 }
 
@@ -335,9 +338,11 @@ async function atualizarSf2(req, res) {
         // Esperar a conclusão de todas as promessas
         await Promise.all(promises);
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SF2010', ${getCurrentSQLServerDateTime()}, 200)`
+        res.sendStatus(200);
     } catch (error) {
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SF2010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        res.sendStatus(200);
     }
 }
 
@@ -400,5 +405,7 @@ setInterval(verificarHorario, 1800000);
 
 module.exports = { 
     atualizarScj,
-    atualizarScjMassa
+    atualizarScjMassa,
+    atualizarSf2,
+    atualizarSf2Massa
 };

@@ -82,10 +82,12 @@ async function atualizarSb5(req, res) {
         // Esperar a conclusão de todas as promessas
         await Promise.all(promises);
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010', ${getCurrentSQLServerDateTime()}, 200)`
+        res.sendStatus(200);
     } catch (error) {
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error);
+        res.sendStatus(200);
     }
 }
 
@@ -128,7 +130,8 @@ async function atualizarSb5Massa(req, res) {
     } catch (error) {
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SB5010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
-        console.log(error)
+        console.log(error);
+        res.sendStatus(500);
     }
 }
 

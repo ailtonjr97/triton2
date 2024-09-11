@@ -123,6 +123,7 @@ async function atualizarSck(req, res) {
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) 
             VALUES ('SCK010', ${getCurrentSQLServerDateTime()}, 200)
         `;
+        res.sendStatus(200);
     } catch (error) {
         await connectToDatabase();
         await sql.query`
@@ -130,6 +131,7 @@ async function atualizarSck(req, res) {
             VALUES ('SCK010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})
         `;
         console.log(error);
+        res.sendStatus(200);
     }
 }
 
@@ -179,6 +181,7 @@ async function atualizarSckMassa(req, res) {
             VALUES ('SCK010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})
         `;
         console.log(error);
+        res.sendStatus(500);
     }
 }
 

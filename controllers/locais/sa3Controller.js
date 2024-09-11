@@ -81,6 +81,7 @@ async function atualizarSa3(req, res) {
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) 
             VALUES ('SA3010', ${getCurrentSQLServerDateTime()}, 200)
         `;
+        res.sendStatus(200);
     } catch (error) {
         await connectToDatabase();
         await sql.query`
@@ -88,6 +89,7 @@ async function atualizarSa3(req, res) {
             VALUES ('SA3010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})
         `;
         console.log(error);
+        res.sendStatus(200);
     }
 }
 
@@ -137,6 +139,7 @@ async function atualizarSa3Massa(req, res) {
             VALUES ('SA3010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})
         `;
         console.log(error);
+        res.sendStatus(500);
     }
 }
 
