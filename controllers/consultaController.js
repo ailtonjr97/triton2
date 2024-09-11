@@ -47,7 +47,7 @@ const comercialModel = require("../models/comercialModel.js");
 
 async function consultaCotFrete(req, res) {
     try {
-        res.json(await comercialModel.all());
+        res.json(await comercialModel.allConsulta());
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
