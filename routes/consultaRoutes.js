@@ -16,7 +16,8 @@ const {
         consultaUniaoDa0Da1,
         //consultaHistlise,
         consultaSb1,
-        consultaCotFrete
+        consultaCotFrete,
+        consultaAnaliseCreditoLuiz
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -31,6 +32,7 @@ router.get("/consulta-solicit-compras", consultaSolicitacoesDeCompra);
 router.get("/consulta-da0010", consultaDa0010);
 router.get("/consulta-da1010", consultaDa1010);
 router.get("/consulta-cot-frete", consultaCotFrete);
+router.get("/consulta-analise-credito-luiz", consultaAnaliseCreditoLuiz);
 
 //router.get("/consulta-histlise", consultaHistlise);
 router.get("/consulta-sb1", consultaSb1);

@@ -24,6 +24,91 @@ async function connect(){
 
 connect();
 
+const consultaLuiz = async (orcamento, cliente) => {
+  
+  let conn;
+  try {
+    conn = await connect();
+    const query = `
+    select
+      ac.ID,
+      Case when ac.FILIAL in ('0101001') then 'FAB MATRIZ'
+        when ac.FILIAL in ('0101004') then 'FAB LINHARES' 
+        when ac.FILIAL in ('0101003') then 'CD LINHARES' else null
+      end Filial, 
+      STR_TO_DATE(CONCAT(cast(ac.DATA_SOLICIT as date), ' ', cast(ac.HORA_SOLICIT as time)),'%Y-%m-%d %H:%i:%s')  'Data e hora da solitação',
+      ac.NUMERO_PEDIDO 'Orçamento',
+      COD_CLIENTE 'Cod Cliente',
+      LOJA 'Loja do Cliente',
+      CLIENTE 'Nome do cliente',
+      VENDEDOR 'Cod Vendedor',
+      VALOR_PEDIDO 'Total do pedido',
+      ifnull(LIMITE_ATUAL,0) 'Limite atual',
+      ifnull(LIMITE_ATUAL,0) - VALOR_PEDIDO  Diferença,
+      CONCAT(CAST(ifnull(PERCENTUAL_ADIANT,0) AS INT),' %')  'Perc. Adiantamento',
+      VALOR_ADIANT 'Valor do adiantamento',
+      ac.RESPONSAVEL_APROV 'Responsável pela aprovação',
+      ac.DT_SOLICIT_DOCUMENTO 'Dt Solicitação de documento',
+      ac.DATA_DOC_OK 'Documento Ok!',
+      NOVO_LIMITE 'Novo limite',
+      RESPOSTA_ANALISE 'Resposta da análise',
+      ac.OBS_RESPOSTA 'Observção de resposta',
+      ac.DATA_RESP 'Data da resposta',
+      ac.PRAZO_RESPOSTA 'Prazo de resposta',
+      ac.RESULTADO_ANALISE 'Resultado análise!',
+      VALOR_PEDIDO 'Valor solicitado!' ,
+        CASE 
+            WHEN ac.RESULTADO_ANALISE = 'APROVADO' 
+              AND (IFNULL(ac.LIMITE_ATUAL, 0) - ac.VALOR_PEDIDO) > 0 
+              AND ac.NOVO_LIMITE = 0
+            THEN ac.VALOR_PEDIDO
+            WHEN ac.RESULTADO_ANALISE = 'APROVADO' 
+              AND (IFNULL(ac.LIMITE_ATUAL, 0) - ac.VALOR_PEDIDO) > 0 
+              AND ac.NOVO_LIMITE > 0 
+            THEN IFNULL(ac.NOVO_LIMITE, 0)
+            WHEN ac.RESULTADO_ANALISE = 'APROVADO' 
+              AND (IFNULL(ac.LIMITE_ATUAL, 0) - ac.VALOR_PEDIDO) < 0 
+              AND ac.NOVO_LIMITE = 0 
+            THEN ac.VALOR_PEDIDO
+            WHEN ac.RESULTADO_ANALISE = 'APROVADO' 
+              AND (IFNULL(ac.LIMITE_ATUAL, 0) - ac.VALOR_PEDIDO) < 0 
+              AND ac.NOVO_LIMITE > 0 
+            THEN IFNULL(ac.NOVO_LIMITE, 0)
+            WHEN ac.RESULTADO_ANALISE = 'PARCIAL' 
+            THEN ABS(IFNULL(ac.LIMITE_ATUAL, 0) - ac.VALOR_PEDIDO) - ac.VALOR_ADIANT 
+            ELSE 0
+        END AS 'Valor aprovado!',
+        year(ac.DATA_RESP) Ano,
+      month(ac.DATA_RESP) Mes
+      
+      from ANALISE_CREDITO ac 
+      
+      INNER JOIN (
+      SELECT FILIAL, NUMERO_PEDIDO PEDIDO, MAX(ID) ID FROM ANALISE_CREDITO 
+      GROUP BY FILIAL, NUMERO_PEDIDO
+      ) PED ON PED.FILIAL = ac.FILIAL 
+        AND PED.PEDIDO = ac.NUMERO_PEDIDO
+        AND PED.ID = ac.ID
+      
+      WHERE ac.RESULTADO_ANALISE IS NOT NULL 
+      AND ac.ID NOT IN (9)
+    `;
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  } finally {
+    if (conn) {
+      try {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      } catch (error) {
+        console.error('Erro ao fechar a conexão:', error);
+      }
+    }
+  }
+};
+
 const analiseDeCredito = async (orcamento, cliente) => {
   
   let conn;
@@ -379,5 +464,6 @@ module.exports = {
     arquivaCteNf,
     guiasNf,
     marcarBox,
-    cliente
+    cliente,
+    consultaLuiz
 };

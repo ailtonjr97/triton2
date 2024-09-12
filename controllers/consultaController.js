@@ -2,6 +2,16 @@ const axios = require('axios');
 const { sql, connectToDatabase } = require('../services/dbConfig');
 // const { sqlKorp, connectToDatabaseKorp } = require('../services/dbConfigKorp');
 const comercialModel = require("../models/comercialModel.js");
+const financeiroModel = require("../models/financeiroModel.js");
+
+async function consultaAnaliseCreditoLuiz(req, res) {
+    try {
+        res.json(await financeiroModel.consultaLuiz());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
 
 // async function consultaHistlise(req, res) {
 //     try {
@@ -296,5 +306,6 @@ module.exports = {
     consultaUniaoDa0Da1,
     //consultaHistlise,
     consultaSb1,
-    consultaCotFrete
+    consultaCotFrete,
+    consultaAnaliseCreditoLuiz
 };
