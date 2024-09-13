@@ -402,7 +402,7 @@ router.get("/update-frete-cot", async(req, res)=>{
 
 router.post("/atualiza-val-frete", async(req, res)=>{
     try {
-        await axios.put(process.env.APITOTVS + `CONSULTA_SC5/altera-frete-track?filial=${req.query.filial}&num=${req.query.numero}&texto=${req.body.texto}`,"", 
+        await axios.put(process.env.APITOTVS + `CONSULTA_SC5/altera-frete-track?filial=${req.query.filial}&num=${req.query.numero}&texto=${req.body.texto}&tipofrete=${req.body.tipo}`,"", 
             {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
         });
 
