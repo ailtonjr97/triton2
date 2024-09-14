@@ -20,7 +20,227 @@ async function connect(){
     return pool;
 }
 
+async function connect2(){
+    const mysql = require("mysql2/promise");
+    const pool = mysql.createPool({
+        host: process.env.SQLHOST,
+        port: '3306',
+        user: process.env.SQLUSER,
+        password: process.env.SQLPASSWORD,
+        database: process.env.SQLDATABASE,
+        waitForConnections: true,
+        connectionLimit: 100,
+        maxIdle: 100, // max idle connections, the default value is the same as `connectionLimit`
+        idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
+        queueLimit: 0,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 10000
+      });
+    return pool;
+}
+
 connect();
+connect2();
+
+const allManutInd = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from chamados where chamado_setor_id = 3
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allStatusChamados = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from status_chamados 
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allUrgenciasChamados = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from urgencias
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allAreasChamados = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from areas_atuacaos
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allOperacoesChamados = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from operacoes
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allUsers = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select id, name, email from users
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allEmpresas = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from empresas
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allTipoManuts = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from chamado_tipo_manuts
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allSubTipoManuts = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from chamado_sub_tipo_manuts
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
+
+const allCentroCusto = async (id) => {
+    let conn;
+    try {
+        conn = await connect();
+        const query = `
+            select * from centro_custo
+        `;
+        const values = [id];
+        const [result] = await conn.query(query, values);
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar consulta:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    } finally {
+        if (conn) {
+            await conn.end(); // Certifica-se de que a conexão será fechada
+        }
+    }
+};
 
 const vendedor = async (id) => {
     let conn;
@@ -232,5 +452,15 @@ module.exports = {
     insertLogSistema,
     vendedor,
     buscaValorOriginal,
-    allConsulta
+    allConsulta,
+    allManutInd,
+    allStatusChamados,
+    allUrgenciasChamados,
+    allAreasChamados,
+    allOperacoesChamados,
+    allUsers,
+    allEmpresas,
+    allTipoManuts,
+    allSubTipoManuts,
+    allCentroCusto
 };

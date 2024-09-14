@@ -17,7 +17,17 @@ const {
         //consultaHistlise,
         consultaSb1,
         consultaCotFrete,
-        consultaAnaliseCreditoLuiz
+        consultaAnaliseCreditoLuiz,
+        consultaChamadosManutInd,
+        consultaStatusChamados,
+        consultaUrgenciasChamados,
+        consultaAreasChamados,
+        consultaOperacoesChamados,
+        consultaAllUsers,
+        consultaAllEmpresas,
+        consultaAllTipoManuts,
+        consultaAllSubTipoManuts,
+        consultaAllCentroCusto
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -33,7 +43,16 @@ router.get("/consulta-da0010", consultaDa0010);
 router.get("/consulta-da1010", consultaDa1010);
 router.get("/consulta-cot-frete", consultaCotFrete);
 router.get("/consulta-analise-credito-fibra", consultaAnaliseCreditoLuiz);
-
+router.get("/consulta-chamados-manut-ind", consultaChamadosManutInd);
+router.get("/consulta-chamados-status", consultaStatusChamados);
+router.get("/consulta-chamados-urgencias", consultaUrgenciasChamados);
+router.get("/consulta-chamados-areas", consultaAreasChamados);
+router.get("/consulta-chamados-operacoes", consultaOperacoesChamados);
+router.get("/consulta-chamados-usuarios", consultaAllUsers);
+router.get("/consulta-chamados-empresas", consultaAllEmpresas);
+router.get("/consulta-chamados-tipo-manuts", consultaAllTipoManuts);
+router.get("/consulta-chamados-sub-tipo-manuts", consultaAllSubTipoManuts);
+router.get("/consulta-chamados-centro-custo", consultaAllCentroCusto);
 //router.get("/consulta-histlise", consultaHistlise);
 router.get("/consulta-sb1", consultaSb1);
 

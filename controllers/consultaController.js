@@ -4,6 +4,7 @@ const { sql, connectToDatabase } = require('../services/dbConfig');
 const comercialModel = require("../models/comercialModel.js");
 const financeiroModel = require("../models/financeiroModel.js");
 
+
 async function consultaAnaliseCreditoLuiz(req, res) {
     try {
         res.json(await financeiroModel.consultaLuiz());
@@ -58,6 +59,96 @@ async function consultaAnaliseCreditoLuiz(req, res) {
 async function consultaCotFrete(req, res) {
     try {
         res.json(await comercialModel.allConsulta());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaChamadosManutInd(req, res) {
+    try {
+        res.json(await comercialModel.allManutInd());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaStatusChamados(req, res) {
+    try {
+        res.json(await comercialModel.allStatusChamados());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaUrgenciasChamados(req, res) {
+    try {
+        res.json(await comercialModel.allUrgenciasChamados());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaAreasChamados(req, res) {
+    try {
+        res.json(await comercialModel.allAreasChamados());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaOperacoesChamados(req, res) {
+    try {
+        res.json(await comercialModel.allOperacoesChamados());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaAllUsers(req, res) {
+    try {
+        res.json(await comercialModel.allUsers());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaAllEmpresas(req, res) {
+    try {
+        res.json(await comercialModel.allEmpresas());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaAllTipoManuts(req, res) {
+    try {
+        res.json(await comercialModel.allTipoManuts());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaAllSubTipoManuts(req, res) {
+    try {
+        res.json(await comercialModel.allSubTipoManuts());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function consultaAllCentroCusto(req, res) {
+    try {
+        res.json(await comercialModel.allCentroCusto());
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
@@ -307,5 +398,15 @@ module.exports = {
     //consultaHistlise,
     consultaSb1,
     consultaCotFrete,
-    consultaAnaliseCreditoLuiz
+    consultaAnaliseCreditoLuiz,
+    consultaChamadosManutInd,
+    consultaStatusChamados,
+    consultaUrgenciasChamados,
+    consultaAreasChamados,
+    consultaOperacoesChamados,
+    consultaAllUsers,
+    consultaAllEmpresas,
+    consultaAllTipoManuts,
+    consultaAllSubTipoManuts,
+    consultaAllCentroCusto
 };
