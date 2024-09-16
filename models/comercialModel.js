@@ -45,7 +45,7 @@ connect2();
 const allManutInd = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from chamados where chamado_setor_id = 3
         `;
@@ -65,7 +65,7 @@ const allManutInd = async (id) => {
 const allStatusChamados = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from status_chamados 
         `;
@@ -85,7 +85,7 @@ const allStatusChamados = async (id) => {
 const allUrgenciasChamados = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from urgencias
         `;
@@ -105,7 +105,7 @@ const allUrgenciasChamados = async (id) => {
 const allAreasChamados = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from areas_atuacaos
         `;
@@ -125,7 +125,7 @@ const allAreasChamados = async (id) => {
 const allOperacoesChamados = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from operacoes
         `;
@@ -145,7 +145,7 @@ const allOperacoesChamados = async (id) => {
 const allUsers = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select id, name, email from users
         `;
@@ -165,7 +165,7 @@ const allUsers = async (id) => {
 const allEmpresas = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from empresas
         `;
@@ -185,7 +185,7 @@ const allEmpresas = async (id) => {
 const allTipoManuts = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from chamado_tipo_manuts
         `;
@@ -205,7 +205,7 @@ const allTipoManuts = async (id) => {
 const allSubTipoManuts = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from chamado_sub_tipo_manuts
         `;
@@ -225,7 +225,7 @@ const allSubTipoManuts = async (id) => {
 const allCentroCusto = async (id) => {
     let conn;
     try {
-        conn = await connect();
+        conn = await connect2();
         const query = `
             select * from centro_custo
         `;
