@@ -20,6 +20,7 @@ const logisticaRoutes = require("./routes/logisticaRoutes.js");
 const credito = require("./controllers/CreditoController.js");
 const consulta = require("./routes/consultaRoutes");
 const local = require("./routes/localRoutes.js");
+const graficos = require("./routes/graficosRoutes");
 const { authenticationMiddleware, authenticationMiddlewareApi, authenticationMiddlewareBasic } = require('./middlewares/authentication.js');
 
 var corsOptions = {
@@ -49,6 +50,7 @@ app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/files", cors(corsOptions), files);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta);
 app.use("/local", cors(corsOptions), authenticationMiddlewareApi,local);
+app.use("/graficos", cors(corsOptions), authenticationMiddleware, graficos);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
