@@ -27,7 +27,8 @@ const {
         consultaAllEmpresas,
         consultaAllTipoManuts,
         consultaAllSubTipoManuts,
-        consultaAllCentroCusto
+        consultaAllCentroCusto,
+        sbzGetAll
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -55,6 +56,7 @@ router.get("/chamados-sub-tipo-manuts2", consultaAllSubTipoManuts);
 router.get("/chamados-centro-custo2", consultaAllCentroCusto);
 //router.get("/consulta-histlise", consultaHistlise);
 router.get("/consulta-sb1", consultaSb1);
+router.get("/consulta-sbz", sbzGetAll);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);

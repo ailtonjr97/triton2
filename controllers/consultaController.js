@@ -382,6 +382,20 @@ async function sbfGetAll(req, res) {
     }
 };
 
+async function sbzGetAll(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`
+            SELECT * FROM SBZ010
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 module.exports = { 
     consultaCassia,
     sb2GetAll,
@@ -408,5 +422,6 @@ module.exports = {
     consultaAllEmpresas,
     consultaAllTipoManuts,
     consultaAllSubTipoManuts,
-    consultaAllCentroCusto
+    consultaAllCentroCusto,
+    sbzGetAll
 };

@@ -69,7 +69,8 @@ async function atualizarScj(req, res) {
                 CJ_XFRESIM,
                 CJ_XTRANSP,
                 CJ_TIPLIB,
-                CJ_DESC3
+                CJ_DESC3,
+                CJ_XVEND1
             } = element;
 
             // Verificar se o registro existe
@@ -103,7 +104,8 @@ async function atualizarScj(req, res) {
                     CJ_XFRESIM = ${CJ_XFRESIM},
                     CJ_XTRANSP = ${CJ_XTRANSP},
                     CJ_TIPLIB = ${CJ_TIPLIB},
-                    CJ_DESC3 = ${CJ_DESC3}
+                    CJ_DESC3 = ${CJ_DESC3},
+                    CJ_XVEND1 = ${CJ_XVEND1}
                 WHERE CJ_FILIAL = ${CJ_FILIAL}
                   AND CJ_NUM = ${CJ_NUM};
             `;
@@ -135,7 +137,8 @@ async function atualizarScj(req, res) {
                     CJ_XFRESIM,
                     CJ_XTRANSP,
                     CJ_TIPLIB,
-                    CJ_DESC3
+                    CJ_DESC3,
+                    CJ_XVEND1
                 ) VALUES (
                     ${CJ_FILIAL},
                     ${CJ_NUM},
@@ -161,7 +164,8 @@ async function atualizarScj(req, res) {
                     ${CJ_XFRESIM},
                     ${CJ_XTRANSP},
                     ${CJ_TIPLIB},
-                    ${CJ_DESC3}
+                    ${CJ_DESC3},
+                    ${CJ_XVEND1}
                 );
                 `;
 
@@ -184,7 +188,6 @@ async function atualizarScj(req, res) {
 
 async function atualizarScjMassa(req, res) {
     try {
-        console.log('teste')
         const updated_at = '';
 
         // Obter as notas da API
@@ -229,7 +232,8 @@ async function atualizarScjMassa(req, res) {
                 CJ_XFRESIM,
                 CJ_XTRANSP,
                 CJ_TIPLIB,
-                CJ_DESC3
+                CJ_DESC3,
+                CJ_XVEND1
             } = element;
             await sql.query`
                 INSERT INTO SCJ010 (
@@ -257,7 +261,8 @@ async function atualizarScjMassa(req, res) {
                     CJ_XFRESIM,
                     CJ_XTRANSP,
                     CJ_TIPLIB,
-                    CJ_DESC3
+                    CJ_DESC3,
+                    CJ_XVEND1
                 ) VALUES (
                     ${CJ_FILIAL},
                     ${CJ_NUM},
@@ -283,7 +288,8 @@ async function atualizarScjMassa(req, res) {
                     ${CJ_XFRESIM},
                     ${CJ_XTRANSP},
                     ${CJ_TIPLIB},
-                    ${CJ_DESC3}
+                    ${CJ_DESC3},
+                    ${CJ_XVEND1}
                 );
             `;
         });

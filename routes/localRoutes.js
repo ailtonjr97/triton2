@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {atualizarScj, atualizarScjMassa} = require('../controllers/localController.js');
+const {atualizarScj, atualizarScjMassa} = require('../controllers/locais/scjController.js');
 const {atualizarSd2, atualizarSd2Massa} = require('../controllers/locais/sd2Controller.js');
 const {atualizarSf2, atualizarSf2Massa} = require('../controllers/localController.js');
 const {atualizarSck, atualizarSckMassa} = require('../controllers/locais/sckController.js');
