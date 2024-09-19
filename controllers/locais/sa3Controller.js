@@ -46,7 +46,7 @@ async function atualizarSa3(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { A3_FILIAL, A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_} = element;
+            const { A3_FILIAL, A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_, A3_NREDUZ, A3_XSETOR} = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SA3010 WHERE A3_FILIAL = ${A3_FILIAL} AND A3_COD = ${A3_COD}`;
@@ -60,7 +60,9 @@ async function atualizarSa3(req, res) {
                         A3_NOME   = ${A3_NOME},
                         S_T_A_M_P_ = ${S_T_A_M_P_}, 
                         R_E_C_N_O_ = ${R_E_C_N_O_}, 
-                        R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
+                        R_E_C_D_E_L_ = ${R_E_C_D_E_L_},
+                        A3_NREDUZ = ${A3_NREDUZ},
+                        A3_XSETOR = ${A3_XSETOR}
                     WHERE 
                         A3_FILIAL = ${A3_FILIAL} AND A3_COD = ${A3_COD}
                 `;
@@ -68,9 +70,9 @@ async function atualizarSa3(req, res) {
                 // Registro não existe, realizar o insert
                 await sql.query`
                     INSERT INTO SA3010 
-                        (A3_FILIAL, A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) 
+                        (A3_FILIAL, A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_, A3_NREDUZ, A3_XSETOR) 
                     VALUES 
-                        (${A3_FILIAL}, ${A3_COD}, ${A3_NOME}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})
+                        (${A3_FILIAL}, ${A3_COD}, ${A3_NOME}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_}, ${A3_NREDUZ}, ${A3_XSETOR})
                 `;
             }
         });
@@ -115,12 +117,12 @@ async function atualizarSa3Massa(req, res) {
 
         // Criar uma matriz de promessas para inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { A3_FILIAL,A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { A3_FILIAL,A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_, A3_NREDUZ, A3_XSETOR } = element;
             await sql.query`
                 INSERT INTO SA3010 
-                    (A3_FILIAL, A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_) 
+                    (A3_FILIAL, A3_COD, A3_NOME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_, A3_NREDUZ, A3_XSETOR) 
                 VALUES 
-                    (${A3_FILIAL}, ${A3_COD}, ${A3_NOME}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})
+                    (${A3_FILIAL}, ${A3_COD}, ${A3_NOME}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_}, ${A3_NREDUZ}, ${A3_XSETOR})
             `;
         });
 

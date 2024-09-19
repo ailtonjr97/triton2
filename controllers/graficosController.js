@@ -22,6 +22,7 @@ async function orcQuantMes(req, res) {
 };
 
 async function orcQuantMesVend(req, res) {
+    console.log(req.query)
     try {
         await connectToDatabase();
         const query = await sql.query`
