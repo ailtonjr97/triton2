@@ -43,7 +43,7 @@ async function orcQuantMesVend(req, res) {
             FROM SCJ010 
             WHERE SCJ010.CJ_XVEND1 = SA3010.A3_COD
             AND SUBSTRING(SCJ010.CJ_EMISSAO, 1, 4) = '2024'
-        )
+        ) AND SA3010.R_E_C_D_E_L_ = 0 
         `;
 
         res.send(query.recordset);
