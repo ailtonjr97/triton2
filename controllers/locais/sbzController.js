@@ -44,7 +44,7 @@ async function atualizarSBZ(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { BZ_FILIAL, BZ_COD, B5_CEME, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { BZ_FILIAL, BZ_COD, BZ_IPI, BZ_PICM, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SBZ010 WHERE BZ_FILIAL = ${BZ_FILIAL} AND BZ_COD = ${BZ_COD}`;
