@@ -145,17 +145,9 @@ async function verificarHorario() {
     const hours = now.getHours();
     const minutes = now.getMinutes();
 
-    // Verificar se o horário do update em massa
-    if (hours === 0 && minutes > 10 && minutes <= 15 && refreshed) {
-        await atualizarSa3Massa();
-        refreshed = false;
-    } else if (hours !== 0 || minutes > 30) {
-        refreshed = true;
-        await atualizarSa3();
-    }
+    await atualizarSa3();
 }
 
-// Executar a verificação a cada 30 minutos
 //setInterval(verificarHorario, 1800000);
 
 module.exports = { 

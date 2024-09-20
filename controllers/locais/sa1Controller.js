@@ -109,26 +109,6 @@ async function atualizarSa1Massa(req, res) {
     }
 }
 
-let refreshed = true;
-
-async function verificarHorario() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-
-    // Verificar se o horário do update em massa
-    if (hours === 3 && refreshed) {
-        await atualizarSa1Massa();
-        refreshed = false;
-    } else if (hours !== 3 || minutes > 30) {
-        refreshed = true;
-        await atualizarSa1();
-    }
-}
-
-// Executar a verificação a cada 2 minutos
-setInterval(verificarHorario, 1800000);
-
 module.exports = { 
     atualizarSa1,
     atualizarSa1Massa

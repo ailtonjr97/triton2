@@ -156,26 +156,6 @@ async function atualizarSc1Massa(req, res) {
     }
 }
 
-let refreshed = true;
-
-async function verificarHorario() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-
-    // Verificar se o horário do update em massa
-    if (hours === 0 && minutes <= 55 && refreshed) {
-        await atualizarSc1Massa();
-        refreshed = false;
-    } else if (hours !== 0 || minutes > 55) {
-        refreshed = true;
-        await atualizarSc1();
-    }
-}
-
-// Executar a verificação a cada 2 minutos
-setInterval(verificarHorario, 1800000);
-
 module.exports = { 
     atualizarSc1,
     atualizarSc1Massa

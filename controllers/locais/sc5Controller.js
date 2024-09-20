@@ -227,28 +227,9 @@ async function atualizarSc5Massa(req, res) {
             VALUES ('SC5010M', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || '500'})
         `;
         console.log(error);
+        res.sendStatus(500);
     }
 }
-
-let refreshed = true;
-
-async function verificarHorario() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-
-    // Verificar se o horário do update em massa
-    if (hours === 0 && minutes <= 55 && refreshed) {
-        await atualizarSc5Massa();
-        refreshed = false;
-    } else if (hours !== 0 || minutes > 55) {
-        refreshed = true;
-        await atualizarSc5();
-    }
-}
-
-// Executar a verificação a cada 30 minutos
-setInterval(verificarHorario, 1800000);
 
 module.exports = { 
     atualizarSc5,
