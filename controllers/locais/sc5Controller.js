@@ -59,7 +59,8 @@ async function atualizarSc5(req, res) {
                 C5_FECENT,
                 C5_CONDPAG,
                 C5_VEND1,
-                C5_XOBS
+                C5_XOBS,
+                C5_EMISSAO  // Adicionado o campo C5_EMISSAO
             } = element;
 
             // Verificar se o registro existe
@@ -77,11 +78,13 @@ async function atualizarSc5(req, res) {
                         S_T_A_M_P_   = ${S_T_A_M_P_}, 
                         R_E_C_N_O_   = ${R_E_C_N_O_}, 
                         R_E_C_D_E_L_ = ${R_E_C_D_E_L_},
-                        C5_NOTA    = ${C5_NOTA},
-                        C5_FECENT  = ${C5_FECENT},
-                        C5_CONDPAG = ${C5_CONDPAG},
-                        C5_VEND1   = ${C5_VEND1},
-                        C5_XOBS    = ${C5_XOBS} WHERE C5_FILIAL = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}
+                        C5_NOTA      = ${C5_NOTA},
+                        C5_FECENT    = ${C5_FECENT},
+                        C5_CONDPAG   = ${C5_CONDPAG},
+                        C5_VEND1     = ${C5_VEND1},
+                        C5_XOBS      = ${C5_XOBS},
+                        C5_EMISSAO   = ${C5_EMISSAO}  -- Adicionado campo C5_EMISSAO
+                    WHERE C5_FILIAL = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}
                 `;
             } else {
                 // Registro não existe, realizar o insert
@@ -100,7 +103,8 @@ async function atualizarSc5(req, res) {
                         C5_FECENT,
                         C5_CONDPAG,
                         C5_VEND1,
-                        C5_XOBS
+                        C5_XOBS,
+                        C5_EMISSAO  -- Adicionado campo C5_EMISSAO
                     ) 
                     VALUES 
                     (
@@ -116,7 +120,8 @@ async function atualizarSc5(req, res) {
                         ${C5_FECENT}, 
                         ${C5_CONDPAG}, 
                         ${C5_VEND1}, 
-                        ${C5_XOBS}
+                        ${C5_XOBS},
+                        ${C5_EMISSAO}  -- Adicionado campo C5_EMISSAO
                     )
                 `;
             }
@@ -136,7 +141,7 @@ async function atualizarSc5(req, res) {
             VALUES ('SC5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || '500'})
         `;
         console.log(error);
-        res.sendStatus(200);
+        res.sendStatus(500);
     }
 }
 
@@ -175,7 +180,8 @@ async function atualizarSc5Massa(req, res) {
                 C5_FECENT,
                 C5_CONDPAG,
                 C5_VEND1,
-                C5_XOBS
+                C5_XOBS,
+                C5_EMISSAO  // Adicionado campo C5_EMISSAO
             } = element;
             await sql.query`
                 INSERT INTO SC5010 
@@ -192,7 +198,8 @@ async function atualizarSc5Massa(req, res) {
                     C5_FECENT,
                     C5_CONDPAG,
                     C5_VEND1,
-                    C5_XOBS
+                    C5_XOBS,
+                    C5_EMISSAO  -- Adicionado campo C5_EMISSAO
                 ) 
                 VALUES 
                 (
@@ -208,7 +215,8 @@ async function atualizarSc5Massa(req, res) {
                     ${C5_FECENT},
                     ${C5_CONDPAG},
                     ${C5_VEND1},
-                    ${C5_XOBS}
+                    ${C5_XOBS},
+                    ${C5_EMISSAO}  -- Adicionado campo C5_EMISSAO
                 )
             `;
         });

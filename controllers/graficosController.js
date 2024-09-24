@@ -6,11 +6,11 @@ async function pedQuantMes(req, res) {
         await connectToDatabase();
         const query = await sql.query`
         SELECT 
-        SUBSTRING(C5_FECENT, 1, 7) AS ano_mes, -- Extrai o ano e o mês no formato 'AAAA/MM'
+        SUBSTRING(C5_EMISSAO, 1, 7) AS ano_mes, -- Extrai o ano e o mês no formato 'AAAA/MM'
         COUNT(*) AS total_registros -- Conta o número de registros por mês
         FROM SC5010
-        WHERE SUBSTRING(C5_FECENT, 1, 4) = '2024' -- Filtra apenas o ano de 2024
-        GROUP BY SUBSTRING(C5_FECENT, 1, 7)
+        WHERE SUBSTRING(C5_EMISSAO, 1, 4) = '2024' -- Filtra apenas o ano de 2024
+        GROUP BY SUBSTRING(C5_EMISSAO, 1, 7)
         ORDER BY ano_mes;
         `;
 
@@ -32,9 +32,9 @@ async function pedQuantMesVend(req, res) {
                     COUNT(SC5010.ID) AS total_pedidos
                 FROM SC5010
                 WHERE SC5010.C5_VEND1 = SA3010.A3_COD
-                AND SUBSTRING(SC5010.C5_FECENT, 1, 4) = '2024'
-                GROUP BY SUBSTRING(SC5010.C5_FECENT, 6, 2)
-                ORDER BY SUBSTRING(SC5010.C5_FECENT, 6, 2) DESC
+                AND SUBSTRING(SC5010.C5_EMISSAO, 1, 4) = '2024'
+                GROUP BY SUBSTRING(SC5010.C5_EMISSAO, 6, 2)
+                ORDER BY SUBSTRING(SC5010.C5_EMISSAO, 6, 2) DESC
                 FOR JSON PATH
             ) AS PEDIDOS
         FROM SA3010
@@ -42,7 +42,7 @@ async function pedQuantMesVend(req, res) {
             SELECT 1 
             FROM SC5010 
             WHERE SC5010.C5_VEND1 = SA3010.A3_COD
-            AND SUBSTRING(SC5010.C5_FECENT, 1, 4) = '2024'
+            AND SUBSTRING(SC5010.C5_EMISSAO, 1, 4) = '2024'
         ) 
         AND SA3010.R_E_C_D_E_L_ = 0 
         AND SA3010.A3_COD NOT IN ('000001', '000012', '000016', '000017', '000020', '000022', '000021', '000024', '000027', '000029', '000030', '000028', '000033', '000026')
