@@ -44,7 +44,10 @@ async function atualizarSe1(req, res) {
 
         // Criar uma matriz de promessas para verificar e atualizar/inserir registros
         const promises = notas.data.objects.map(async element => {
-            const { E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+            const { 
+                E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, 
+                E1_CLIENTE, E1_LOJA, E1_NOMCLI, E1_PEDIDO, E1_EMISSAO, E1_VEND1,
+                S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
             // Verificar se o registro existe
             const result = await sql.query`SELECT * FROM SE1010 WHERE E1_FILIAL = ${E1_FILIAL} AND E1_PREFIXO = ${E1_PREFIXO} AND E1_NUM = ${E1_NUM} AND E1_PARCELA = ${E1_PARCELA} AND E1_TIPO = ${E1_TIPO}`;
@@ -59,6 +62,14 @@ async function atualizarSe1(req, res) {
                 E1_TIPO = ${E1_TIPO}, 
                 E1_VENCTO = ${E1_VENCTO}, 
                 E1_VALOR = ${E1_VALOR}, 
+
+                E1_CLIENTE = ${E1_CLIENTE}, 
+                E1_LOJA = ${E1_LOJA}, 
+                E1_NOMCLI = ${E1_NOMCLI}, 
+                E1_PEDIDO = ${E1_PEDIDO}, 
+                E1_EMISSAO = ${E1_EMISSAO}, 
+                E1_VEND1 = ${E1_VEND1}, 
+
                 S_T_A_M_P_ = ${S_T_A_M_P_}, 
                 R_E_C_N_O_ = ${R_E_C_N_O_}, 
                 R_E_C_D_E_L_ = ${R_E_C_D_E_L_}
@@ -73,6 +84,12 @@ async function atualizarSe1(req, res) {
                     E1_TIPO,
                     E1_VENCTO,
                     E1_VALOR,
+                    E1_CLIENTE,
+                    E1_LOJA,
+                    E1_NOMCLI,
+                    E1_PEDIDO,
+                    E1_EMISSAO,
+                    E1_VEND1,
                     S_T_A_M_P_, 
                     R_E_C_N_O_, 
                     R_E_C_D_E_L_
@@ -84,6 +101,12 @@ async function atualizarSe1(req, res) {
                     ${E1_TIPO},
                     ${E1_VENCTO},
                     ${E1_VALOR},
+                    ${E1_CLIENTE},
+                    ${E1_LOJA},
+                    ${E1_NOMCLI},
+                    ${E1_PEDIDO},
+                    ${E1_EMISSAO},
+                    ${E1_VEND1},
                     ${S_T_A_M_P_}, 
                     ${R_E_C_N_O_}, 
                     ${R_E_C_D_E_L_}
@@ -101,7 +124,7 @@ async function atualizarSe1(req, res) {
         console.log(error);
         res.sendStatus(200);
     }
-}
+};
 
 async function atualizarSe1Massa(req, res) {
     try {
@@ -128,9 +151,13 @@ async function atualizarSe1Massa(req, res) {
             const batch = notas.data.objects.slice(i, i + batchSize);
 
             const promises = batch.map(async element => {
-                const { E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_  } = element;
-                await sql.query`INSERT INTO SE1010 ( E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ ) 
-                VALUES (${E1_FILIAL}, ${E1_PREFIXO}, ${E1_NUM}, ${E1_PARCELA}, ${E1_TIPO}, ${E1_VENCTO}, ${E1_VALOR}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                const { 
+                    E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, 
+                    E1_CLIENTE, E1_LOJA, E1_NOMCLI, E1_PEDIDO, E1_EMISSAO, E1_VEND1,
+                    S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
+
+                await sql.query`INSERT INTO SE1010 ( E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, E1_CLIENTE, E1_LOJA, E1_NOMCLI, E1_PEDIDO, E1_EMISSAO, E1_VEND1, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ ) 
+                VALUES (${E1_FILIAL}, ${E1_PREFIXO}, ${E1_NUM}, ${E1_PARCELA}, ${E1_TIPO}, ${E1_VENCTO}, ${E1_VALOR}, ${E1_CLIENTE}, ${E1_LOJA}, ${E1_NOMCLI}, ${E1_PEDIDO}, ${E1_EMISSAO}, ${E1_VEND1} ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
             });
 
             // Esperar a conclusão das inserções do lote atual antes de continuar
