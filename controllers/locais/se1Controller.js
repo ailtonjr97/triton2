@@ -157,7 +157,7 @@ async function atualizarSe1Massa(req, res) {
                     S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ } = element;
 
                 await sql.query`INSERT INTO SE1010 ( E1_FILIAL, E1_PREFIXO, E1_NUM, E1_PARCELA, E1_TIPO, E1_VENCTO, E1_VALOR, E1_CLIENTE, E1_LOJA, E1_NOMCLI, E1_PEDIDO, E1_EMISSAO, E1_VEND1, S_T_A_M_P_, R_E_C_N_O_, R_E_C_D_E_L_ ) 
-                VALUES (${E1_FILIAL}, ${E1_PREFIXO}, ${E1_NUM}, ${E1_PARCELA}, ${E1_TIPO}, ${E1_VENCTO}, ${E1_VALOR}, ${E1_CLIENTE}, ${E1_LOJA}, ${E1_NOMCLI}, ${E1_PEDIDO}, ${E1_EMISSAO}, ${E1_VEND1} ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
+                VALUES (${E1_FILIAL}, ${E1_PREFIXO}, ${E1_NUM}, ${E1_PARCELA}, ${E1_TIPO}, ${E1_VENCTO}, ${E1_VALOR}, ${E1_CLIENTE}, ${E1_LOJA}, ${E1_NOMCLI}, ${E1_PEDIDO}, ${E1_EMISSAO}, ${E1_VEND1}, ${S_T_A_M_P_}, ${R_E_C_N_O_}, ${R_E_C_D_E_L_})`;
             });
 
             // Esperar a conclusão das inserções do lote atual antes de continuar
