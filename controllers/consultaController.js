@@ -417,7 +417,8 @@ async function confTitDia(req, res) {
         CONR.E1_TIPO AS 'TIPO',
         CONR.E1_VEND1 AS 'COD. VENDEDOR',
         VEND.A3_NREDUZ AS 'VENDEDOR',
-        PED.C5_XOBS AS 'OBS. PEDIDO'
+        PED.C5_XOBS AS 'OBS. PEDIDO',
+        CONR.R_E_C_D_E_L_ AS 'RECDEL'
         from SE1010 CONR
         left join SC5010 PED ON CONR.E1_PEDIDO = PED.C5_NUM AND CONR.E1_FILIAL = PED.C5_FILIAL
         left join SE4010 CONDP ON PED.C5_CONDPAG = CONDP.E4_CODIGO
