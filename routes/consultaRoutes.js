@@ -28,7 +28,8 @@ const {
         consultaAllTipoManuts,
         consultaAllSubTipoManuts,
         consultaAllCentroCusto,
-        sbzGetAll
+        sbzGetAll,
+        confTitDia
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -57,6 +58,7 @@ router.get("/chamados-centro-custo2", consultaAllCentroCusto);
 //router.get("/consulta-histlise", consultaHistlise);
 router.get("/consulta-sb1", consultaSb1);
 router.get("/consulta-sbz", sbzGetAll);
+router.get("/consulta-confTitDia", confTitDia);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);
