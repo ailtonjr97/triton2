@@ -133,6 +133,7 @@ async function atualizarSc5(req, res) {
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) 
             VALUES ('SC5010', ${getCurrentSQLServerDateTime()}, 200)
         `;
+
         res.sendStatus(200);
     } catch (error) {
         await connectToDatabase();
@@ -140,7 +141,6 @@ async function atualizarSc5(req, res) {
             INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS, MENSAGEM) 
             VALUES ('SC5010', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500}, ${error.response?.statusText || '500'})
         `;
-        console.log(error);
         res.sendStatus(500);
     }
 }
