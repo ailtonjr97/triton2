@@ -1032,7 +1032,8 @@ router.get("/orcamentos", async(req, res)=>{
                 CJ_CLIENTE: e.CJ_CLIENTE,
                 CJ_LOJA:    e.CJ_LOJA,
                 A1_NOME:    e.A1_NOME.trimEnd(),
-                A3_NOME:    e.A3_NOME.trimEnd(),
+                A3_NREDUZ:  e.A3_NREDUZ.trimEnd(),
+                CK_NUMPV:   e.CK_NUMPV,
                 R_E_C_N_O_: e.R_E_C_N_O_
                 
             })
@@ -1040,7 +1041,7 @@ router.get("/orcamentos", async(req, res)=>{
 
         res.json(items);
     } catch (error) {
-        res.sendStatus(error.response.status)
+        res.sendStatus(500)
         console.log(error)
     }
 })
