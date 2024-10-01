@@ -1031,6 +1031,7 @@ router.get("/orcamentos", async(req, res)=>{
                 CJ_NUM:     e.CJ_NUM,
                 CJ_CLIENTE: e.CJ_CLIENTE,
                 CJ_LOJA:    e.CJ_LOJA,
+                CJ_EMISSAO: convertDateFormat(e.CJ_EMISSAO),
                 A1_NOME:    e.A1_NOME.trimEnd(),
                 A3_NREDUZ:  e.A3_NREDUZ.trimEnd(),
                 CK_NUMPV:   e.CK_NUMPV,
