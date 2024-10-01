@@ -12,6 +12,7 @@ const {convertDateFormat, convertDateForInput} = require('../utils/dateUtils.js'
 const {formatarParaMoedaBrasileira} = require('../utils/formatarParaMoedaBrasileira.js')
 const { sendEmail } = require('../services/emailService');
 const financeiroModel = require('../models/financeiroModel');
+const { Console } = require("console");
 
 router.get("/proposta-de-frete", async(req, res)=>{
     try {
@@ -805,7 +806,8 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_VEND1: response.C5_VEND1,
                 C5_XOBSV: response.C5_XOBSV,
                 C5_XOBSVBOOL: response.C5_XOBSV.trim().length > 0,
-                A1_NOME: response.A1_NOME,                           
+                A1_NOME: response.A1_NOME,
+                A3_NREDUZ: response.A3_NREDUZ,                           
                 C5_FECENT: formatDate (response.C5_FECENT),
                 itens: [
                 ]
@@ -1080,7 +1082,6 @@ router.get("/orcamento-info", async(req, res)=>{
             CJ_XESTADO: apiObject.CJ_XESTADO,
             CJ_XPVKORP: apiObject.CJ_XPVKORP,
             CJ_TIPOCLI: apiObject.CJ_TIPOCLI,
-            CJ_XDESTAB: apiObject.CJ_XDESTAB,
             A3_NOME:    apiObject.A3_NOME,
             CJ_XFREIMP: formatarParaMoedaBrasileira(apiObject.CJ_XFREIMP),
             CJ_VALIDA:  convertDateForInput(apiObject.CJ_VALIDA),
