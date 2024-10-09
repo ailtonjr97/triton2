@@ -400,29 +400,29 @@ async function confTitDia(req, res) {
     try {
         await connectToDatabase();
         const query = await sql.query`
-        select
-        CONR.E1_FILIAL AS 'FILIAL',
-        CONR.E1_CLIENTE AS 'COD. CLIENTE',
-        CONR.E1_LOJA AS 'LOJA CLIENTE',
-        CONR.E1_NOMCLI AS 'CLIENTE',
-        CONR.E1_PEDIDO AS 'PEDIDO',
-        PED.C5_NOTA AS 'NF',
-        CONR.E1_NUM AS 'TITULO NUM',
-        CONVERT(VARCHAR, CAST(CONR.E1_EMISSAO AS DATE), 103) AS 'DT. EMISSAO',
-        PED.C5_CONDPAG AS 'COND. PAG',
-        CONDP.E4_DESCRI AS 'COD. PAG. DESC',
-        CONR.E1_PARCELA AS 'PARCELA',
-        CONVERT(VARCHAR, CAST(CONR.E1_VENCTO AS DATE), 103) AS 'VENCIMENTO',
-        CONR.E1_VALOR AS 'VALOR',
-        CONR.E1_TIPO AS 'TIPO',
-        CONR.E1_VEND1 AS 'COD. VENDEDOR',
-        VEND.A3_NREDUZ AS 'VENDEDOR',
-        PED.C5_XOBS AS 'OBS. PEDIDO',
-        CONR.R_E_C_D_E_L_ AS 'RECDEL'
-        from SE1010 CONR
-        left join SC5010 PED ON CONR.E1_PEDIDO = PED.C5_NUM AND CONR.E1_FILIAL = PED.C5_FILIAL
-        left join SE4010 CONDP ON PED.C5_CONDPAG = CONDP.E4_CODIGO
-        left join SA3010 VEND ON CONR.E1_VEND1 = VEND.A3_COD
+        SELECT
+            CONR.E1_FILIAL AS 'FILIAL',
+            CONR.E1_CLIENTE AS 'COD. CLIENTE',
+            CONR.E1_LOJA AS 'LOJA CLIENTE',
+            CONR.E1_NOMCLI AS 'CLIENTE',
+            CONR.E1_PEDIDO AS 'PEDIDO',
+            PED.C5_NOTA AS 'NF',
+            CONR.E1_NUM AS 'TITULO NUM',
+            CONVERT(VARCHAR, CONVERT(DATE, CONR.E1_EMISSAO, 111), 103) AS 'DT. EMISSAO', -- Converte para DD/MM/YYYY
+            PED.C5_CONDPAG AS 'COND. PAG',
+            CONDP.E4_DESCRI AS 'COD. PAG. DESC',
+            CONR.E1_PARCELA AS 'PARCELA',
+            CONVERT(VARCHAR, CONVERT(DATE, CONR.E1_VENCTO, 111), 103) AS 'VENCIMENTO', -- Converte para DD/MM/YYYY
+            CONR.E1_VALOR AS 'VALOR',
+            CONR.E1_TIPO AS 'TIPO',
+            CONR.E1_VEND1 AS 'COD. VENDEDOR',
+            VEND.A3_NREDUZ AS 'VENDEDOR',
+            PED.C5_XOBS AS 'OBS. PEDIDO',
+            CONR.R_E_C_D_E_L_ AS 'RECDEL'
+        FROM SE1010 CONR
+        LEFT JOIN SC5010 PED ON CONR.E1_PEDIDO = PED.C5_NUM AND CONR.E1_FILIAL = PED.C5_FILIAL
+        LEFT JOIN SE4010 CONDP ON PED.C5_CONDPAG = CONDP.E4_CODIGO
+        LEFT JOIN SA3010 VEND ON CONR.E1_VEND1 = VEND.A3_COD;
         `;
 
         res.send(query.recordset);

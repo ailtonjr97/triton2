@@ -14,6 +14,7 @@ const {atualizarDa1, atualizarDa1Massa} = require('../controllers/locais/da1Cont
 const {atualizarSBZ, atualizarSBZMassa} = require('../controllers/locais/sbzController.js');
 const {atualizarSe4, atualizarSe4Massa} = require('../controllers/locais/se4Controller.js');
 const {atualizarSe1, atualizarSe1Massa} = require('../controllers/locais/se1Controller.js');
+const {atualizarSea, atualizarSeaMassa} = require('../controllers/locais/seaController.js');
 
 router.get("/atualizar-scj", atualizarScj);
 router.get("/atualizar-scj-massa", atualizarScjMassa);
@@ -44,5 +45,7 @@ router.get("/atualizar-se4", atualizarSe4);
 router.get("/atualizar-se4-massa", atualizarSe4Massa);
 router.get("/atualizar-se1", atualizarSe1);
 router.get("/atualizar-se1-massa", atualizarSe1Massa);
+router.get("/atualizar-sea", atualizarSea);
+router.get("/atualizar-sea-massa", atualizarSeaMassa);
 
 module.exports = router;

@@ -1165,4 +1165,103 @@ router.get("/orcamento-items", async(req, res)=>{
     }
 })
 
+router.get("/pedidos", async(req, res)=>{
+    try {
+        const filial   = !req.query.filial   ? ''  : req.query.filial;
+        const numero   = !req.query.numero   ? ''  : req.query.numero;
+        const cliente  = !req.query.cliente  ? ''  : req.query.cliente;
+        const vendedor = !req.query.vendedor ? '' : req.query.vendedor;
+
+        const response = await axios.get(`${process.env.APITOTVS}MODULO_PED/grid?filial=${filial}&numero=${numero}&cliente=${cliente}&vendedor=${vendedor}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const items = []
+
+        response.data.objects.forEach(e => {
+            items.push({
+                C5_FILIAL:  e.C5_FILIAL,
+                C5_NUM:     e.C5_NUM,
+                C5_EMISSAO: convertDateFormat(e.C5_EMISSAO),
+                A1_NOME:    e.A1_NOME.trimEnd(),
+                A3_NREDUZ:  e.A3_NREDUZ.trimEnd(),
+                R_E_C_N_O_: e.R_E_C_N_O_
+                
+            })
+        });
+
+        res.json(items);
+    } catch (error) {
+        if(error.response?.status == 404){
+            res.sendStatus(404);
+        }else{
+            res.sendStatus(500);
+            console.log(error)
+        }
+    }
+});
+
+router.get("/pedido-info", async(req, res)=>{
+    try {
+        const filial  = !req.query.filial  ? '' : req.query.filial;
+        const numero  = !req.query.numero  ? '' : req.query.numero;
+
+        const response = await axios.get(`${process.env.APITOTVS}MODULO_PED/unico?filial=${filial}&numero=${numero}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const apiObject = response.data.objects[0]
+
+        res.json({
+            C5_FILIAL:  apiObject.C5_FILIAL,
+            C5_NUM:     apiObject.C5_NUM
+        });
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/pedido-items", async(req, res)=>{
+    try {
+        const filial  = !req.query.filial  ? '' : req.query.filial;
+        const numero  = !req.query.numero  ? '' : req.query.numero;
+
+        const response = await axios.get(`${process.env.APITOTVS}MODULO_PED/items?filial=${filial}&numero=${numero}`, {
+            auth: {
+                username: process.env.USERTOTVS,
+                password: process.env.SENHAPITOTVS
+            }
+        });
+
+        const items = [];
+
+        response.data.objects.forEach(element => {
+            items.push({
+                C6_FILIAL:  element.C6_FILIAL,
+                C6_ITEM:    element.C6_ITEM,
+                C6_PRODUTO: element.C6_PRODUTO.trimEnd(),
+                C6_UM:      element.C6_UM,
+                C6_QTDVEN:  element.C6_QTDVEN,
+                C6_PRCVEN:  formatarParaMoedaBrasileira(element.C6_PRCVEN),
+                C6_VALOR:   formatarParaMoedaBrasileira(element.C6_VALOR),
+                C6_DESCRI:  element.C6_DESCRI,
+                C6_NUM:     element.C6_NUM
+            })
+        });
+
+        res.json(items);
+
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+})
+
 module.exports = router;
