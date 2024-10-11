@@ -233,6 +233,9 @@ const credFinaliza  = async (resultado_analise, limite_atual, respostaAnalise, o
     const query = `UPDATE ANALISE_CREDITO SET RESULTADO_ANALISE = ?, NOVO_LIMITE = ?, RESPOSTA_ANALISE = ?, OBS_RESPOSTA = ? WHERE ID = ?`;
 
     let conn;
+    if(limite_atual == ''){
+      limite_atual = null
+    }
     try {
       conn = await connect();
       const [rows] = await conn.execute(query, [resultado_analise, limite_atual, respostaAnalise, obsResposta, id]);
