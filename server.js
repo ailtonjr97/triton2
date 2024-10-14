@@ -47,10 +47,10 @@ app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRo
 app.use('/logistica', cors(corsOptions), authenticationMiddleware, logisticaRoutes);
 app.use("/credito", cors(corsOptions),  credito);
 app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
-app.use("/files", cors(corsOptions), files);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta);
 app.use("/local", cors(corsOptions), authenticationMiddlewareApi,local);
 app.use("/graficos", cors(corsOptions), authenticationMiddleware, graficos);
+app.use("/files", cors(corsOptions), authenticationMiddleware, files);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
