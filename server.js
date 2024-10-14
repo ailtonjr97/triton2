@@ -2,6 +2,7 @@ const express = require("express");
 var cors = require('cors');
 const bodyParser = require("body-parser");
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const users = require("./controllers/usersController.js");
@@ -21,7 +22,11 @@ const credito = require("./controllers/CreditoController.js");
 const consulta = require("./routes/consultaRoutes");
 const local = require("./routes/localRoutes.js");
 const graficos = require("./routes/graficosRoutes");
-const { authenticationMiddleware, authenticationMiddlewareApi, authenticationMiddlewareBasic } = require('./middlewares/authentication.js');
+const { 
+    authenticationMiddleware, 
+    authenticationMiddlewareApi, 
+    authenticationMiddlewareBasic, 
+    authenticationMiddlewareFiles } = require('./middlewares/authentication.js');
 
 var corsOptions = {
 origin: [process.env.ORIGIN1, process.env.ORIGIN2, process.env.ORIGIN3],
@@ -32,6 +37,7 @@ const app = express();
 
 app.use(express.static("public"));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use("/auth", cors(corsOptions), auth);
 app.use("/users", cors(corsOptions), authenticationMiddleware, users);
@@ -50,7 +56,7 @@ app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta);
 app.use("/local", cors(corsOptions), authenticationMiddlewareApi,local);
 app.use("/graficos", cors(corsOptions), authenticationMiddleware, graficos);
-app.use("/files", cors(corsOptions), authenticationMiddleware, files);
+app.use("/files", cors(corsOptions), authenticationMiddlewareFiles, files);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");

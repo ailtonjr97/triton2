@@ -135,4 +135,36 @@ function authenticationMiddlewareBasic(req, res, next) {
     }
 }
 
-module.exports = { authenticationMiddleware, authenticationMiddlewareApi, authenticationMiddlewareBasic };
+function authenticationMiddlewareFiles(req, res, next) {
+    try {
+        // Verifica se o token JWT está presente nos cookies
+        const token = req.cookies.jwt;
+
+        // Verifica se o token existe
+        if (!token) {
+            return res.status(401).json({ error: 'JWT token is missing' });
+        }
+
+        // Verifica o token
+        jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
+            if (err) {
+                // Log de erro detalhado para fins de depuração
+                console.error('JWT verification error:', err);
+                return res.status(401).json({ error: 'Invalid JWT token' });
+            }
+
+            // Adiciona as informações decodificadas do token ao objeto de solicitação
+            req.user = decoded;
+
+            // Prossegue para o próximo middleware ou rota
+            next();
+        });
+    } catch (error) {
+        // Log de erro detalhado para fins de depuração
+        console.error('Authentication middleware error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
+module.exports = { authenticationMiddleware, authenticationMiddlewareApi, authenticationMiddlewareBasic, authenticationMiddlewareFiles };
