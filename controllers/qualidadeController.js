@@ -2,7 +2,8 @@ const express = require("express");
 const router = express.Router();
 const multer = require('multer');
 const path = require("path");
-const qualidadeModel = require("../models/QualidadeModel")
+const qualidadeModel   = require("../models/QualidadeModel")
+const qualidadeModelMs = require("../models/qualidadeModelMs")
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -12,9 +13,65 @@ const storage = multer.diskStorage({
         const nome = file.originalname.replace(/\.[^/.]+$/, "")
         cb(null, nome + "-" + req.params.id + path.extname(file.originalname)) //Appending extension
     }
-  })
+})
+
+const storage2 = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './storage')
+    },
+    filename: function (req, file, cb) {
+        const nome = file.originalname.replace(/\.[^/.]+$/, "")
+        const numeroAleatorio = Math.floor(Math.random() * 90) + 10; // Gera um número entre 10 e 99
+        cb(null, `${nome}-${numeroAleatorio}${path.extname(file.originalname)}`) // Anexa a extensão
+    }
+})
+
 
 const upload = multer({ storage: storage })
+const upload2 = multer({ storage: storage2 })
+
+router.get("/anexos-home", async(req, res)=>{
+    try {
+        const resp = await qualidadeModelMs.anexosHome();
+        res.json(resp.recordset);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+});
+
+router.get("/anexos-home/:id", async(req, res)=>{
+    try {
+        const {id} = req.params
+        const resp = await qualidadeModelMs.anexosHomeUnico(id);
+        res.json(resp.recordset);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+});
+
+router.delete("/anexos-home/:id", async(req, res)=>{
+    try {
+        const {id} = req.params
+        const resp = await qualidadeModelMs.anexosHomeDelete(id);
+        res.json(resp.recordset);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+});
+
+router.post("/anexos-home-arquivo", upload2.single('file'), async(req, res)=>{
+    try {
+        const {fieldname, originalname, encoding, mimetype, destination, filename, path, size} = req.file;
+        await qualidadeModelMs.anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size);
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+});
 
 router.get("/documentos/ultimo-documento", async(req, res)=>{
     try {
