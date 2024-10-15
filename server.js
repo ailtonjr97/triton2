@@ -29,7 +29,8 @@ const {
     authenticationMiddlewareFiles } = require('./middlewares/authentication.js');
 
 var corsOptions = {
-origin: [process.env.ORIGIN1, process.env.ORIGIN2, process.env.ORIGIN3],
+origin: [process.env.ORIGIN1, process.env.ORIGIN2, process.env.ORIGIN3, process.env.ORIGIN4, process.env.ORIGIN5],
+credentials: true,
 optionsSuccessStatus: 200
 }
 
@@ -57,6 +58,7 @@ app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta
 app.use("/local", cors(corsOptions), authenticationMiddlewareApi,local);
 app.use("/graficos", cors(corsOptions), authenticationMiddleware, graficos);
 app.use("/files", cors(corsOptions), authenticationMiddlewareFiles, files);
+app.use("/qualidade-home", cors(corsOptions), authenticationMiddlewareFiles, qualidade);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
