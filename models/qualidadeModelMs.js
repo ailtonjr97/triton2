@@ -43,7 +43,7 @@ async function anexosHomeDelete(id) {
     }
 };
 
-async function anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size) {
+async function anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size, categoria) {
     try {
         // Conectar ao banco de dados
         await connectToDatabase();
@@ -54,7 +54,7 @@ async function anexosHomePost(fieldname, originalname, encoding, mimetype, desti
         DECLARE @NovoValor INT;
         SELECT @NovoValor = ISNULL(MAX(HOME_ID), 0) + 1 FROM ANEXOS WITH (TABLOCKX);
 
-        INSERT INTO ANEXOS (FIELDNAME, ORIGINAL_NAME, ENCODING, MIMETYPE, DESTINATION, FILENAME, PATH, SIZE, HOME_ID, ARQUIVADO) VALUES (${fieldname}, ${originalname}, ${encoding}, ${mimetype}, ${destination}, ${filename}, ${path}, ${size}, @NovoValor, 0)
+        INSERT INTO ANEXOS (FIELDNAME, ORIGINAL_NAME, ENCODING, MIMETYPE, DESTINATION, FILENAME, PATH, SIZE, HOME_ID, ARQUIVADO, HOME_CATEGORIA) VALUES (${fieldname}, ${originalname}, ${encoding}, ${mimetype}, ${destination}, ${filename}, ${path}, ${size}, @NovoValor, 0, ${categoria})
 
         COMMIT TRANSACTION;
         `;
