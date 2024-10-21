@@ -129,6 +129,13 @@ let setores = async(setor)=>{
     return rows;
 }
 
+let setoresAtivos = async(setor)=>{
+    const conn = await connect();
+    const [rows] = await conn.query('select * from users u where setor = ? and active = 1', [setor])
+    conn.end()
+    return rows;
+}
+
 module.exports = {
     all,
     register,
@@ -143,5 +150,6 @@ module.exports = {
     passwordReturn,
     getUserJwt,
     alterPassword,
-    setores
+    setores,
+    setoresAtivos
 };

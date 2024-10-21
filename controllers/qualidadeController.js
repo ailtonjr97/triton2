@@ -2,8 +2,10 @@ const express = require("express");
 const router = express.Router();
 const multer = require('multer');
 const path = require("path");
-const qualidadeModel   = require("../models/QualidadeModel")
-const qualidadeModelMs = require("../models/qualidadeModelMs")
+const qualidadeModel   = require("../models/QualidadeModel");
+const qualidadeModelMs = require("../models/qualidadeModelMs");
+const { sendEmail } = require('../services/emailService');
+const Users = require('../models/usersModel');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -132,7 +134,9 @@ router.get("/documentos/get_all", async(req, res)=>{
             PCP_PREENCHIDO:         e.PCP_PREENCHIDO,
             PRODUCAO_PREENCHIDO:    e.PRODUCAO_PREENCHIDO,
             MOTIVO_NC_PREENCHIDO:   e.MOTIVO_NC_PREENCHIDO,
-            QUALIDADE_PREENCHIDO:   e.QUALIDADE_PREENCHIDO
+            QUALIDADE_PREENCHIDO:   e.QUALIDADE_PREENCHIDO,
+            COD_PROD:               e.COD_PROD,
+            LINHA_PRODUTIVA:        e.LINHA_PRODUTIVA
         }))
 
         res.send(resposta);
@@ -256,7 +260,20 @@ router.get("/documentos/inactivate/:id", async(req, res)=>{
         console.log(error)
         res.sendStatus(500)
     }
-})
+});
+
+router.get("/documentos/email-setor/:setor/:id", async(req, res)=>{
+    try {
+        const usuarios = await Users.setoresAtivos(req.params.setor);
+        usuarios.forEach(async element => {
+            await sendEmail(element.email, "Minuta de Retrabalho", `Há uma nova minuta de retrabalho de ID ${req.params.id} para o seu setor preencher.`);
+        });
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+});
 
 
 

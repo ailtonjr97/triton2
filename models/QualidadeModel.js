@@ -141,7 +141,8 @@ const edpUpdate = async (body, id) => {
                 INSTRUCAO_REPROCESSO = @INSTRUCAO_REPROCESSO,
                 EDP_RESPONSAVEL = @EDP_RESPONSAVEL,
                 EDP_DATA = @EDP_DATA,
-                EDP_PREENCHIDO = 1
+                EDP_PREENCHIDO = 1,
+                LINHA_PRODUTIVA = @LINHA_PRODUTIVA
             WHERE ID = @ID
         `;
 
@@ -150,6 +151,7 @@ const edpUpdate = async (body, id) => {
             .input('INSTRUCAO_REPROCESSO', sql.Text, body.instrucao_reprocesso)
             .input('EDP_RESPONSAVEL', sql.VarChar(255), body.edp_responsavel)
             .input('EDP_DATA', sql.VarChar(255), body.edp_data)
+            .input('LINHA_PRODUTIVA', sql.VarChar(255), body.linha_produtiva)
             .input('ID', sql.Int, id)
             .query(query);
 
