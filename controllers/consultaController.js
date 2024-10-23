@@ -437,13 +437,13 @@ async function pedidosHerica(req, res) {
         await connectToDatabase();
         const query = await sql.query`
             select 
-            PED.C5_EMISSAO  'DT. EMISSAO', 
+            CONVERT(VARCHAR, CONVERT(DATE, PED.C5_EMISSAO, 111), 103) AS 'DT. EMISSAO',
             PED.C5_FILIAL  'FILIAL', 
             PED.C5_NUM  'CODIGO', 
             PED.C5_CLIENTE 'CLIENTE', 
             PED.C5_LOJACLI 'LOJA',
-            CLI.A1_NOME 'NOME', 
-            C5_FECENT 'DT. ENTREGA', 
+            CLI.A1_NOME 'NOME',
+            CONVERT(VARCHAR, CONVERT(DATE, PED.C5_FECENT, 111), 103) AS 'DT. ENTREGA',
             C5_NOTA 'NOTA', 
             C5_XNUMORC 'ORCAMENTO', 
             C5_TRANSP 'COD. TRANSP.',
