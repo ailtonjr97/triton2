@@ -60,7 +60,7 @@ router.get("/chamados-centro-custo2", consultaAllCentroCusto);
 router.get("/consulta-sb1", consultaSb1);
 router.get("/consulta-sbz", sbzGetAll);
 router.get("/consulta-confTitDia", confTitDia);
-router.get("/pedidos-herica", pedidosHerica);
+router.get("/pedidos-herica2", pedidosHerica);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);
