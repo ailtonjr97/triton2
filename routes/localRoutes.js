@@ -15,6 +15,7 @@ const {atualizarSBZ, atualizarSBZMassa} = require('../controllers/locais/sbzCont
 const {atualizarSe4, atualizarSe4Massa} = require('../controllers/locais/se4Controller.js');
 const {atualizarSe1, atualizarSe1Massa} = require('../controllers/locais/se1Controller.js');
 const {atualizarSea, atualizarSeaMassa} = require('../controllers/locais/seaController.js');
+const {atualizarSa4, atualizarSa4Massa} = require('../controllers/locais/sa4Controller.js');
 
 router.get("/atualizar-scj", atualizarScj);
 router.get("/atualizar-scj-massa", atualizarScjMassa);
@@ -40,6 +41,8 @@ router.get("/atualizar-da1", atualizarDa1);
 router.get("/atualizar-da1-massa", atualizarDa1Massa);
 router.get("/atualizar-sbz", atualizarSBZ);
 router.get("/atualizar-sbz-massa", atualizarSBZMassa);
+router.get("/atualizar-sa4", atualizarSa4);
+router.get("/atualizar-sa4-massa", atualizarSa4Massa);
 
 router.get("/atualizar-se4", atualizarSe4);
 router.get("/atualizar-se4-massa", atualizarSe4Massa);

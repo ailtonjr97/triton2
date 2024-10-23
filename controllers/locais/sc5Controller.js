@@ -60,7 +60,11 @@ async function atualizarSc5(req, res) {
                 C5_CONDPAG,
                 C5_VEND1,
                 C5_XOBS,
-                C5_EMISSAO  // Adicionado o campo C5_EMISSAO
+                C5_EMISSAO,
+                C5_XNUMORC,
+                C5_TRANSP,
+                C5_TPFRETE,
+                C5_FRETE
             } = element;
 
             // Verificar se o registro existe
@@ -83,8 +87,12 @@ async function atualizarSc5(req, res) {
                         C5_CONDPAG   = ${C5_CONDPAG},
                         C5_VEND1     = ${C5_VEND1},
                         C5_XOBS      = ${C5_XOBS},
-                        C5_EMISSAO   = ${C5_EMISSAO}  -- Adicionado campo C5_EMISSAO
-                    WHERE C5_FILIAL = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}
+                        C5_EMISSAO   = ${C5_EMISSAO},
+                        C5_XNUMORC   = ${C5_XNUMORC},
+                        C5_TRANSP    = ${C5_TRANSP},
+                        C5_TPFRETE   = ${C5_TPFRETE},
+                        C5_FRETE     = ${C5_FRETE}
+                    WHERE C5_FILIAL  = ${C5_FILIAL} AND C5_NUM = ${C5_NUM}
                 `;
             } else {
                 // Registro não existe, realizar o insert
@@ -104,7 +112,11 @@ async function atualizarSc5(req, res) {
                         C5_CONDPAG,
                         C5_VEND1,
                         C5_XOBS,
-                        C5_EMISSAO  -- Adicionado campo C5_EMISSAO
+                        C5_EMISSAO,
+                        C5_XNUMORC,
+                        C5_TRANSP,
+                        C5_TPFRETE,
+                        C5_FRETE
                     ) 
                     VALUES 
                     (
@@ -121,7 +133,11 @@ async function atualizarSc5(req, res) {
                         ${C5_CONDPAG}, 
                         ${C5_VEND1}, 
                         ${C5_XOBS},
-                        ${C5_EMISSAO}  -- Adicionado campo C5_EMISSAO
+                        ${C5_EMISSAO},
+                        ${C5_XNUMORC},
+                        ${C5_TRANSP},
+                        ${C5_TPFRETE},
+                        ${C5_FRETE}
                     )
                 `;
             }
@@ -181,25 +197,33 @@ async function atualizarSc5Massa(req, res) {
                 C5_CONDPAG,
                 C5_VEND1,
                 C5_XOBS,
-                C5_EMISSAO  // Adicionado campo C5_EMISSAO
+                C5_EMISSAO,
+                C5_XNUMORC,
+                C5_TRANSP,
+                C5_TPFRETE,
+                C5_FRETE
             } = element;
             await sql.query`
                 INSERT INTO SC5010 
                 (
-                    C5_FILIAL, 
-                    C5_NUM, 
-                    C5_XHEXPED, 
-                    C5_CLIENTE, 
-                    C5_LOJACLI, 
-                    S_T_A_M_P_, 
-                    R_E_C_N_O_, 
-                    R_E_C_D_E_L_,
-                    C5_NOTA,
-                    C5_FECENT,
-                    C5_CONDPAG,
-                    C5_VEND1,
-                    C5_XOBS,
-                    C5_EMISSAO  -- Adicionado campo C5_EMISSAO
+                        C5_FILIAL, 
+                        C5_NUM, 
+                        C5_XHEXPED, 
+                        C5_CLIENTE, 
+                        C5_LOJACLI, 
+                        S_T_A_M_P_, 
+                        R_E_C_N_O_, 
+                        R_E_C_D_E_L_,
+                        C5_NOTA,
+                        C5_FECENT,
+                        C5_CONDPAG,
+                        C5_VEND1,
+                        C5_XOBS,
+                        C5_EMISSAO,
+                        C5_XNUMORC,
+                        C5_TRANSP,
+                        C5_TPFRETE,
+                        C5_FRETE
                 ) 
                 VALUES 
                 (
@@ -216,7 +240,11 @@ async function atualizarSc5Massa(req, res) {
                     ${C5_CONDPAG},
                     ${C5_VEND1},
                     ${C5_XOBS},
-                    ${C5_EMISSAO}  -- Adicionado campo C5_EMISSAO
+                    ${C5_EMISSAO},
+                    ${C5_XNUMORC},
+                    ${C5_TRANSP},
+                    ${C5_TPFRETE},
+                    ${C5_FRETE}
                 )
             `;
         });

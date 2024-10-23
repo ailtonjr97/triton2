@@ -432,6 +432,37 @@ async function confTitDia(req, res) {
     }
 };
 
+async function pedidosHerica(req, res) {
+    try {
+        await connectToDatabase();
+        const query = await sql.query`
+            select 
+            PED.C5_EMISSAO  'DT. EMISSAO', 
+            PED.C5_FILIAL  'FILIAL', 
+            PED.C5_NUM  'CODIGO', 
+            PED.C5_CLIENTE 'CLIENTE', 
+            PED.C5_LOJACLI 'LOJA',
+            CLI.A1_NOME 'NOME', 
+            C5_FECENT 'DT. ENTREGA', 
+            C5_NOTA 'NOTA', 
+            C5_XNUMORC 'ORCAMENTO', 
+            C5_TRANSP 'COD. TRANSP.',
+            A4_NOME 'NOME TRANSP.',
+            C5_TPFRETE 'TIPO FRETE', 
+            C5_FRETE 'FRETE'
+            from SC5010 PED
+            LEFT JOIN SA1010 CLI ON PED.C5_CLIENTE = CLI.A1_COD AND PED.C5_LOJACLI = CLI.A1_LOJA
+            LEFT JOIN SA4010 TRANSP ON PED.C5_TRANSP = TRANSP.A4_COD
+            where PED.C5_VEND1 = '000008'
+        `;
+
+        res.send(query.recordset);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 module.exports = { 
     consultaCassia,
     sb2GetAll,
@@ -460,5 +491,6 @@ module.exports = {
     consultaAllSubTipoManuts,
     consultaAllCentroCusto,
     sbzGetAll,
-    confTitDia
+    confTitDia,
+    pedidosHerica
 };
