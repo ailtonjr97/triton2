@@ -19,14 +19,19 @@ const storage = multer.diskStorage({
 
 const storage2 = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './storage')
+        cb(null, './storage');
     },
     filename: function (req, file, cb) {
-        const nome = file.originalname.replace(/\.[^/.]+$/, "")
+        // Corrige a codificação do originalname
+        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+
+        const originalName = file.originalname;
+        const extension = path.extname(originalName);
+        const nome = path.basename(originalName, extension);
         const numeroAleatorio = Math.floor(Math.random() * 90) + 10; // Gera um número entre 10 e 99
-        cb(null, `${nome}-${numeroAleatorio}${path.extname(file.originalname)}`) // Anexa a extensão
+        cb(null, `${nome}-${numeroAleatorio}${extension}`);
     }
-})
+});
 
 
 const upload = multer({ storage: storage })
@@ -66,6 +71,7 @@ router.delete("/anexos-home/:id", async(req, res)=>{
 
 router.post("/anexos-home-arquivo", upload2.single('file'), async(req, res)=>{
     try {
+        console.log(req.file)
         const {fieldname, originalname, encoding, mimetype, destination, filename, path, size} = req.file;
         const {categoria} = req.body;
         await qualidadeModelMs.anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size, categoria);
