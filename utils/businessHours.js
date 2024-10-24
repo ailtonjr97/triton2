@@ -1,6 +1,5 @@
 function adicionarHorasUteis(dataInicial, horasUteis) {
     const horasPorDia = 24;
-    const diaSemana = dataInicial.getDay();
     let horasRestantes = horasUteis;
 
     while (horasRestantes > 0) {
@@ -19,6 +18,14 @@ function adicionarHorasUteis(dataInicial, horasUteis) {
         }
     }
 
+    // Se a data final cair no fim de semana, ajuste para segunda-feira
+    const diaFinal = dataInicial.getDay();
+    if (diaFinal === 6) { // Sábado
+        dataInicial.setDate(dataInicial.getDate() + 2); // Pula para segunda-feira
+    } else if (diaFinal === 0) { // Domingo
+        dataInicial.setDate(dataInicial.getDate() + 1); // Pula para segunda-feira
+    }
+
     // Converte a data final para o formato 'YYYY-MM-DD HH:MM:SS'
     const ano = dataInicial.getFullYear();
     const mes = String(dataInicial.getMonth() + 1).padStart(2, '0');
@@ -32,4 +39,4 @@ function adicionarHorasUteis(dataInicial, horasUteis) {
     return dataFinal;
 }
 
-module.exports = {adicionarHorasUteis};
+module.exports = { adicionarHorasUteis };
