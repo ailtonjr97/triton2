@@ -413,7 +413,6 @@ async function nfcte(req, res) {
             }
 
             freteSemImposto = parseFloat(freteSemImposto.toFixed(2));
-            console.log(freteSemImposto)
             items.push({
                 F2_FILIAL:       element.F2_FILIAL,
                 F2_DOC:          element.F2_DOC,
