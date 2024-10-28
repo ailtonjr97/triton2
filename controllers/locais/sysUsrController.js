@@ -48,6 +48,7 @@ async function atualizarSysUsr(req, res) {
 
             notas.data.items.forEach(element => {
                 usuarios.push(element);
+                console.log(element)
             });
             
         };
