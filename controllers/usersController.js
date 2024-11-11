@@ -44,7 +44,8 @@ router.post("/register", async(req, res)=>{
                 req.body.email,
                 hashedPassword,
                 req.body.admin,
-                req.body.setor
+                req.body.setor,
+                req.body.intranet_id
             )
             res.sendStatus(200);
         }

@@ -58,6 +58,7 @@ async function atualizarSysUsr(req, res) {
 
         // Remover todos os registros do banco
         await sql.query`TRUNCATE TABLE SYS_USR`
+        await sql.query`TRUNCATE TABLE SYS_USR_GRP`
 
         // Função para inserir registros em lotes de mil
         const batchSize = 1000;
@@ -81,10 +82,12 @@ async function atualizarSysUsr(req, res) {
         }
 
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SYS_USR', ${getCurrentSQLServerDateTime()}, 200)`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SYS_USR_GRP', ${getCurrentSQLServerDateTime()}, 200)`
         res.sendStatus(200);
     } catch (error) {
         await connectToDatabase();
         await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SYS_USR', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
+        await sql.query`INSERT INTO LOG_TABELAS (TABELA, HORARIO, STATUS) VALUES ('SYS_USR_GRP', ${getCurrentSQLServerDateTime()}, ${error.response?.status || 500})`
         console.log(error)
         res.sendStatus(500);
     }

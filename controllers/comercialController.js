@@ -1219,7 +1219,11 @@ router.get("/pedido-info", async(req, res)=>{
 
         res.json({
             C5_FILIAL:  apiObject.C5_FILIAL,
-            C5_NUM:     apiObject.C5_NUM
+            C5_NUM:     apiObject.C5_NUM,
+            C5_XPEDTR:  apiObject.C5_XPEDTR,
+            C5_XNUMORC: apiObject.C5_XNUMORC,
+            C5_CLIENTE: apiObject.C5_CLIENTE,
+            C5_LOJACLI: apiObject.C5_LOJACLI,
         });
     } catch (error) {
         console.log(error);

@@ -31,7 +31,7 @@ let all = async()=>{
 
 let one = async(id)=>{
     const conn = await connect();
-    const [rows] = await conn.query('SELECT name, email, admin, dpo, setor, intranet_id, intranet_department_id, intranet_setor_chamado FROM users WHERE intranet_id = ?', [id]);
+    const [rows] = await conn.query('SELECT name, email, admin, dpo, setor, intranet_id, intranet_department_id, intranet_setor_chamado FROM users WHERE id = ?', [id]);
     conn.end();
     return rows;
 }
@@ -43,13 +43,14 @@ let allInactives = async()=>{
     return rows;
 }
 
-let register = async(name, email, password, admin, setor)=>{
+let register = async(name, email, password, admin, setor, intranet_id)=>{
     const conn = await connect();
-    const [rows] = await conn.query('INSERT INTO users (name, email, password, salt, active, admin, jwt, intranet_id, dpo, setor) VALUES (?, ?, ?, 10, 1, ?, 0, 0, 0, ?)', [
+    const [rows] = await conn.query('INSERT INTO users (name, email, password, salt, active, admin, jwt, intranet_id, dpo, setor) VALUES (?, ?, ?, 10, 1, ?, 0, ?, 0, ?)', [
         name,
         email,
         password,
         admin,
+        intranet_id,
         setor
     ]);
     conn.end();
