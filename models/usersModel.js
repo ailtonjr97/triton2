@@ -31,7 +31,7 @@ let all = async()=>{
 
 let one = async(id)=>{
     const conn = await connect();
-    const [rows] = await conn.query('SELECT name, email, admin, dpo, setor, intranet_id, intranet_department_id, intranet_setor_chamado FROM users WHERE id = ?', [id]);
+    const [rows] = await conn.query('SELECT name, email, admin, dpo, setor, intranet_id, intranet_department_id, intranet_setor_chamado FROM users WHERE intranet_id = ?', [id]);
     conn.end();
     return rows;
 }
