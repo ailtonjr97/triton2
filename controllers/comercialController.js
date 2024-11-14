@@ -365,6 +365,37 @@ router.get("/proposta-frete-itens/:numped/:revisao", async(req, res)=>{
     }
 });
 
+router.get("/verifica-tpfrete", async(req, res)=>{
+    try {
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/tpfrete?filial=${req.query.filial}&numero=${req.query.numero}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.json(response.data.objects);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(error.response?.status || 500);
+    }
+});
+
+router.get("/busca-cliente", async(req, res)=>{
+    try {
+        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SA1/unico?id=${req.query.id}&loja=${req.query.loja}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.json(response.data.objects);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(error.response?.status || 500);
+    }
+});
+
+
+router.post("/muda-transportadora", async(req, res)=>{
+    try {
+        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/muda-cjxtransp?filial=${req.body[0].filial}&numero=${req.body[0].numero}&transp=${req.body[0].transp}`, {}, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(error.response?.status || 500);
+    }
+});
+
 router.get("/transportadoras", async(req, res)=>{
     try {
         const response = await axios.get(process.env.APITOTVS + "CONSULTA_SA4/get_all", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
