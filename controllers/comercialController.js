@@ -415,6 +415,15 @@ router.get("/transportadoras/:nome", async(req, res)=>{
     }
 });
 
+router.get("/transps", async(req, res)=>{
+    try {
+        const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SA4/transps?limit=20&pesquisa=${req.params.nome}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        res.json(response.data.objects);
+    } catch (error) {
+        res.sendStatus(500);
+    }
+});
+
 router.get("/update-frete-cot", async(req, res)=>{
     try {
         const freteOriginal = await comercialModel.buscaValorOriginal(req.query.cj_cst_fts);
