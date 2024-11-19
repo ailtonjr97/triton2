@@ -30,9 +30,25 @@ async function inventario(req, res) {
     }
 };
 
+async function armazem(req, res) {
+    try {
+        const {filial, item, endereco, localiza} = req.query
+        if(!filial || !item || !endereco || !localiza){
+            res.status(400).send('Falta de parametros.')
+        }else{
+            const response = await axios.get(`${process.env.APITOTVS}CONSULTA_SBF/item-endereco?filial=${filial}&item=${item}&endereco=${endereco}&localiza=${localiza}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+            res.json(response.data.objects[0].QUANT_TOTAL);
+        }
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(404);
+    }
+};
+
 
 module.exports = { 
     produtosAll,
     produtoOne,
-    inventario
+    inventario,
+    armazem
 };
