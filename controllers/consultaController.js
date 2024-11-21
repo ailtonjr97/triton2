@@ -3,6 +3,16 @@ const { sql, connectToDatabase } = require('../services/dbConfig');
 // const { sqlKorp, connectToDatabaseKorp } = require('../services/dbConfigKorp');
 const comercialModel = require("../models/comercialModel.js");
 const financeiroModel = require("../models/financeiroModel.js");
+const qualidadeModel = require("../models/QualidadeModel.js");
+
+async function todosMinutaRetrabalho(req, res) {
+    try {
+        res.json(await qualidadeModel.todosConsulta());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
 
 
 async function consultaAnaliseCreditoLuiz(req, res) {
@@ -492,5 +502,6 @@ module.exports = {
     consultaAllCentroCusto,
     sbzGetAll,
     confTitDia,
-    pedidosHerica
+    pedidosHerica,
+    todosMinutaRetrabalho
 };

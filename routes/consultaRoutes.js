@@ -30,7 +30,8 @@ const {
         consultaAllCentroCusto,
         sbzGetAll,
         confTitDia,
-        pedidosHerica
+        pedidosHerica,
+        todosMinutaRetrabalho
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -61,6 +62,7 @@ router.get("/consulta-sb1", consultaSb1);
 router.get("/consulta-sbz", sbzGetAll);
 router.get("/consulta-confTitDia", confTitDia);
 router.get("/pedidos-herica2", pedidosHerica);
+router.get("/todos-minuta-retrabalho", todosMinutaRetrabalho);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);

@@ -359,6 +359,22 @@ const ultimoDocumento = async () => {
     }
 };
 
+const todosConsulta = async () => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `SELECT * FROM DOCS_QUALIDADE`;
+
+        const result = await request.query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar SELECT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
 const listaAnexos = async (id) => {
     try {
         const pool = await connectToDatabase();
@@ -458,5 +474,6 @@ module.exports = {
     producaoUpdate,
     qualidadeUpdate,
     ncUpdate,
-    inactivateDocument
+    inactivateDocument,
+    todosConsulta
 };
