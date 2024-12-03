@@ -287,52 +287,140 @@ const arquivaFrete = async(id)=>{
 
 const all = async(setor, designado)=>{
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 1 order by id desc limit 300`);
+    const [rows] = await conn.query(`
+        WITH MaxRevisao AS (
+            SELECT pedido, MAX(revisao) AS max_revisao
+            FROM proposta_frete
+            GROUP BY pedido
+        )
+        SELECT 
+            pf.*, 
+            u.name AS 'vendedor', 
+            u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        JOIN MaxRevisao mr ON pf.pedido = mr.pedido AND pf.revisao = mr.max_revisao
+        WHERE pf.status = 1
+        ORDER BY pf.id DESC
+        LIMIT 300;
+        `);
     conn.end();
     return rows;
 };
 
-const allConsulta = async(setor, designado)=>{
+const allConsulta = async (setor, designado) => {
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id`);
+    const [rows] = await conn.query(`
+        WITH MaxRevisao AS (
+            SELECT pedido, MAX(revisao) AS max_revisao
+            FROM proposta_frete
+            GROUP BY pedido
+        )
+        SELECT pf.*, u.name AS 'vendedor', u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        JOIN MaxRevisao mr ON pf.pedido = mr.pedido AND pf.revisao = mr.max_revisao
+    `);
     conn.end();
     return rows;
 };
 
-const allArquivadas = async()=>{
+const allArquivadas = async () => {
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and status = 0 order by id`);
+    const [rows] = await conn.query(`
+        WITH MaxRevisao AS (
+            SELECT pedido, MAX(revisao) AS max_revisao
+            FROM proposta_frete
+            GROUP BY pedido
+        )
+        SELECT pf.*, u.name AS 'vendedor', u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        JOIN MaxRevisao mr ON pf.pedido = mr.pedido AND pf.revisao = mr.max_revisao
+        WHERE pf.status = 0
+        ORDER BY pf.id
+    `);
     conn.end();
     return rows;
 };
 
-const allSemRevisao = async(setor, designado)=>{
+const allSemRevisao = async (setor, designado) => {
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id where status = 1`);
+    const [rows] = await conn.query(`
+        WITH MaxRevisao AS (
+            SELECT pedido, MAX(revisao) AS max_revisao
+            FROM proposta_frete
+            GROUP BY pedido
+        )
+        SELECT pf.*, u.name AS 'vendedor', u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        WHERE pf.status = 1
+    `);
     conn.end();
     return rows;
 };
 
-const search = async(codigo, resultados, vendedor, identificador, filial)=>{
+const search = async (codigo, resultados, vendedor, identificador, filial) => {
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' and u.name LIKE '%${vendedor}%' and pf.id like '%${identificador}%' and status = 1 and pf.filial like '%${filial}%' order by id desc LIMIT ${resultados}`);
+    const [rows] = await conn.query(`
+        WITH MaxRevisao AS (
+            SELECT pedido, MAX(revisao) AS max_revisao
+            FROM proposta_frete
+            GROUP BY pedido
+        )
+        SELECT pf.*, u.name AS 'vendedor', u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        JOIN MaxRevisao mr ON pf.pedido = mr.pedido AND pf.revisao = mr.max_revisao
+        WHERE pf.pedido LIKE ? AND u.name LIKE ? AND pf.id LIKE ? AND pf.status = 1 AND pf.filial LIKE ?
+        ORDER BY pf.id DESC
+        LIMIT ?
+    `, [`%${codigo}%`, `%${vendedor}%`, `%${identificador}%`, `%${filial}%`, parseInt(resultados)]);
     conn.end();
     return rows;
 };
 
-const searchArquivadas = async(codigo, resultados, vendedor, identificador)=>{
+const searchArquivadas = async (codigo, resultados, vendedor, identificador) => {
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id  where revisao = (select Max(revisao) from proposta_frete as pf2 where pf2.pedido=pf.pedido) and pedido LIKE '%${codigo}%' and u.name LIKE '%${vendedor}%' and pf.id like '%${identificador}%' and status = 0 order by id LIMIT ${resultados}`);
+    const [rows] = await conn.query(`
+        WITH MaxRevisao AS (
+            SELECT pedido, MAX(revisao) AS max_revisao
+            FROM proposta_frete
+            GROUP BY pedido
+        )
+        SELECT pf.*, u.name AS 'vendedor', u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        JOIN MaxRevisao mr ON pf.pedido = mr.pedido AND pf.revisao = mr.max_revisao
+        WHERE pf.pedido LIKE ? AND u.name LIKE ? AND pf.id LIKE ? AND pf.status = 0
+        ORDER BY pf.id
+        LIMIT ?
+    `, [`%${codigo}%`, `%${vendedor}%`, `%${identificador}%`, parseInt(resultados)]);
     conn.end();
     return rows;
 };
 
-const searchSemRevisao = async(codigo, resultados, vendedor)=>{
+const searchSemRevisao = async (codigo, resultados, vendedor) => {
     const conn = await connect();
-    const [rows] = await conn.query(`SELECT pf.*, u.name as 'vendedor', u2.name as 'cotador' FROM proposta_frete as pf left join users as u on pf.cotador_id = u.intranet_id left join users as u2 on pf.cotador_id_2 = u2.intranet_id WHERE pedido LIKE '%${codigo}%' and and u.name LIKE '%${vendedor}%' and status = 1 LIMIT ${resultados}`);
+    const [rows] = await conn.query(`
+        SELECT pf.*, u.name AS 'vendedor', u2.name AS 'cotador'
+        FROM proposta_frete pf
+        LEFT JOIN users u ON pf.cotador_id = u.intranet_id
+        LEFT JOIN users u2 ON pf.cotador_id_2 = u2.intranet_id
+        WHERE pf.pedido LIKE ? AND u.name LIKE ? AND pf.status = 1
+        LIMIT ?
+    `, [`%${codigo}%`, `%${vendedor}%`, parseInt(resultados)]);
     conn.end();
     return rows;
 };
+
 
 const proposta = async(id)=>{
     const conn = await connect();
