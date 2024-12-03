@@ -201,8 +201,8 @@ async function docOk(req, res) {
     try {
         const now = new Date();
 
-        const recipient = req.query.valor <= 20000.00 ? 'aux.adm@fibracem.com' : 'financeiro@fibracem.com';
-        const approver = req.query.valor <= 20000.00 ? 'Natali Evelin Peres Pereira' : 'Kesley Machado';
+        const recipient = req.query.valor <= 20000.00 ? 'aux.adm@fibracem.com' : 'gerente.fin@fibracem.com';
+        const approver = req.query.valor <= 20000.00 ? 'Natali Evelin Peres Pereira' : 'Sthefany Jackeline Kataloski';
 
         await sendEmailCadastro(
             recipient,
