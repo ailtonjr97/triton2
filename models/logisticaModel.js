@@ -17,14 +17,14 @@ const produtosAll = async (codigo) => {
     }
 };
 
-const produtoOne = async (filial, codigo) => {
+const produtoOne = async (codigo) => {
 
     await connectToDatabase();
     try {
         const result = await sql.query`
-            SELECT * FROM SB1010 WHERE B1_COD = ${filial, codigo}
+            SELECT * FROM SB1010 WHERE B1_COD = ${codigo}
         `;
-        return result.recordset;
+        return result.recordset[0];
     } catch (error) {
         console.log(error);
         throw new Error;

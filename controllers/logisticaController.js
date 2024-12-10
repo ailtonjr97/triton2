@@ -13,7 +13,7 @@ async function produtosAll(req, res) {
 
 async function produtoOne(req, res) {
     try {
-        res.json(await logisticaModel.produtoOne(req.query.filial, req.query.codigo));
+        res.json(await logisticaModel.produtoOne(req.query.codigo));
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
