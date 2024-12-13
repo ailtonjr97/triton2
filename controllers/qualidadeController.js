@@ -71,7 +71,6 @@ router.delete("/anexos-home/:id", async(req, res)=>{
 
 router.post("/anexos-home-arquivo", upload2.single('file'), async(req, res)=>{
     try {
-        console.log(req.file)
         const {fieldname, originalname, encoding, mimetype, destination, filename, path, size} = req.file;
         const {categoria} = req.body;
         await qualidadeModelMs.anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size, categoria);
