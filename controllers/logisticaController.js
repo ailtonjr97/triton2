@@ -22,7 +22,9 @@ async function produtoOne(req, res) {
 
 async function inventario(req, res) {
     try {
-        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SB1/codigo?codigo=" + req.query.codigo, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        let codigo = req.query.codigo;
+        codigo = codigo.toUpperCase();
+        const response = await axios.get(process.env.APITOTVS + "CONSULTA_SB1/codigo?codigo=" + codigo, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         res.json(response.data.objects[0]);
     } catch (error) {
         console.log(error);
