@@ -845,6 +845,7 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_NOTA: response.C5_NOTA,                 
                 C5_VEND1: response.C5_VEND1,
                 C5_XOBSV: response.C5_XOBSV,
+                C5_XRECLAM: response.C5_XRECLAM,
                 C5_XOBSVBOOL: response.C5_XOBSV.trim().length > 0,
                 A1_NOME: response.A1_NOME,
                 A3_NREDUZ: response.A3_NREDUZ,                           
