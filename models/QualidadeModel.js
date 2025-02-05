@@ -459,6 +459,137 @@ const preencheAnexo = async (id) => {
     }
 }
 
+const propriedades = async () => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `SELECT * FROM qualidade_propriedade ORDER BY id DESC`;
+        const result = await request
+        .query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar SELECT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const propriedade = async (id) => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `SELECT * FROM qualidade_propriedade WHERE id = @ID`;
+        const result = await request
+        .input('ID', sql.Int, id)
+        .query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar SELECT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const buscarAnexoPropriedades = async (id) => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `SELECT * FROM ANEXOS WHERE PROPRIEDADES_ID = @ID`;
+        const result = await request
+        .input('ID', sql.Int, id)
+        .query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar SELECT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const insertPropriedade = async (body) => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `
+            INSERT INTO qualidade_propriedade 
+                (nome, cliente_cod, cliente_nome, numero_nf, transportadora, rrc, CRIADO_EM)
+            OUTPUT inserted.id
+            VALUES 
+                (@NOME, @CLIENTE_COD, @CLIENTE_NOME, @NUMERO_NF, @TRANSPORTADORA, @RRC, GETDATE());
+        `;
+        
+        const result = await request
+            .input('NOME', sql.VarChar(255), body.nome)
+            .input('CLIENTE_COD', sql.VarChar(255), body.cliente_cod)
+            .input('CLIENTE_NOME', sql.VarChar(255), body.cliente_nome)
+            .input('NUMERO_NF', sql.VarChar(255), body.numero_nf)
+            .input('TRANSPORTADORA', sql.VarChar(255), body.transportadora)
+            .input('RRC', sql.VarChar(255), body.rrc)
+            .query(query);
+
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar INSERT:', error);
+        throw error;
+    }
+};
+
+
+
+const novoAnexoPropriedades = async (file, id) => {
+    console.log(file)
+    let pool;
+    try {
+        pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `
+            INSERT INTO ANEXOS (
+                FIELDNAME,
+                ORIGINAL_NAME,
+                ENCODING,
+                MIMETYPE,
+                DESTINATION,
+                FILENAME,
+                PATH,
+                SIZE,
+                PROPRIEDADES_ID
+            )
+            VALUES (
+                @FIELDNAME,
+                @ORIGINAL_NAME,
+                @ENCODING,
+                @MIMETYPE,
+                @DESTINATION,
+                @FILENAME,
+                @PATH,
+                @SIZE,
+                @PROPRIEDADES_ID
+            )`;
+
+        const result = await request
+            .input('FIELDNAME', sql.VarChar(100), file.fieldname)
+            .input('ORIGINAL_NAME', sql.VarChar(255), file.originalname)
+            .input('ENCODING', sql.VarChar(100), file.encoding)
+            .input('MIMETYPE', sql.VarChar(100), file.mimetype)
+            .input('DESTINATION', sql.VarChar(100), file.destination)
+            .input('FILENAME', sql.VarChar(255), file.filename)
+            .input('PATH', sql.VarChar(255), file.path)
+            .input('SIZE', sql.Int, file.size)
+            .input('PROPRIEDADES_ID', sql.Int, id)
+            .query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar INSERT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
 module.exports = {
     all,
     one,
@@ -475,5 +606,10 @@ module.exports = {
     qualidadeUpdate,
     ncUpdate,
     inactivateDocument,
-    todosConsulta
+    todosConsulta,
+    propriedades,
+    propriedade,
+    insertPropriedade,
+    novoAnexoPropriedades,
+    buscarAnexoPropriedades
 };

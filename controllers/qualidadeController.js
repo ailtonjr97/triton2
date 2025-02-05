@@ -33,9 +33,24 @@ const storage2 = multer.diskStorage({
     }
 });
 
+const storage3 = multer.diskStorage({
+    destination: function (req, file, cb) {
+      cb(null, './storage');
+    },
+    filename: function (req, file, cb) {
+        // Converte o nome do arquivo para UTF-8 a partir de latin1
+        file.originalname = Buffer.from(file.originalname, 'latin1').toString('utf8');
+        const numeroAleatorio = Math.floor(Math.random() * 90) + 10; // Gera um número entre 10 e 99
+        const nome = file.originalname.replace(/\.[^/.]+$/, "");
+        cb(null, nome + "-" + numeroAleatorio + path.extname(file.originalname));
+    }
+});
+
+
 
 const upload = multer({ storage: storage })
 const upload2 = multer({ storage: storage2 })
+const upload3 = multer({ storage: storage3 })
 
 router.get("/anexos-home", async(req, res)=>{
     try {
@@ -274,6 +289,57 @@ router.get("/documentos/email-setor/:setor/:id", async(req, res)=>{
             await sendEmail(element.email, "Minuta de Retrabalho", `Há uma nova minuta de retrabalho de ID ${req.params.id} para o seu setor preencher.`);
         });
         res.sendStatus(200);
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
+    }
+});
+
+router.get("/propriedades", async(req, res)=>{
+    try {
+        res.json(await qualidadeModel.propriedades());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/propriedade/:id", async(req, res)=>{
+    try {
+        res.json(await qualidadeModel.propriedade(req.params.id));
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/propriedades", async(req, res)=>{
+    try {
+        const response = await qualidadeModel.insertPropriedade(req.body);
+        res.json({'id': response.recordset[0].id});
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/propriedades-arquivo", upload3.array('files', 10), async(req, res)=>{
+    try {
+        // req.files será um array de arquivos
+        for (const file of req.files) {
+            // Aqui, req.body.id conterá o id enviado pelo FormData
+            await qualidadeModel.novoAnexoPropriedades(file, req.body.id);
+        }
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/propriedades-arquivo/:id", async(req, res)=>{
+    try {
+        res.json(await qualidadeModel.buscarAnexoPropriedades(req.params.id));
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
