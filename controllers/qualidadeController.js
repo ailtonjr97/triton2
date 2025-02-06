@@ -304,6 +304,24 @@ router.get("/propriedades", async(req, res)=>{
     }
 });
 
+router.get("/propriedades/arquivados", async(req, res)=>{
+    try {
+        res.json(await qualidadeModel.propriedadesArquivados());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.get("/propriedades-produtos/:id", async(req, res)=>{
+    try {
+        res.json(await qualidadeModel.propriedadesProdutos(req.params.id));
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
 router.get("/propriedade/:id", async(req, res)=>{
     try {
         res.json(await qualidadeModel.propriedade(req.params.id));
@@ -315,7 +333,27 @@ router.get("/propriedade/:id", async(req, res)=>{
 
 router.post("/propriedades", async(req, res)=>{
     try {
+        const produtos = req.body.produtos
         const response = await qualidadeModel.insertPropriedade(req.body);
+
+        produtos.forEach(async e => {
+            await qualidadeModel.insertPropriedadeProduto(e, response.recordset[0].id);
+        });
+
+        // if(req.body.mot_dev == 'DEVOLUÇÃO DE RECLAMAÇÃO'){
+        //     await sendEmail(
+        //         'sup.qualidade@fibracem.com',
+        //         'Propriedade do Cliente',
+        //         `Você tem uma nova propriedade do cliente para responder. ID: ${response.recordset[0].id}. http://aplicacao.fibracem.com:8080/qualidade/propriedade-do-cliente`
+        //     );
+        // }else{
+        //     await sendEmail(
+        //         ['vendas1@fibracem.com', 'sup.vendas@fibracem.com'],
+        //         'Propriedade do Cliente',
+        //         `Você tem uma nova propriedade do cliente para responder. ID: ${response.recordset[0].id}. http://aplicacao.fibracem.com:8080/qualidade/propriedade-do-cliente`
+        //     );
+        // };
+
         res.json({'id': response.recordset[0].id});
     } catch (error) {
         console.log(error);
@@ -343,6 +381,26 @@ router.get("/propriedades-arquivo/:id", async(req, res)=>{
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
+    }
+});
+
+router.post("/propriedade/status", async(req, res)=>{
+    try {
+        await qualidadeModel.statusPropriedadeProduto(req.body.id, req.body.status, req.body.arquiva)
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+router.post("/propriedade/arquivar", async(req, res)=>{
+    try {
+        await qualidadeModel.arquivarPropriedadeProduto(req.body.id)
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
     }
 });
 

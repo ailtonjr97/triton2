@@ -464,8 +464,41 @@ const propriedades = async () => {
         const pool = await connectToDatabase();
         const request = pool.request();
 
-        const query = `SELECT * FROM qualidade_propriedade ORDER BY id DESC`;
+        const query = `SELECT TOP 500 * FROM qualidade_propriedade WHERE arquivado = 0 ORDER BY id DESC`;
         const result = await request
+        .query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar SELECT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const propriedadesArquivados = async () => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `SELECT TOP 500 * FROM qualidade_propriedade WHERE arquivado = 1 ORDER BY id DESC`;
+        const result = await request
+        .query(query);
+
+        return result.recordset;
+    } catch (error) {
+        console.error('Erro ao executar SELECT:', error);
+        throw error; // Propaga o erro para que o chamador possa tratá-lo
+    }
+};
+
+const propriedadesProdutos = async (id) => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        const query = `SELECT * FROM qualidade_propriedade_produtos WHERE qualidade_propriedade_id = @ID ORDER BY id ASC`;
+        const result = await request
+        .input('ID', sql.Int, id)
         .query(query);
 
         return result.recordset;
@@ -516,10 +549,10 @@ const insertPropriedade = async (body) => {
 
         const query = `
             INSERT INTO qualidade_propriedade 
-                (nome, cliente_cod, cliente_nome, numero_nf, transportadora, rrc, CRIADO_EM)
+                (nome, cliente_cod, cliente_nome, numero_nf, transportadora, rrc, CRIADO_EM, frete, motivo_devolucao, obs)
             OUTPUT inserted.id
             VALUES 
-                (@NOME, @CLIENTE_COD, @CLIENTE_NOME, @NUMERO_NF, @TRANSPORTADORA, @RRC, GETDATE());
+                (@NOME, @CLIENTE_COD, @CLIENTE_NOME, @NUMERO_NF, @TRANSPORTADORA, @RRC, GETDATE(), @FRETE, @MOT_DEV, @OBS);
         `;
         
         const result = await request
@@ -529,6 +562,9 @@ const insertPropriedade = async (body) => {
             .input('NUMERO_NF', sql.VarChar(255), body.numero_nf)
             .input('TRANSPORTADORA', sql.VarChar(255), body.transportadora)
             .input('RRC', sql.VarChar(255), body.rrc)
+            .input('FRETE', sql.VarChar(255), body.frete)
+            .input('MOT_DEV', sql.VarChar(255), body.mot_dev)
+            .input('OBS', sql.VarChar(255), body.obs)
             .query(query);
 
         return result;
@@ -538,10 +574,56 @@ const insertPropriedade = async (body) => {
     }
 };
 
+const insertPropriedadeProduto = async (e, id) => {
+    try {
+      const pool = await connectToDatabase();
+      const request = pool.request();
+  
+      const query = `
+        INSERT INTO qualidade_propriedade_produtos
+          (codigo, descricao, qualidade_propriedade_id, quantidade)
+        VALUES
+          (@CODIGO, @DESCRICAO, @QUALIDADE_PROPRIEDADE_ID, @QUANTIDADE);
+      `;
+      
+      const result = await request
+        .input('CODIGO', sql.VarChar(255), e.cod_prod)
+        .input('DESCRICAO', sql.VarChar(255), e.nome)
+        .input('QUALIDADE_PROPRIEDADE_ID', sql.Int, id)
+        .input('QUANTIDADE', sql.VarChar(255), e.quantidade)
+        .query(query);
+  
+      return result;
+    } catch (error) {
+      console.error('Erro ao executar INSERT:', error);
+      throw error;
+    }
+};
 
+const statusPropriedadeProduto = async (id, status, arquiva) => {
+    try {
+      const pool = await connectToDatabase();
+      const request = pool.request();
+  
+      const query = `
+        UPDATE qualidade_propriedade
+        SET status = @STATUS, arquiva = @ARQUIVA where id = @ID
+      `;
+      
+      const result = await request
+        .input('ID', sql.Int(255), id)
+        .input('STATUS', sql.Int(255), status)
+        .input('ARQUIVA', sql.Int(255), arquiva)
+        .query(query);
+  
+      return result;
+    } catch (error) {
+      console.error('Erro ao executar INSERT:', error);
+      throw error;
+    }
+};
 
 const novoAnexoPropriedades = async (file, id) => {
-    console.log(file)
     let pool;
     try {
         pool = await connectToDatabase();
@@ -590,6 +672,27 @@ const novoAnexoPropriedades = async (file, id) => {
     }
 };
 
+const arquivarPropriedadeProduto = async (id) => {
+    try {
+      const pool = await connectToDatabase();
+      const request = pool.request();
+  
+      const query = `
+        UPDATE qualidade_propriedade
+        SET arquivado = 1 where id = @ID
+      `;
+      
+      const result = await request
+        .input('ID', sql.Int(255), id)
+        .query(query);
+  
+      return result;
+    } catch (error) {
+      console.error('Erro ao executar INSERT:', error);
+      throw error;
+    }
+};
+
 module.exports = {
     all,
     one,
@@ -611,5 +714,10 @@ module.exports = {
     propriedade,
     insertPropriedade,
     novoAnexoPropriedades,
-    buscarAnexoPropriedades
+    buscarAnexoPropriedades,
+    insertPropriedadeProduto,
+    propriedadesProdutos,
+    statusPropriedadeProduto,
+    arquivarPropriedadeProduto,
+    propriedadesArquivados
 };
