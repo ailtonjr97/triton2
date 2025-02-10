@@ -304,6 +304,32 @@ router.get("/propriedades", async(req, res)=>{
     }
 });
 
+router.post("/propriedades/checklist/:id", async (req, res) => {
+    try {
+        if (req.body.no_dia) {
+            const [diaNoDia, mesNoDia, anoNoDia] = req.body.no_dia.split("/");
+            req.body.no_dia = `${anoNoDia}-${mesNoDia}-${diaNoDia}`;
+        }
+
+        if (req.body.data_chegada) {
+            const [diaChegada, mesChegada, anoChegada] = req.body.data_chegada.split("/");
+            req.body.data_chegada = `${anoChegada}-${mesChegada}-${diaChegada}`;
+        }
+
+        if (req.body.data_saida) {
+            const [diaSaida, mesSaida, anoSaida] = req.body.data_saida.split("/");
+            req.body.data_saida = `${anoSaida}-${mesSaida}-${diaSaida}`;
+        }
+
+        await qualidadeModel.checklistPropriedadeProduto(req.params.id, req.body);
+        res.sendStatus(200);
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+});
+
+
 router.get("/propriedades/arquivados", async(req, res)=>{
     try {
         res.json(await qualidadeModel.propriedadesArquivados());
@@ -340,19 +366,19 @@ router.post("/propriedades", async(req, res)=>{
             await qualidadeModel.insertPropriedadeProduto(e, response.recordset[0].id);
         });
 
-        // if(req.body.mot_dev == 'DEVOLUÇÃO DE RECLAMAÇÃO'){
-        //     await sendEmail(
-        //         'sup.qualidade@fibracem.com',
-        //         'Propriedade do Cliente',
-        //         `Você tem uma nova propriedade do cliente para responder. ID: ${response.recordset[0].id}. http://aplicacao.fibracem.com:8080/qualidade/propriedade-do-cliente`
-        //     );
-        // }else{
-        //     await sendEmail(
-        //         ['vendas1@fibracem.com', 'sup.vendas@fibracem.com'],
-        //         'Propriedade do Cliente',
-        //         `Você tem uma nova propriedade do cliente para responder. ID: ${response.recordset[0].id}. http://aplicacao.fibracem.com:8080/qualidade/propriedade-do-cliente`
-        //     );
-        // };
+        if(req.body.mot_dev == 'DEVOLUÇÃO DE RECLAMAÇÃO'){
+            await sendEmail(
+                'sup.qualidade@fibracem.com',
+                'Propriedade do Cliente',
+                `Você tem uma nova propriedade do cliente para responder. ID: ${response.recordset[0].id}. http://aplicacao.fibracem.com:8080/qualidade/propriedade-do-cliente`
+            );
+        }else{
+            await sendEmail(
+                ['vendas1@fibracem.com', 'sup.vendas@fibracem.com'],
+                'Propriedade do Cliente',
+                `Você tem uma nova propriedade do cliente para responder. ID: ${response.recordset[0].id}. http://aplicacao.fibracem.com:8080/qualidade/propriedade-do-cliente`
+            );
+        };
 
         res.json({'id': response.recordset[0].id});
     } catch (error) {

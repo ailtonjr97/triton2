@@ -693,6 +693,64 @@ const arquivarPropriedadeProduto = async (id) => {
     }
 };
 
+const checklistPropriedadeProduto = async (id, body) => {
+    try {
+        const pool = await connectToDatabase();
+        const request = pool.request();
+
+        // Convertendo datas, se existirem
+        if (body.no_dia) {
+            const [diaNoDia, mesNoDia, anoNoDia] = body.no_dia.split("/");
+            body.no_dia = `${anoNoDia}-${mesNoDia}-${diaNoDia}`;
+        }
+
+        if (body.data_chegada) {
+            const [diaChegada, mesChegada, anoChegada] = body.data_chegada.split("/");
+            body.data_chegada = `${anoChegada}-${mesChegada}-${diaChegada}`;
+        }
+
+        const query = `
+            UPDATE qualidade_propriedade
+            SET 
+                pergunta_1 = @PERGUNTA_1,
+                pergunta_2 = @PERGUNTA_2,
+                pergunta_3 = @PERGUNTA_3,
+                pergunta_4 = @PERGUNTA_4,
+                entregue_setor = @ENTREGUE_SETOR,
+                no_dia = @NO_DIA,
+                data_chegada = @DATA_CHEGADA,
+                anali_mer = @ANALI_MER,
+                mat_nece = @MAT_NECE,
+                data_saida = @DATA_SAIDA,
+                insp_final = @INSP_FINAL,
+                arquiva = @ARQUIVA
+            WHERE id = @ID
+        `;
+
+        const result = await request
+            .input('PERGUNTA_1', sql.VarChar(255), body.pergunta_1)
+            .input('PERGUNTA_2', sql.VarChar(255), body.pergunta_2)
+            .input('PERGUNTA_3', sql.VarChar(255), body.pergunta_3)
+            .input('PERGUNTA_4', sql.VarChar(255), body.pergunta_4)
+            .input('ENTREGUE_SETOR', sql.VarChar(255), body.entregue_setor) // Permitindo null
+            .input('NO_DIA', sql.Date, body.no_dia || null) // Permitindo null
+            .input('DATA_CHEGADA', sql.Date, body.data_chegada || null) // Permitindo null
+            .input('ANALI_MER', sql.Text, body.anali_mer || null) // Permitindo null
+            .input('MAT_NECE', sql.Text, body.mat_nece || null) // Permitindo null
+            .input('DATA_SAIDA', sql.Date, body.data_saida || null) // Permitindo null
+            .input('INSP_FINAL', sql.Text, body.insp_final || null) // Permitindo null
+            .input('ARQUIVA', sql.Int, 1) // Permitindo null
+            .input('ID', sql.Int, id)
+            .query(query);
+
+        return result;
+    } catch (error) {
+        console.error('Erro ao executar UPDATE:', error);
+        throw error;
+    }
+};
+
+
 module.exports = {
     all,
     one,
@@ -719,5 +777,6 @@ module.exports = {
     propriedadesProdutos,
     statusPropriedadeProduto,
     arquivarPropriedadeProduto,
-    propriedadesArquivados
+    propriedadesArquivados,
+    checklistPropriedadeProduto
 };
