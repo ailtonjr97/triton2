@@ -5,6 +5,24 @@ const comercialModel = require("../models/comercialModel.js");
 const financeiroModel = require("../models/financeiroModel.js");
 const qualidadeModel = require("../models/QualidadeModel.js");
 
+async function todosCotFrete(req, res) {
+    try {
+        res.json(await financeiroModel.todosCotFreteModel());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
+async function todosCotFreteItens(req, res) {
+    try {
+        res.json(await financeiroModel.todosCotFreteItensModel());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function todosMinutaRetrabalho(req, res) {
     try {
         res.json(await qualidadeModel.todosConsulta());
@@ -503,5 +521,7 @@ module.exports = {
     sbzGetAll,
     confTitDia,
     pedidosHerica,
-    todosMinutaRetrabalho
+    todosMinutaRetrabalho,
+    todosCotFrete,
+    todosCotFreteItens
 };

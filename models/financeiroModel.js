@@ -140,6 +140,54 @@ const analiseDeCredito = async (orcamento, cliente) => {
     }
   }
 };
+
+const todosCotFreteModel = async () => {
+  
+  let conn;
+  try {
+    conn = await connect();
+    const query = `
+      select * from proposta_frete pf 
+    `;
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  } finally {
+    if (conn) {
+      try {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      } catch (error) {
+        console.error('Erro ao fechar a conexão:', error);
+      }
+    }
+  }
+};
+
+const todosCotFreteItensModel = async () => {
+  
+  let conn;
+  try {
+    conn = await connect();
+    const query = `
+      select * from proposta_frete_itens pfi
+    `;
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  } finally {
+    if (conn) {
+      try {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      } catch (error) {
+        console.error('Erro ao fechar a conexão:', error);
+      }
+    }
+  }
+};
   
 const analiseDeCreditoArquivadas = async (orcamento, cliente) => {
   let conn;
@@ -468,5 +516,7 @@ module.exports = {
     guiasNf,
     marcarBox,
     cliente,
-    consultaLuiz
+    consultaLuiz,
+    todosCotFreteModel,
+    todosCotFreteItensModel
 };

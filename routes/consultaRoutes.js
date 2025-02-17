@@ -31,7 +31,8 @@ const {
         sbzGetAll,
         confTitDia,
         pedidosHerica,
-        todosMinutaRetrabalho
+        todosMinutaRetrabalho,
+        todosCotFrete
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
