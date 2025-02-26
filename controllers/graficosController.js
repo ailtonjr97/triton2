@@ -89,7 +89,7 @@ async function orcQuantMesVend(req, res) {
                 WHERE SCJ010.CJ_XVEND1 = SA3010.A3_COD
                 AND SUBSTRING(SCJ010.CJ_EMISSAO, 1, 4) = '2025'
                 GROUP BY SUBSTRING(SCJ010.CJ_EMISSAO, 6, 2)
-                ORDER BY SUBSTRING(SCJ010.CJ_EMISSAO, 6, 2) DESC
+                ORDER BY SUBSTRING(SCJ010.CJ_EMISSAO, 6, 2) ASC  -- Alterado para ASC
                 FOR JSON PATH
             ) AS ORCAMENTOS
         FROM SA3010
