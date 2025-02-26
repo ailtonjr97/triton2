@@ -34,7 +34,7 @@ async function pedQuantMesVend(req, res) {
                 WHERE SC5010.C5_VEND1 = SA3010.A3_COD
                 AND SUBSTRING(SC5010.C5_EMISSAO, 1, 4) = '2025'
                 GROUP BY SUBSTRING(SC5010.C5_EMISSAO, 6, 2)
-                ORDER BY SUBSTRING(SC5010.C5_EMISSAO, 6, 2) DESC
+                ORDER BY SUBSTRING(SC5010.C5_EMISSAO, 6, 2) ASC
                 FOR JSON PATH
             ) AS PEDIDOS
         FROM SA3010
