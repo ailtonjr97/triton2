@@ -447,7 +447,8 @@ const freteUpdate = async(body, id, today, valorMaisImposto, freteOriginal)=>{
         nome_transportadora = ?,
         cotador_id_2 = ?,
         cod_cot = ?,
-        CJ_FRTORI = ?
+        CJ_FRTORI = ?,
+        datahora_resp = NOW(),
         WHERE id = ?
     `, [today, valorMaisImposto, body[0].transp_nome_select, body[0].prazo, body[0].transp_nome2_select, body[0].cotador_id_2, body[0].codcot, freteOriginal, id]);
     conn.end();
