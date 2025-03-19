@@ -32,7 +32,8 @@ const {
         confTitDia,
         pedidosHerica,
         todosMinutaRetrabalho,
-        todosCotFrete
+        todosCotFrete,
+        todosCotFreteHoraFormatada
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -47,6 +48,7 @@ router.get("/consulta-solicit-compras", consultaSolicitacoesDeCompra);
 router.get("/consulta-da0010", consultaDa0010);
 router.get("/consulta-da1010", consultaDa1010);
 router.get("/consulta-cot-frete", consultaCotFrete);
+router.get("/consulta-cot-frete-formatada", todosCotFreteHoraFormatada);
 router.get("/consulta-analise-credito-fibra", consultaAnaliseCreditoLuiz);
 router.get("/chamados-manut-ind2", consultaChamadosManutInd);
 router.get("/chamados-status2", consultaStatusChamados);

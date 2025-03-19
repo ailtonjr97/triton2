@@ -14,6 +14,15 @@ async function todosCotFrete(req, res) {
     }
 };
 
+async function todosCotFreteHoraFormatada(req, res) {
+    try {
+        res.json(await financeiroModel.todosCotFreteHoraFormatadaModel());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function todosCotFreteItens(req, res) {
     try {
         res.json(await financeiroModel.todosCotFreteItensModel());
@@ -523,5 +532,6 @@ module.exports = {
     pedidosHerica,
     todosMinutaRetrabalho,
     todosCotFrete,
-    todosCotFreteItens
+    todosCotFreteItens,
+    todosCotFreteHoraFormatada
 };

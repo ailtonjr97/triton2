@@ -165,6 +165,30 @@ const todosCotFreteModel = async () => {
   }
 };
 
+const todosCotFreteHoraFormatadaModel = async () => {
+  
+  let conn;
+  try {
+    conn = await connect();
+    const query = `
+      select *, DATE_FORMAT(datahora_solicit, '%Y-%m-%d %H:%i:%s') AS datahora_solicit_format, DATE_FORMAT(datahora_resp, '%Y-%m-%d %H:%i:%s') AS datahora_resp_format from proposta_frete pf 
+    `;
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  } finally {
+    if (conn) {
+      try {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      } catch (error) {
+        console.error('Erro ao fechar a conexão:', error);
+      }
+    }
+  }
+};
+
 const todosCotFreteItensModel = async () => {
   
   let conn;
@@ -518,5 +542,6 @@ module.exports = {
     cliente,
     consultaLuiz,
     todosCotFreteModel,
-    todosCotFreteItensModel
+    todosCotFreteItensModel,
+    todosCotFreteHoraFormatadaModel
 };
