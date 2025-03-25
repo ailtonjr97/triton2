@@ -24,6 +24,30 @@ async function connect(){
 
 connect();
 
+const todosAnaliseCreditoModel = async () => {
+  
+  let conn;
+  try {
+    conn = await connect();
+    const query = `
+      SELECT * FROM ANALISE_CREDITO
+    `;
+    const [rows] = await conn.query(query);
+    return rows;
+  } catch (error) {
+    console.error('Erro ao executar a consulta:', error);
+    throw error; // Propaga o erro para que o chamador possa tratá-lo
+  } finally {
+    if (conn) {
+      try {
+        await conn.end(); // Certifica-se de que a conexão será fechada
+      } catch (error) {
+        console.error('Erro ao fechar a conexão:', error);
+      }
+    }
+  }
+};
+
 const consultaLuiz = async (orcamento, cliente) => {
   
   let conn;
@@ -543,5 +567,6 @@ module.exports = {
     consultaLuiz,
     todosCotFreteModel,
     todosCotFreteItensModel,
-    todosCotFreteHoraFormatadaModel
+    todosCotFreteHoraFormatadaModel,
+    todosAnaliseCreditoModel
 };

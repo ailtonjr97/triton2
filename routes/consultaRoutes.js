@@ -32,8 +32,8 @@ const {
         confTitDia,
         pedidosHerica,
         todosMinutaRetrabalho,
-        todosCotFrete,
-        todosCotFreteHoraFormatada
+        todosCotFreteHoraFormatada,
+        todosAnaliseCredito
     } = require('../controllers/consultaController');
 
 router.get("/consulta-cassia", consultaCassia);
@@ -66,6 +66,7 @@ router.get("/consulta-sbz", sbzGetAll);
 router.get("/consulta-confTitDia", confTitDia);
 router.get("/pedidos-herica2", pedidosHerica);
 router.get("/todos-minuta-retrabalho", todosMinutaRetrabalho);
+router.get("/todos-analise-credito", todosAnaliseCredito);
 
 router.get("/cliente", cliente);
 router.get("/vendedor", vendedor);

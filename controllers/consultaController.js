@@ -5,6 +5,15 @@ const comercialModel = require("../models/comercialModel.js");
 const financeiroModel = require("../models/financeiroModel.js");
 const qualidadeModel = require("../models/QualidadeModel.js");
 
+async function todosAnaliseCredito(req, res) {
+    try {
+        res.json(await financeiroModel.todosAnaliseCreditoModel());
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
+};
+
 async function todosCotFrete(req, res) {
     try {
         res.json(await financeiroModel.todosCotFreteModel());
@@ -533,5 +542,6 @@ module.exports = {
     todosMinutaRetrabalho,
     todosCotFrete,
     todosCotFreteItens,
-    todosCotFreteHoraFormatada
+    todosCotFreteHoraFormatada,
+    todosAnaliseCredito
 };
