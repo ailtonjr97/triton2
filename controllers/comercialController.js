@@ -427,8 +427,9 @@ router.get("/transps", async(req, res)=>{
 router.get("/update-frete-cot", async(req, res)=>{
     try {
         const freteOriginal = await comercialModel.buscaValorOriginal(req.query.cj_cst_fts);
+        const prazo = String(freteOriginal[0].prazo)
 
-        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_frtori?valor=${freteOriginal[0].CJ_FRTORI}&filial=${freteOriginal[0].filial}&orcamento=${freteOriginal[0].pedido}`,"", 
+        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_frtori?valor=${freteOriginal[0].CJ_FRTORI}&filial=${freteOriginal[0].filial}&orcamento=${freteOriginal[0].pedido}&dias=${prazo}`,"", 
             {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
         });
 
