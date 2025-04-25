@@ -436,6 +436,16 @@ const buscaValorOriginal = async(id)=>{
     return rows;
 };
 
+const statusAniversario = async(status, id)=>{
+    const conn = await connect();
+    await conn.query(`
+        UPDATE proposta_frete SET
+        aniversario_status = ?
+        WHERE id = ?
+    `, [status, id]);
+    conn.end();
+};
+
 const freteUpdate = async(body, id, today, valorMaisImposto, freteOriginal)=>{
     const conn = await connect();
     await conn.query(`
@@ -454,7 +464,7 @@ const freteUpdate = async(body, id, today, valorMaisImposto, freteOriginal)=>{
     conn.end();
 };
 
-const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido, filial, loja)=>{
+const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedido, filial, loja, checkAniversario, checkStatus, valorAniversario)=>{
     const conn = await connect();
     await conn.query(
         `INSERT INTO proposta_frete (
@@ -471,10 +481,13 @@ const novaProposta = async(numped, cotador, today, revisao, cliente, valor_pedid
             valor_pedido,
             filial,
             arquivar,
-            loja_cliente
+            loja_cliente,
+            check_aniversario,
+            aniversario_status,
+            aniversario_valor
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [numped, cotador, today, null, revisao, 0, 1, null, null, cliente, valor_pedido, filial, 0, loja]);
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [numped, cotador, today, null, revisao, 0, 1, null, null, cliente, valor_pedido, filial, 0, loja, checkAniversario, checkStatus, valorAniversario]);
     conn.end();
 };
 
@@ -551,5 +564,6 @@ module.exports = {
     allEmpresas,
     allTipoManuts,
     allSubTipoManuts,
-    allCentroCusto
+    allCentroCusto,
+    statusAniversario
 };
