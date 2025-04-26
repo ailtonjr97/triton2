@@ -786,18 +786,27 @@ router.get("/itens", async(req, res)=>{
 
 router.get("/track_order/get_all", async(req, res)=>{
     try {
+        const {data_ent = ''} = req.query;
         const filterArray = (array, fields, value) => {
             fields = Array.isArray(fields) ? fields : [fields];
             return array.filter((item) => fields.some((field) => item[field] === value));
         };
 
-        function formatDate (input) {
-            let datePart = input.match(/\d+/g),
-            year = datePart[0], // get only two digits
-            month = datePart[1], day = datePart[2];
-            
-            return day+'/'+month+'/'+year;
+        function removeHifensData(data) {
+            if (!data) return '';
+            return data.replace(/-/g, '');
         }
+
+        function formatDate(input) {
+            if (!input || input.length !== 8) return ''; // Validação rápida
+        
+            const year = input.substring(0, 4);
+            const month = input.substring(4, 6);
+            const day = input.substring(6, 8);
+        
+            return `${day}/${month}/${year}`;
+        }
+        
 
         function formatDateProtheus (input) {
             let datePart = input.match(/\d+/g),
@@ -833,24 +842,12 @@ router.get("/track_order/get_all", async(req, res)=>{
         };
 
         if(!req.query.pcampo || req.query.pcampo == 'undefined'){
-            if(!req.query.data_ent){
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&cliente=${req.query.clientenome}`,
-                {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-            }else{
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/get_track?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}&cliente=${req.query.clientenome}`,
-                {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-            }
+            sc5 = await comercialModel.getTrack(req.query.pedido, req.query.filial, req.query.vendedor, req.query.clientenome, removeHifensData(data_ent));
         }else{
-            if(!req.query.data_ent){
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/filtro_trck?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}&cliente=${req.query.clientenome}`,
-                {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-            }else{
-                sc5 = await axios.get(process.env.APITOTVS + `CONSULTA_SC5/filtro_trck?limit=${req.query.limit}&pedido=${req.query.pedido}&data_ent=${formatDateProtheus(req.query.data_ent)}&vendedor=${req.query.vendedor}&filial=${req.query.filial}&pcampo=${pcampo}&scampo=${scampo}&pvalor=${pvalor}&svalor=${svalor}&cliente=${req.query.clientenome}`,
-                {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-            }
+            sc5 = await comercialModel.getTrackFiltro(req.query.pedido, req.query.filial, req.query.vendedor, req.query.clientenome, removeHifensData(data_ent), pcampo, pvalor, scampo, svalor);
         }
 
-        sc5.data.objects.forEach(response => {
+        sc5.forEach(response => {
             values.push({
                 C5_LOJACLI: response.C5_LOJACLI,
                 C5_FILIAL: response.C5_FILIAL,
@@ -889,9 +886,9 @@ router.get("/track_order/get_all", async(req, res)=>{
                 C5_XOBSV: response.C5_XOBSV,
                 C5_XRECLAM: response.C5_XRECLAM,
                 C5_XOBSVBOOL: response.C5_XOBSV.trim().length > 0,
-                A1_NOME: response.A1_NOME,
+                A1_NOME: response.CLI_NOME.trim(),
                 A3_NREDUZ: response.A3_NREDUZ,                           
-                C5_FECENT: formatDate (response.C5_FECENT),
+                C5_FECENT: formatDate(response.C5_FECENT),
                 itens: [
                 ]
             })
@@ -900,11 +897,6 @@ router.get("/track_order/get_all", async(req, res)=>{
         res.json(values);
     } catch (error) {
         console.log(error)
-        if(error.response.status == 404){
-            res.sendStatus(404);
-        }else{
-            res.sendStatus(500);
-        }
     }
 });
 

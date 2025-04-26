@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
+const sql = require('mssql');
 
 async function connect(){
     const mysql = require("mysql2/promise");
@@ -38,6 +39,32 @@ async function connect2(){
       });
     return pool;
 }
+
+async function connectSqlServer() {
+    try {
+      const pool = await sql.connect({
+        user: process.env.SQLSERVER_USER,
+        password: process.env.SQLSERVER_PASSWORD,
+        server: process.env.SQLSERVER_HOST, // não coloque http://
+        database: process.env.SQLSERVER_DATABASE,
+        port: parseInt(process.env.SQLSERVER_PORT || '1433'),
+        options: {
+          encrypt: true, // Para Azure, se for local pode ser false
+          trustServerCertificate: true, // Para ignorar certificado (útil em local dev)
+        },
+        pool: {
+          max: 10,
+          min: 0,
+          idleTimeoutMillis: 30000
+        }
+      });
+  
+      return pool;
+    } catch (err) {
+      console.error('Erro ao conectar no SQL Server:', err);
+      throw err;
+    }
+  }
 
 connect();
 connect2();
@@ -536,6 +563,143 @@ const insertLogSistema = async(nome, data, descricao, data_hora)=>{
     conn.end();
 };
 
+const getTrack = async(num, filial, vend, cliente, dt_entrega)=>{
+    const pool = await connectSqlServer();
+    const result = await pool.request()
+      .query(`
+        SELECT TOP 100
+    RET.C5_NOTA AS NOTA_RET, 
+    VEND.A3_NREDUZ, 
+    TAB.C5_XPEDTR, 
+    TAB.C5_NOTA, 
+    TAB.C5_FILIAL,
+    TAB.C5_CLIENTE,
+    TAB.C5_NUM,
+    TAB.C5_XSEPCD,
+    TAB.C5_XLIBCOM,
+    TAB.C5_XLIBFAT,
+    TAB.C5_XFATURD,
+    TAB.C5_XLIBEXP,
+    TAB.C5_XEXPEDI,
+    TAB.C5_XNSEPCD,
+    TAB.C5_XHSEPCD,
+    TAB.C5_XHLIBCO,
+    TAB.C5_XNLIBCO,
+    TAB.C5_XHLIBFA,
+    TAB.C5_XNLIBFA,
+    TAB.C5_XHFATUR,
+    TAB.C5_XNFATUR,
+    TAB.C5_FECENT,
+    TAB.C5_XNOTIMP,
+    TAB.C5_XHNOTIM,
+    TAB.C5_XNNOTIM,
+    TAB.C5_XRETFIS,
+    TAB.C5_XHRETFI,
+    TAB.C5_XNRETFI,
+    TAB.C5_XHLIBEX,
+    TAB.C5_XNLIBEX,
+    TAB.C5_XHEXPED,
+    TAB.C5_XNEXPED,
+    TAB.C5_VEND1,
+    TAB.C5_LOJACLI,
+    CLIENTE.A1_NOME AS CLI_NOME,
+    TAB.C5_XOBSV,
+    TAB.C5_XRECLAM,
+    TAB.R_E_C_N_O_ AS TABREC,
+    TAB.R_E_C_D_E_L_ AS RECDEL,
+    TAB.S_T_A_M_P_ AS STAMP
+FROM SC5010 TAB WITH (NOLOCK)
+INNER JOIN SA1010 CLIENTE 
+    ON TAB.C5_CLIENTE = CLIENTE.A1_COD 
+    AND TAB.C5_LOJACLI = CLIENTE.A1_LOJA
+LEFT JOIN SA3010 VEND 
+    ON TAB.C5_VEND1 = VEND.A3_COD
+LEFT JOIN SC5010 RET 
+    ON RET.C5_NUM = TAB.C5_XPEDTR 
+    AND RET.C5_FILIAL = '0101002'
+WHERE
+    TAB.R_E_C_D_E_L_ = 0
+    AND TAB.C5_FILIAL LIKE '%${filial}%'
+    AND TAB.C5_NUM LIKE '%${num}%'
+    AND VEND.A3_NREDUZ LIKE '%${vend.toUpperCase()}%'
+    AND CLIENTE.A1_NOME LIKE '%${cliente.toUpperCase()}%'
+    AND TAB.C5_FECENT LIKE '%${dt_entrega}%'
+    AND CLIENTE.A1_NOME NOT LIKE 'FIBRACEM%'
+ORDER BY TABREC DESC;
+        `);
+    
+    return result.recordset;
+};
+
+const getTrackFiltro = async(num, filial, vend, cliente, dt_entrega, lpcampo, lpvalor, lscampo, lsvalor)=>{
+    const pool = await connectSqlServer();
+    const result = await pool.request()
+      .query(`
+SELECT TOP 100 
+    RET.C5_NOTA AS NOTA_RET,  
+    VEND.A3_NREDUZ, 
+    TAB.C5_XPEDTR, 
+    TAB.C5_FILIAL,
+    TAB.C5_CLIENTE, 
+    TAB.C5_NUM, 
+    TAB.C5_XSEPCD, 
+    TAB.C5_XLIBCOM, 
+    TAB.C5_XLIBFAT, 
+    TAB.C5_XFATURD, 
+    TAB.C5_XLIBEXP, 
+    TAB.C5_XEXPEDI,
+    TAB.C5_XNSEPCD, 
+    TAB.C5_XHSEPCD, 
+    TAB.C5_XHLIBCO, 
+    TAB.C5_XNLIBCO, 
+    TAB.C5_XHLIBFA, 
+    TAB.C5_XNLIBFA, 
+    TAB.C5_XHFATUR, 
+    TAB.C5_XNFATUR, 
+    TAB.C5_FECENT, 
+    TAB.C5_XNOTIMP, 
+    TAB.C5_XHNOTIM, 
+    TAB.C5_XNNOTIM,
+    TAB.C5_XRETFIS, 
+    TAB.C5_XHRETFI, 
+    TAB.C5_XNRETFI, 
+    TAB.C5_XHLIBEX, 
+    TAB.C5_XNLIBEX, 
+    TAB.C5_XHEXPED, 
+    TAB.C5_XNEXPED, 
+    TAB.C5_VEND1, 
+    TAB.C5_LOJACLI, 
+    CLIENTE.A1_NOME AS CLI_NOME, 
+    TAB.C5_XOBSV, 
+    TAB.C5_XRECLAM,
+    TAB.R_E_C_N_O_ AS TABREC, 
+    TAB.R_E_C_D_E_L_ AS RECDEL, 
+    TAB.S_T_A_M_P_ AS STAMP
+FROM 
+    SC5010 TAB WITH (NOLOCK)
+INNER JOIN 
+    SA1010 CLIENTE ON TAB.C5_CLIENTE = CLIENTE.A1_COD AND TAB.C5_LOJACLI = CLIENTE.A1_LOJA
+LEFT JOIN 
+    SA3010 VEND ON TAB.C5_VEND1 = VEND.A3_COD
+LEFT JOIN 
+    SC5010 RET ON RET.C5_NUM = TAB.C5_XPEDTR AND RET.C5_FILIAL = '0101002'
+WHERE 
+    TAB.R_E_C_D_E_L_ = 0
+    AND TAB.C5_FILIAL LIKE '%${filial}%'
+    AND TAB.C5_NUM LIKE '%${num}%'
+    AND VEND.A3_NREDUZ LIKE '%${vend.toUpperCase()}%'
+    AND CLIENTE.A1_NOME LIKE '%${cliente.toUpperCase()}%'
+    AND TAB.C5_FECENT LIKE '%${dt_entrega}%'
+    AND TAB.${lpcampo} = '${lpvalor}' 
+    AND TAB.${lscampo} = '${lsvalor}' 
+    AND CLIENTE.A1_NOME NOT LIKE 'FIBRACEM%'
+ORDER BY 
+    TABREC DESC;
+        `);
+    
+    return result.recordset;
+};
+
 module.exports = {
     all,
     search,
@@ -565,5 +729,7 @@ module.exports = {
     allTipoManuts,
     allSubTipoManuts,
     allCentroCusto,
-    statusAniversario
+    statusAniversario,
+    getTrack,
+    getTrackFiltro
 };
