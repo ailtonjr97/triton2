@@ -1,36 +1,34 @@
-const sql2 = require('mssql');
+const sqlQualidade = require('mssql');
 
-const config = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    server: process.env.DB_SERVER,
-    database: process.env.DB_NAME,
+const configQualidade = {
+    user: process.env.DB_USER_QUALIDADE,
+    password: process.env.DB_PASSWORD_QUALIDADE,
+    server: process.env.DB_SERVER_QUALIDADE,
+    database: process.env.DB_NAME_QUALIDADE,
     connectionTimeout: 180000,
     requestTimeout: 180000,
     options: {
-        encrypt: true, // Use this if you're on Windows Azure
-        trustServerCertificate: true, // Change to true for local dev / self-signed certs
-        connectionTimeout: 180000,
-        requestTimeout: 180000,
+        encrypt: true,
+        trustServerCertificate: true
     },
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 1433 // Adicione a porta, se necessário
+    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 1433
 };
 
-let pool;
+let poolQualidade;
 
-async function connectToDatabase2() {
+async function connectQualidade() {
     try {
-        if (!pool) {
-            pool = await sql2.connect(config);
+        if (!poolQualidade) {
+            poolQualidade = await new sqlQualidade.ConnectionPool(configQualidade).connect();
         }
-        return pool;
+        return poolQualidade;
     } catch (err) {
-        console.error('Failed to connect to SQL Server', err);
+        console.error('Failed to connect to Qualidade SQL Server', err);
         throw err;
     }
 }
 
 module.exports = {
-    sql2,
-    connectToDatabase2
+    sqlQualidade,
+    connectQualidade
 };
