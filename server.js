@@ -19,6 +19,7 @@ const files = require("./controllers/filesController.js");
 const financeiroRoutes = require('./routes/financeiroRoutes');
 const logisticaRoutes = require("./routes/logisticaRoutes.js");
 const credito = require("./controllers/CreditoController.js");
+const logisticaRoutes = require("./routes/logisticaRoutes.js");
 const consulta = require("./routes/consultaRoutes");
 const { 
     authenticationMiddleware, 
@@ -55,6 +56,7 @@ app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta);
 app.use("/files", cors(corsOptions), files);
 app.use("/qualidade-home", cors(corsOptions), authenticationMiddlewareFiles, qualidade);
+app.use('/logistica', cors(corsOptions), logisticaRoutes);
 
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
