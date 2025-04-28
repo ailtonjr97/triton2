@@ -1,10 +1,10 @@
 const sqlQualidade = require('mssql');
 
 const configQualidade = {
-    user: process.env.DB_USER_QUALIDADE,
-    password: process.env.DB_PASSWORD_QUALIDADE,
-    server: process.env.DB_SERVER_QUALIDADE,
-    database: process.env.DB_NAME_QUALIDADE,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    server: process.env.DB_SERVER,
+    database: process.env.DB_NAME,
     connectionTimeout: 180000,
     requestTimeout: 180000,
     options: {
