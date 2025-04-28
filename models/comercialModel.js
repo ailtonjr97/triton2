@@ -51,14 +51,16 @@ const configProtheus = {
         encrypt: true,
         trustServerCertificate: true
     },
-    port: process.env.SQLSERVER_PORT ? parseInt(process.env.DB_PORT) : 1826
+    port: process.env.SQLSERVER_PORT ? parseInt(process.env.SQLSERVER_PORT) : 1826
 };
 
 let poolProtheus;
 
 async function connectProtheus() {
     try {
+        console.log('aqui')
         if (!poolProtheus) {
+            console.log('aqui2')
             poolProtheus = await new sqlProtheus.ConnectionPool(configProtheus).connect();
         }
         return poolProtheus;
@@ -627,6 +629,7 @@ const getTrack = async (num, filial, vend, cliente, dt_entrega) => {
     `;
 
     const result = await request.query(query);
+    console.log(result)
     return result.recordset;
 };
 
