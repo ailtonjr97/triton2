@@ -622,7 +622,6 @@ const getTrack = async (num, filial, vend, cliente, dt_entrega) => {
             AND VEND.A3_NREDUZ LIKE '%${vend}%'
             AND CLIENTE.A1_NOME LIKE '%${cliente.toUpperCase()}%'
             AND TAB.C5_FECENT LIKE '%${dt_entrega}%'
-            AND CLIENTE.A1_NOME NOT LIKE 'FIBRACEM%'
         ORDER BY TABREC DESC;
     `;
 
@@ -694,7 +693,6 @@ const getTrackFiltro = async (num, filial, vend, cliente, dt_entrega, lpcampo, l
             AND TAB.C5_FECENT LIKE '%${dt_entrega}%'
             AND TAB.${lpcampo} = '${lpvalor}' 
             AND TAB.${lscampo} = '${lsvalor}'
-            AND CLIENTE.A1_NOME NOT LIKE 'FIBRACEM%'
         ORDER BY 
             TABREC DESC;
     `;
