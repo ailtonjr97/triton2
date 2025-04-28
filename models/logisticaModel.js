@@ -56,7 +56,7 @@ const produtoOne = async (codigo) => {
         const result = await request
             .input('codigo', sqlProtheus.VarChar, codigo)  // 💬 passando o parâmetro de forma segura
             .query('SELECT * FROM SB1010 WHERE B1_COD = @codigo'); // 💬 usando o parâmetro
-        return result.recordset;
+        return result.recordset[0];
     } catch (error) {
         console.log(error);
         throw new Error;
