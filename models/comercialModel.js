@@ -626,7 +626,6 @@ const getTrack = async (num, filial, vend, cliente, dt_entrega) => {
     `;
 
     const result = await request.query(query);
-    console.log(result)
     return result.recordset;
 };
 

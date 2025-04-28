@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const { sqlQualidade, connectQualidade } = require('../services/dbQualidade');
+const sqlProtheus = require('mssql');
 
 const configProtheus = {
     user: process.env.SQLSERVER_USER,
@@ -56,7 +56,7 @@ const produtoOne = async (codigo) => {
         const query = `
             SELECT * FROM SB1010 WHERE B1_COD = ${codigo}
         `;
-        
+
         const result = await request.query(query);
         return result.recordset;
     } catch (error) {
