@@ -1,17 +1,17 @@
 const sqlProtheus = require('mssql');
 
 const configProtheus = {
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    server: process.env.DB_SERVER,
-    database: process.env.DB_NAME,
+    user: process.env.SQLSERVER_USER,
+    password: process.env.SQLSERVER_PASSWORD,
+    server: process.env.SQLSERVER_HOST,
+    database: process.env.SQLSERVER_DATABASE,
     connectionTimeout: 180000,
     requestTimeout: 180000,
     options: {
         encrypt: true,
         trustServerCertificate: true
     },
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 1433
+    port: process.env.SQLSERVER_PORT ? parseInt(process.env.DB_PORT) : 1826
 };
 
 let poolProtheus;
