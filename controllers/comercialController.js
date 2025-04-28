@@ -894,6 +894,8 @@ router.get("/track_order/get_all", async(req, res)=>{
             })
         });
 
+        console.log(values)
+
         res.json(values);
     } catch (error) {
         console.log(error)

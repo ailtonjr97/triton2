@@ -638,7 +638,8 @@ const getTrackFiltro = async (num, filial, vend, cliente, dt_entrega, lpcampo, l
         SELECT TOP 100 
             RET.C5_NOTA AS NOTA_RET,  
             VEND.A3_NREDUZ, 
-            TAB.C5_XPEDTR, 
+            TAB.C5_XPEDTR,
+            TAB.C5_NOTA,  
             TAB.C5_FILIAL,
             TAB.C5_CLIENTE, 
             TAB.C5_NUM, 
@@ -687,7 +688,7 @@ const getTrackFiltro = async (num, filial, vend, cliente, dt_entrega, lpcampo, l
             TAB.R_E_C_D_E_L_ = 0
             AND TAB.C5_FILIAL LIKE '%${filial}%'
             AND TAB.C5_NUM LIKE '%${num}%'
-            AND VEND.A3_NREDUZ LIKE '%${vend.toUpperCase()}%'
+            AND VEND.A3_NREDUZ LIKE '%${vend}%'
             AND CLIENTE.A1_NOME LIKE '%${cliente.toUpperCase()}%'
             AND TAB.C5_FECENT LIKE '%${dt_entrega}%'
             AND TAB.${lpcampo} = '${lpvalor}' 
