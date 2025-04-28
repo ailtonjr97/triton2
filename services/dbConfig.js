@@ -21,7 +21,7 @@ let pool;
 async function connectToDatabase2() {
     try {
         if (!pool) {
-            pool = await sql.connect(config);
+            pool = await sql2.connect(config);
         }
         return pool;
     } catch (err) {
