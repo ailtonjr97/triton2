@@ -1,13 +1,11 @@
-const axios = require('axios');
-const { sqlQualidade, connectQualidade } = require('../services/dbQualidade'); // ajusta o caminho certo
+const { sqlQualidade, connectQualidade } = require('../services/dbQualidade');
 
 async function anexosHome() {
     try {
-        // Conectar ao banco de dados Qualidade
-        await connectQualidade();
+        const pool = await connectQualidade();
 
-        const result = await sqlQualidade.query`SELECT * FROM ANEXOS WHERE HOME_ID IS NOT NULL AND ARQUIVADO = 0`;
-        return result;
+        const result = await pool.request().query(`SELECT * FROM ANEXOS WHERE HOME_ID IS NOT NULL AND ARQUIVADO = 0`);
+        return result.recordset;
     } catch (error) {
         console.error(error);
         throw new Error('Erro ao buscar anexos');
@@ -16,10 +14,12 @@ async function anexosHome() {
 
 async function anexosHomeUnico(id) {
     try {
-        await connectQualidade();
+        const pool = await connectQualidade();
 
-        const result = await sqlQualidade.query`SELECT * FROM ANEXOS WHERE HOME_ID = ${id}`;
-        return result;
+        const result = await pool.request()
+            .input('id', sqlQualidade.Int, id)
+            .query(`SELECT * FROM ANEXOS WHERE HOME_ID = @id`);
+        return result.recordset;
     } catch (error) {
         console.error(error);
         throw new Error('Erro ao buscar anexo único');
@@ -28,10 +28,12 @@ async function anexosHomeUnico(id) {
 
 async function anexosHomeDelete(id) {
     try {
-        await connectQualidade();
+        const pool = await connectQualidade();
 
-        const result = await sqlQualidade.query`UPDATE ANEXOS SET ARQUIVADO = 1 WHERE HOME_ID = ${id}`;
-        return result;
+        const result = await pool.request()
+            .input('id', sqlQualidade.Int, id)
+            .query(`UPDATE ANEXOS SET ARQUIVADO = 1 WHERE HOME_ID = @id`);
+        return result.rowsAffected;
     } catch (error) {
         console.error(error);
         throw new Error('Erro ao arquivar anexo');
@@ -40,20 +42,30 @@ async function anexosHomeDelete(id) {
 
 async function anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size, categoria) {
     try {
-        await connectQualidade();
+        const pool = await connectQualidade();
 
-        const result = await sqlQualidade.query`
-            BEGIN TRANSACTION;
+        const result = await pool.request()
+            .input('fieldname', sqlQualidade.NVarChar, fieldname)
+            .input('originalname', sqlQualidade.NVarChar, originalname)
+            .input('encoding', sqlQualidade.NVarChar, encoding)
+            .input('mimetype', sqlQualidade.NVarChar, mimetype)
+            .input('destination', sqlQualidade.NVarChar, destination)
+            .input('filename', sqlQualidade.NVarChar, filename)
+            .input('path', sqlQualidade.NVarChar, path)
+            .input('size', sqlQualidade.Int, size)
+            .input('categoria', sqlQualidade.NVarChar, categoria)
+            .query(`
+                BEGIN TRANSACTION;
 
-            DECLARE @NovoValor INT;
-            SELECT @NovoValor = ISNULL(MAX(HOME_ID), 0) + 1 FROM ANEXOS WITH (TABLOCKX);
+                DECLARE @NovoValor INT;
+                SELECT @NovoValor = ISNULL(MAX(HOME_ID), 0) + 1 FROM ANEXOS WITH (TABLOCKX);
 
-            INSERT INTO ANEXOS (FIELDNAME, ORIGINAL_NAME, ENCODING, MIMETYPE, DESTINATION, FILENAME, PATH, SIZE, HOME_ID, ARQUIVADO, HOME_CATEGORIA) 
-            VALUES (${fieldname}, ${originalname}, ${encoding}, ${mimetype}, ${destination}, ${filename}, ${path}, ${size}, @NovoValor, 0, ${categoria});
+                INSERT INTO ANEXOS (FIELDNAME, ORIGINAL_NAME, ENCODING, MIMETYPE, DESTINATION, FILENAME, PATH, SIZE, HOME_ID, ARQUIVADO, HOME_CATEGORIA) 
+                VALUES (@fieldname, @originalname, @encoding, @mimetype, @destination, @filename, @path, @size, @NovoValor, 0, @categoria);
 
-            COMMIT TRANSACTION;
-        `;
-        return result;
+                COMMIT TRANSACTION;
+            `);
+        return result.rowsAffected;
     } catch (error) {
         console.error(error);
         throw new Error('Erro ao cadastrar anexo');
