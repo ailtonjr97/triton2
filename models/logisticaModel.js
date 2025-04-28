@@ -31,39 +31,38 @@ async function connectProtheus() {
 }
 
 const produtosAll = async (codigo) => {
-
     const pool = await connectProtheus();
     const request = pool.request();
     try {
-        const query = `
-            SELECT TOP 100 * FROM SB1010 
-            WHERE B1_COD LIKE '%' + ${codigo} + '%' 
-            ORDER BY R_E_C_N_O_ DESC`;
-        
-        const result = await request.query(query);
+        const result = await request
+            .input('codigo', sqlProtheus.VarChar, codigo)
+            .query(`
+                SELECT TOP 100 * FROM SB1010
+                WHERE B1_COD LIKE '%' + @codigo + '%'
+                ORDER BY R_E_C_N_O_ DESC
+            `);
         return result.recordset;
     } catch (error) {
         console.log(error);
         throw new Error;
     }
 };
+
 
 const produtoOne = async (codigo) => {
-
     const pool = await connectProtheus();
     const request = pool.request();
     try {
-        const query = `
-            SELECT * FROM SB1010 WHERE B1_COD = ${codigo}
-        `;
-
-        const result = await request.query(query);
+        const result = await request
+            .input('codigo', sqlProtheus.VarChar, codigo)  // 💬 passando o parâmetro de forma segura
+            .query('SELECT * FROM SB1010 WHERE B1_COD = @codigo'); // 💬 usando o parâmetro
         return result.recordset;
     } catch (error) {
         console.log(error);
         throw new Error;
     }
 };
+
 
 module.exports = {
     produtosAll,
