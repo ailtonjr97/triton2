@@ -1,15 +1,46 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const { sql, connectToDatabase } = require('../services/dbConfig.js');
+const { sqlQualidade, connectQualidade } = require('../services/dbQualidade');
+
+const configProtheus = {
+    user: process.env.SQLSERVER_USER,
+    password: process.env.SQLSERVER_PASSWORD,
+    server: process.env.SQLSERVER_HOST,
+    database: process.env.SQLSERVER_DATABASE,
+    connectionTimeout: 180000,
+    requestTimeout: 180000,
+    options: {
+        encrypt: true,
+        trustServerCertificate: true
+    },
+    port: process.env.SQLSERVER_PORT ? parseInt(process.env.SQLSERVER_PORT) : 1826
+};
+
+let poolProtheus;
+
+async function connectProtheus() {
+    try {
+        if (!poolProtheus) {
+            poolProtheus = await new sqlProtheus.ConnectionPool(configProtheus).connect();
+        }
+        return poolProtheus;
+    } catch (err) {
+        console.error('Failed to connect to Protheus SQL Server', err);
+        throw err;
+    }
+}
 
 const produtosAll = async (codigo) => {
 
-    await connectToDatabase();
+    const pool = await connectProtheus();
+    const request = pool.request();
     try {
-        const result = await sql.query`
+        const query = `
             SELECT TOP 100 * FROM SB1010 
             WHERE B1_COD LIKE '%' + ${codigo} + '%' 
             ORDER BY R_E_C_N_O_ DESC`;
+        
+        const result = await request.query(query);
         return result.recordset;
     } catch (error) {
         console.log(error);
@@ -19,12 +50,15 @@ const produtosAll = async (codigo) => {
 
 const produtoOne = async (codigo) => {
 
-    await connectToDatabase();
+    const pool = await connectProtheus();
+    const request = pool.request();
     try {
-        const result = await sql.query`
+        const query = `
             SELECT * FROM SB1010 WHERE B1_COD = ${codigo}
         `;
-        return result.recordset[0];
+        
+        const result = await request.query(query);
+        return result.recordset;
     } catch (error) {
         console.log(error);
         throw new Error;
