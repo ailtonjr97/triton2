@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { sql, connectToDatabase } = require('../services/dbQualidade.js');
 const { getCurrentDateTimeForSQLServer } = require('../utils/dateUtils');
+const sqlProtheus = require('mssql');
 
 async function connect(){
     const mysql = require("mysql2/promise");
@@ -526,17 +527,43 @@ const marcarBox = async (body) => {
   }
 };
 
+const configProtheus = {
+    user: process.env.SQLSERVER_USER,
+    password: process.env.SQLSERVER_PASSWORD,
+    server: process.env.SQLSERVER_HOST,
+    database: process.env.SQLSERVER_DATABASE,
+    connectionTimeout: 180000,
+    requestTimeout: 180000,
+    options: {
+        encrypt: true,
+        trustServerCertificate: true
+    },
+    port: process.env.SQLSERVER_PORT ? parseInt(process.env.SQLSERVER_PORT) : 1826
+};
+
+let poolProtheus;
+
+async function connectProtheus() {
+    try {
+        if (!poolProtheus) {
+            poolProtheus = await new sqlProtheus.ConnectionPool(configProtheus).connect();
+        }
+        return poolProtheus;
+    } catch (err) {
+        console.error('Failed to connect to Protheus SQL Server', err);
+        throw err;
+    }
+}
 
 const cliente = async (cod, loja) => {
   try {
-    // Certifique-se de que a conexão com o banco de dados está aberta
-    const pool = await connectToDatabase();
+    const pool = await connectProtheus();
     const request = pool.request();
 
     const query = `SELECT * FROM SA1010 WHERE A1_COD = @COD AND A1_LOJA = @LOJA`;
     const result = await request
-      .input('COD', sql.VarChar, `${cod}`)
-      .input('LOJA', sql.VarChar, `${loja}`)
+      .input('COD', sqlProtheus.VarChar, cod)
+      .input('LOJA', sqlProtheus.VarChar, loja)
       .query(query);
 
     return result.recordset;
@@ -545,6 +572,7 @@ const cliente = async (cod, loja) => {
     throw error; // Propaga o erro para que o chamador possa tratá-lo
   }
 };
+
 
 module.exports = {
     analiseDeCredito,

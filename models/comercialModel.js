@@ -58,9 +58,7 @@ let poolProtheus;
 
 async function connectProtheus() {
     try {
-        console.log('aqui')
         if (!poolProtheus) {
-            console.log('aqui2')
             poolProtheus = await new sqlProtheus.ConnectionPool(configProtheus).connect();
         }
         return poolProtheus;
