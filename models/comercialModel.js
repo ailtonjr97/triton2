@@ -619,7 +619,7 @@ const getTrack = async (num, filial, vend, cliente, dt_entrega) => {
             TAB.R_E_C_D_E_L_ = 0
             AND TAB.C5_FILIAL LIKE '%${filial}%'
             AND TAB.C5_NUM LIKE '%${num}%'
-            AND VEND.A3_NREDUZ LIKE '%${vend.toUpperCase()}%'
+            AND VEND.A3_NREDUZ LIKE '%${vend}%'
             AND CLIENTE.A1_NOME LIKE '%${cliente.toUpperCase()}%'
             AND TAB.C5_FECENT LIKE '%${dt_entrega}%'
             AND CLIENTE.A1_NOME NOT LIKE 'FIBRACEM%'
