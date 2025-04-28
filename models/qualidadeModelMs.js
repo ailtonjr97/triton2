@@ -1,12 +1,12 @@
 const axios = require('axios');
-const { sql: dbSql, connectToDatabase } = require('../services/dbConfig')
+const { sql2, connectToDatabase2 } = require('../services/dbConfig')
 
 async function anexosHome() {
     try {
         // Conectar ao banco de dados
-        await connectToDatabase();
+        await connectToDatabase2();
 
-        const result = await dbSql.query`SELECT * FROM ANEXOS WHERE HOME_ID IS NOT NULL AND ARQUIVADO = 0`;
+        const result = await sql2.query`SELECT * FROM ANEXOS WHERE HOME_ID IS NOT NULL AND ARQUIVADO = 0`;
         return result;
 
     } catch (error) {
@@ -18,9 +18,9 @@ async function anexosHome() {
 async function anexosHomeUnico(id) {
     try {
         // Conectar ao banco de dados
-        await connectToDatabase();
+        await connectToDatabase2();
 
-        const result = await dbSql.query`SELECT * FROM ANEXOS WHERE HOME_ID = ${id}`;
+        const result = await sql2.query`SELECT * FROM ANEXOS WHERE HOME_ID = ${id}`;
         return result;
 
     } catch (error) {
@@ -32,9 +32,9 @@ async function anexosHomeUnico(id) {
 async function anexosHomeDelete(id) {
     try {
         // Conectar ao banco de dados
-        await connectToDatabase();
+        await connectToDatabase2();
 
-        const result = await dbSql.query`UPDATE ANEXOS SET ARQUIVADO = 1 WHERE HOME_ID = ${id}`;
+        const result = await sql2.query`UPDATE ANEXOS SET ARQUIVADO = 1 WHERE HOME_ID = ${id}`;
         return result;
 
     } catch (error) {
@@ -46,9 +46,9 @@ async function anexosHomeDelete(id) {
 async function anexosHomePost(fieldname, originalname, encoding, mimetype, destination, filename, path, size, categoria) {
     try {
         // Conectar ao banco de dados
-        await connectToDatabase();
+        await connectToDatabase2();
 
-        const result = await dbSql.query`
+        const result = await sql2.query`
         BEGIN TRANSACTION;
 
         DECLARE @NovoValor INT;

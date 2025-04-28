@@ -1,4 +1,4 @@
-const sql = require('mssql');
+const sql2 = require('mssql');
 
 const config = {
     user: process.env.DB_USER,
@@ -18,7 +18,7 @@ const config = {
 
 let pool;
 
-async function connectToDatabase() {
+async function connectToDatabase2() {
     try {
         if (!pool) {
             pool = await sql.connect(config);
@@ -31,6 +31,6 @@ async function connectToDatabase() {
 }
 
 module.exports = {
-    sql,
-    connectToDatabase
+    sql2,
+    connectToDatabase2
 };
