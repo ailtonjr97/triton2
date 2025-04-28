@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const { sql, connectToDatabase } = require('../services/dbConfig.js');
+const { sql, connectToDatabase } = require('../services/dbQualidade.js');
 const { getCurrentDateTimeForSQLServer } = require('../utils/dateUtils');
 
 async function connect(){
