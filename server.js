@@ -20,8 +20,6 @@ const financeiroRoutes = require('./routes/financeiroRoutes');
 const logisticaRoutes = require("./routes/logisticaRoutes.js");
 const credito = require("./controllers/CreditoController.js");
 const consulta = require("./routes/consultaRoutes");
-const local = require("./routes/localRoutes.js");
-const graficos = require("./routes/graficosRoutes");
 const { 
     authenticationMiddleware, 
     authenticationMiddlewareApi, 
@@ -55,8 +53,6 @@ app.use('/logistica', cors(corsOptions), logisticaRoutes);
 app.use("/credito", cors(corsOptions),  credito);
 app.use("/consulta", cors(corsOptions), authenticationMiddleware, consulta);
 app.use("/consultas", cors(corsOptions), authenticationMiddlewareBasic, consulta);
-app.use("/local", cors(corsOptions), authenticationMiddlewareApi,local);
-app.use("/graficos", cors(corsOptions), authenticationMiddleware, graficos);
 app.use("/files", cors(corsOptions), files);
 app.use("/qualidade-home", cors(corsOptions), authenticationMiddlewareFiles, qualidade);
 

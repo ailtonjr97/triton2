@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { sql, connectToDatabase } = require('../services/dbConfig');
 // const { sqlKorp, connectToDatabaseKorp } = require('../services/dbConfigKorp');
 const comercialModel = require("../models/comercialModel.js");
 const financeiroModel = require("../models/financeiroModel.js");

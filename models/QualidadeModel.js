@@ -1,6 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
-const { sql, connectToDatabase } = require('../services/dbConfig.js');
+const { sql, connectToDatabase } = require('../services/dbQualidade');
 
 async function connect(){
     const mysql = require("mysql2/promise");

@@ -565,8 +565,6 @@ const insertLogSistema = async(nome, data, descricao, data_hora)=>{
     conn.end();
 };
 
-const { connectProtheus } = require('../services/connectProtheus'); // ajuste o caminho certo!
-
 const getTrack = async (num, filial, vend, cliente, dt_entrega) => {
     const pool = await connectProtheus();
     const request = pool.request();
