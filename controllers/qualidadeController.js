@@ -55,7 +55,7 @@ const upload3 = multer({ storage: storage3 })
 router.get("/anexos-home", async(req, res)=>{
     try {
         const resp = await qualidadeModelMs.anexosHome();
-        res.json(resp.recordset);
+        res.json(resp);
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
@@ -66,7 +66,7 @@ router.get("/anexos-home/:id", async(req, res)=>{
     try {
         const {id} = req.params
         const resp = await qualidadeModelMs.anexosHomeUnico(id);
-        res.json(resp.recordset);
+        res.json(resp);
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
@@ -77,7 +77,7 @@ router.delete("/anexos-home/:id", async(req, res)=>{
     try {
         const {id} = req.params
         const resp = await qualidadeModelMs.anexosHomeDelete(id);
-        res.json(resp.recordset);
+        res.json(resp);
     } catch (error) {
         console.log(error)
         res.sendStatus(500)
