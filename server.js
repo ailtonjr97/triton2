@@ -15,6 +15,8 @@ const korp = require("./controllers/korpController.js");
 const engenharia = require("./controllers/engenhariaController.js");
 const nf = require("./routes/nfRoutes.js");
 const comercial = require("./controllers/comercialController.js");
+const compras = require("./controllers/comprasController.js");
+
 const files = require("./controllers/filesController.js");
 const financeiroRoutes = require('./routes/financeiroRoutes');
 const logisticaRoutes = require("./routes/logisticaRoutes.js");
@@ -48,6 +50,7 @@ app.use("/engenharia", cors(corsOptions), authenticationMiddleware, engenharia);
 app.use("/totvs", cors(corsOptions), authenticationMiddlewareApi, totvs);
 app.use("/nf", cors(corsOptions),  authenticationMiddleware, nf);
 app.use("/comercial", cors(corsOptions), authenticationMiddleware, comercial);
+app.use("/compras", cors(corsOptions), authenticationMiddleware, compras);
 app.use('/financeiro', cors(corsOptions), authenticationMiddleware, financeiroRoutes);
 app.use('/logistica', cors(corsOptions), logisticaRoutes);
 app.use("/credito", cors(corsOptions),  credito);

@@ -339,6 +339,7 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial/:checkAniversario"
         let revisao = await comercialModel.revisaoCotacao(req.params.numped);
         const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.params.numped}&empresa=${req.params.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
 
+        //Na mudança, remover esse codigo pois valorAniversario esta vindo de XTOTIMP e nao do calculo dos impostos
         let valorTotal = 0.0
         let ipi = 0.0
         for(let i = 0; i < req.body.length; i++){
@@ -352,20 +353,22 @@ router.post("/nova-proposta-de-frete/:numped/:cotador/:filial/:checkAniversario"
         };
         valorTotal.toFixed(2)
 
+        valorTotal = response.data.CJ_XTOTIMP;
+
         const valorAniversario = valorTotal * 0.05;
 
         //Necessário criar 3 cotações
         if(revisao.length == 0){
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
             for(let i = 0; i < req.body.length; i++){
                 await comercialModel.novosItens(req.params.numped, req.body[i], 1);
             };
         }else{
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal + response.data.xfreimp, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
             for(let i = 0; i < req.body.length; i++){
                 await comercialModel.novosItens(req.params.numped, req.body[i], parseInt(revisao[0].revisao) + 1);
             };
