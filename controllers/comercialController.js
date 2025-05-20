@@ -456,8 +456,11 @@ router.get("/update-frete-cot", async(req, res)=>{
         const freteOriginal = await comercialModel.buscaValorOriginal(req.query.cj_cst_fts);
         const prazo = String(freteOriginal[0].prazo)
 
+        let comparador = freteOriginal[0].CJ_FRTORI - freteOriginal[0].aniversario_valor
+
         if(freteOriginal[0].aniversario_status === 'A'){
-            if(freteOriginal[0].aniversario_valor > freteOriginal[0].CJ_FRTORI){
+
+            if(comparador <= 0.0){
                 valor = 0.0
             }else{
                 valor = freteOriginal[0].CJ_FRTORI - freteOriginal[0].aniversario_valor
