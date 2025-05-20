@@ -480,7 +480,7 @@ router.get("/update-frete-cot", async(req, res)=>{
             {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
         });
 
-        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${valor}&transp=${req.query.transp}&filial=${req.query.filial}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${valor}&transp=${req.query.transp}&filial=${freteOriginal[0].filial}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
         await comercialModel.preparaArquivaFrete(req.query.cj_num, req.query.revisao)
         res.sendStatus(200);
     } catch (error) {
