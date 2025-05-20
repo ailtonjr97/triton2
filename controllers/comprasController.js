@@ -96,65 +96,80 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
     `;
 
     const pedidos = await request.query(queryCab);
+      for (const pedido of pedidos.recordset) {
+        const referenciaId = parseInt(pedido.C7_NUM);
+        const referenciaFilial = parseInt(pedido.C7_FILIAL);
 
-    for (const pedido of pedidos.recordset) {
-      const referenciaId = parseInt(pedido.C7_NUM);
-      const referenciaFilial = parseInt(pedido.C7_FILIAL);
+        let idAprovacao = null;
 
-      // Enviar cabeçalho
-      const responseCab = await axios.post("http://192.168.0.88/api/aprovacoes", {
-        referencia_id: referenciaId,
-        filial: referenciaFilial,      
-        descricao: `Solicitação de compra para o fornecedor ${pedido.FORNECEDOR} - ${pedido.TIPO_FRETE}`,
-        modulo: "Compras",
-        enunciado: `Pedido ${pedido.C7_NUM}`,
-        urgencia: "Alta",
-        obs: pedido.OBS || "",
-        autor_id: 42,
-        user_id: 157,
-        data_solicitacao: new Date().toISOString().split("T")[0],
-        wf_json: [
-          { email: "sistema@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
-          { email: "informatica03@fibracem.com", nivel_aprov: 2, status: null, datahora_resposta: null },
-          { email: "informatica06@fibracem.com", nivel_aprov: 3, status: null, datahora_resposta: null }
-        ]
-      });
-     // console.log("Resposta da criação da aprovação:", responseCab.data);
+        try {
+          // Tenta enviar o cabeçalho
+          const responseCab = await axios.post("http://192.168.0.88/api/aprovacoes", {
+            referencia_id: referenciaId,
+            filial: referenciaFilial,      
+            descricao: `Solicitação de compra para o fornecedor ${pedido.FORNECEDOR} - ${pedido.TIPO_FRETE}`,
+            modulo: "Compras",
+            enunciado: `Pedido ${pedido.C7_NUM}`,
+            urgencia: "Alta",
+            obs: pedido.OBS || "",
+            autor_id: 42,
+            user_id: 157,
+            data_solicitacao: new Date().toISOString().split("T")[0],
+            wf_json: [
+              { email: "sistema@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
+              { email: "informatica03@fibracem.com", nivel_aprov: 2, status: null, datahora_resposta: null },
+              { email: "informatica06@fibracem.com", nivel_aprov: 3, status: null, datahora_resposta: null }
+            ]
+          });
 
-      const idAprovacao = responseCab.data?.id || null;
-      if (!idAprovacao) {
-        console.warn(`Pedido ${referenciaId} não retornou ID da aprovação.`);
-        continue;
+          idAprovacao = responseCab.data?.id || null;
+          if (!idAprovacao) {
+            console.warn(`Pedido ${referenciaId} não retornou ID da aprovação.`);
+            continue;
+          }
+
+        } catch (error) {
+          if (error.response && error.response.status === 422) {
+            //console.warn(`Pedido ${referenciaId} / Filial ${referenciaFilial} já existe e foi ignorado.`);
+            continue; // Pula para o próximo pedido
+          } else {
+            console.error(`Erro inesperado no pedido ${referenciaId}:`, error.message);
+            continue; // Ou, dependendo da sua lógica, você pode `throw` se quiser parar tudo
+          }
+        }
+
+        // Buscar e enviar os itens vinculados
+        const requestItens = pool.request();
+        const queryItens = `
+          SELECT C7_NUM, C7_ITEM, C7_DESCRI, C7_GRUPCOM, C7_TOTAL, C7_QUANT, C7_UM, C7_JUSTIFI
+          FROM SC7010 
+          WHERE C7_CONAPRO = 'B' AND R_E_C_D_E_L_ = 0 AND C7_ENCER <> 'E' 
+            AND C7_FILIAL = '${pedido.C7_FILIAL}' AND C7_NUM = '${pedido.C7_NUM}'
+        `;
+        const itens = await requestItens.query(queryItens);
+
+        for (const item of itens.recordset) {
+          try {
+            await axios.post("http://192.168.0.88/api/aprovacoes/aprovacao-itens", {
+              id_aprovacao_generica: idAprovacao,
+              codigo_ref: `${item.C7_NUM}-${item.C7_ITEM}`,
+              conteudo_json: [
+                { campo: "Item", valor: item.C7_DESCRI },
+                { campo: "Departamento", valor: item.C7_GRUPCOM },
+                { campo: "Valor", valor: `R$ ${item.C7_TOTAL.toFixed(2)}` },
+                { campo: "Quantidade", valor: item.C7_QUANT.toString() },
+                { campo: "Unidade Medida", valor: item.C7_UM },
+                { campo: "Relatorio 1", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
+                { campo: "Relatorio 2", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
+                { campo: "Relatorio 3", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
+                { campo: "Justificativa", valor: item.C7_JUSTIFI || "Sem justificativa informada" }
+              ]
+            });
+          } catch (error) {
+            console.error(`Erro ao enviar item ${item.C7_NUM}-${item.C7_ITEM}:`, error.message);
+          }
+        }
       }
-
-      // Buscar os itens vinculados ao pedido
-      const requestItens = pool.request();
-      const queryItens = `
-        SELECT C7_NUM, C7_ITEM, C7_DESCRI, C7_GRUPCOM, C7_TOTAL, C7_QUANT, C7_UM, C7_JUSTIFI
-        FROM SC7010 
-        WHERE C7_CONAPRO = 'B' AND R_E_C_D_E_L_ = 0 AND C7_ENCER <> 'E' AND C7_FILIAL = '${pedido.C7_FILIAL}' AND C7_NUM = '${pedido.C7_NUM}'
-      `;
-      const itens = await requestItens.query(queryItens);
-
-      // Enviar cada item com o ID da aprovação
-      for (const item of itens.recordset) {
-        await axios.post("http://192.168.0.88/api/aprovacoes/aprovacao-itens", {
-          id_aprovacao_generica: idAprovacao,
-          codigo_ref: `${item.C7_NUM}-${item.C7_ITEM}`,
-          conteudo_json: [
-            { campo: "Item", valor: item.C7_DESCRI },
-            { campo: "Departamento", valor: item.C7_GRUPCOM },
-            { campo: "Valor", valor: `R$ ${item.C7_TOTAL.toFixed(2)}` },
-            { campo: "Quantidade", valor: item.C7_QUANT.toString() },
-            { campo: "Unidade Medida", valor: item.C7_UM },
-            { campo: "Relatorio 1", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
-            { campo: "Relatorio 2", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
-            { campo: "Relatorio 3", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
-            { campo: "Justificativa", valor: item.C7_JUSTIFI || "Sem justificativa informada" }
-          ]
-        });
-      }
-    }
 
     res.json({ message: "Pedidos e itens enviados com sucesso!" });
 

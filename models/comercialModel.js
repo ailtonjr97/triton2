@@ -35,7 +35,8 @@ async function connect2(){
         idleTimeout: 60000, // idle connections timeout, in milliseconds, the default value 60000
         queueLimit: 0,
         enableKeepAlive: true,
-        keepAliveInitialDelay: 10000
+        keepAliveInitialDelay: 10000,
+        timezone: '-03:00',
       });
     return pool;
 }
