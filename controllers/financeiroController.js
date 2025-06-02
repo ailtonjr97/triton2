@@ -231,6 +231,7 @@ async function trocaResp(req, res) {
 
 async function credFinaliza(req, res) {
     try {
+        const nomeCliente = req.body[15].nomeCliente;
         const emailCli = req.body[6].emailCli;
         //const emailVend = req.body[6].email;
         const diferenca = req.body[1].diferenca;
@@ -273,7 +274,7 @@ async function credFinaliza(req, res) {
                     await sendEmailCadastro(
                         emailVend,
                         'Crédito liberado',
-                        `Olá. Informamos que após análise financeira o orçamento ${numPedido} da filial ${filial} foi liberado para faturamento.`
+                        `Olá. Informamos que após análise financeira o orçamento ${numPedido} do cliente ${nomeCliente} da filial ${filial} foi liberado para faturamento.`
                     );
                 };
 
@@ -293,7 +294,7 @@ async function credFinaliza(req, res) {
                     await sendEmailCadastro(
                         emailVend,
                         'Crédito liberado parcialmente',
-                        `Informamos que, após avaliação financeira para o orçamento ${numPedido} da filial ${filial} no valor aproximado de R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que ${porcentagem}% deste valor deverá ser antecipado, ficando o restante para faturamento a prazo.`
+                        `Informamos que, após avaliação financeira para o orçamento ${numPedido} do cliente ${nomeCliente}, da filial ${filial} no valor aproximado de R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que ${porcentagem}% deste valor deverá ser antecipado, ficando o restante para faturamento a prazo.`
                     );
                 };
 
@@ -312,7 +313,7 @@ async function credFinaliza(req, res) {
                 await sendEmailCadastro(
                     emailVend,
                     'Liberação de crédito reprovada',
-                    `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `
+                    `Informamos que, após avaliação financeira do pedido ${numPedido} do cliente ${nomeCliente} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `
                 );
             }
 
@@ -406,11 +407,15 @@ async function nfcte(req, res) {
 
         response.data.objects.forEach(element => {
 
+
+            /////////////////////////////////////
+            //REMOVER ESSE BLOCO PQ CJ_FRTORI JA E O FRETE SEM IMPOSTO
             if(element.F2_FILIAL == '0101001' || element.F2_FILIAL == '0101002'){
                 freteSemImposto = element.C5_FRETE * 0.7
             }else{
                 freteSemImposto = element.C5_FRETE * 0.8
             }
+            //////////////////////////////
 
             freteSemImposto = parseFloat(freteSemImposto.toFixed(2));
             items.push({

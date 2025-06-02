@@ -27,6 +27,21 @@ const configProtheus = {
 
 let poolProtheus;
 
+const configProtheus_interno = {
+    user: process.env.FIBRACEM_TOTVS_SQLSERVER_USER,
+    password: process.env.FIBRACEM_TOTVS_SQLSERVER_PASSWORD,
+    server: process.env.FIBRACEM_TOTVS_SQLSERVER_HOST,
+    database: process.env.FIBRACEM_TOTVS_SQLSERVER_DATABASE,
+    connectionTimeout: 180000,
+    requestTimeout: 180000,
+    options: {
+        encrypt: true,
+        trustServerCertificate: true
+    },
+    port: 1433
+};
+let poolProtheus_interno;
+
 async function connectProtheus() {
     try {
         if (!poolProtheus) {
@@ -39,6 +54,17 @@ async function connectProtheus() {
     }
 }
 
+async function connectProtheus_interno() {
+    try {
+        if (!poolProtheus_interno) {
+            poolProtheus_interno = await new sqlProtheus.ConnectionPool(configProtheus_interno).connect();
+        }
+        return poolProtheus_interno;
+    } catch (err) {
+        console.error('Failed to connect to Protheus SQL Server', err);
+        throw err;
+    }
+}
 
 router.get("/compras-em-aprovacao", async(req, res)=>{
   const pool = await connectProtheus();
@@ -72,6 +98,138 @@ router.get("/itens-em-aprovacao", async(req, res)=>{
     res.json(result);
 });
 
+router.post("/verifica-alteracao", async (req, res) => {
+  try {
+    const pool = await connectProtheus();
+    const request = pool.request(); 
+    const query = `
+          SELECT C7_FILIAL,C7_NUM , count(C7_ITEM) qtd_item ,SUM(C7_TOTAL) as total_pedido  FROM SC7010 
+    WHERE C7_CONAPRO = 'B' AND R_E_C_D_E_L_ = 0 AND C7_ENCER <> 'E' 
+     GROUP BY C7_FILIAL , C7_NUM  `;
+    
+    const result = await request.query(query);
+    res.json(result.recordset);
+
+  } catch (error) {
+    console.error('Erro na rota /verifica-alteracao:', error);
+    res.status(500).json({ error: 'Erro interno no servidor' });
+  }
+});
+
+
+
+router.post("/estoque-atual", async (req, res) => {
+  try {
+    const { CODIGO } = req.body;
+    const pool = await connectProtheus();
+    const request = pool.request(); 
+    const query = `
+          SELECT 
+    COMP.M0_FILIAL AS FILIAL,
+    B1_COD    AS CODIGO_PRODUTO,
+    B1_DESC   AS DESCRICAO,
+    B1_UM     AS UNIDADE,
+    NN.NNR_DESCRI AS ARMAZEM,
+    B2_LOCAL  AS COD_ARMAZEM,
+    B2_QATU   AS SALDO_ATUAL
+FROM 
+    SB2010 AS SB2
+INNER JOIN 
+    SB1010 AS SB1 ON B1_COD = B2_COD AND SB2.D_E_L_E_T_ <> '*'
+INNER JOIN NNR010 NN ON SB2.B2_LOCAL = NN.NNR_CODIGO AND  SB2.B2_FILIAL = NN.NNR_FILIAL AND NN.D_E_L_E_T_ <> '*'
+INNER JOIN SYS_COMPANY COMP ON COMP.M0_CODFIL = SB2.B2_FILIAL
+WHERE 
+   B1_COD =    @CODIGO and  B2_QATU > 0 AND B2_LOCAL NOT IN ('99','98','01','RQ','80','81','Q1','51')
+ORDER BY 
+    B1_DESC; `;
+    
+    request.input('CODIGO', CODIGO)
+    const result = await request.query(query);
+    res.json(result.recordset);
+
+  } catch (error) {
+    console.error('Erro na rota /estoque-atual:', error);
+    res.status(500).json({ error: 'Erro interno no servidor' });
+  }
+});
+
+router.post("/ultimas-compras", async (req, res) => {
+  try {
+    const { CODIGO } = req.body;
+    const pool = await connectProtheus();
+    const request = pool.request(); 
+    const query = `
+            SELECT  C7_NUM, C7_PRODUTO, C7_ITEM, C7_DESCRI, C7_GRUPCOM, C7_PRECO, C7_TOTAL, C7_QUANT,C7_QUJE, C7_UM, C7_JUSTIFI,C7_DATPRF ,C7_RESIDUO,
+                      CASE
+                        WHEN C7_QUANT = 0 THEN 0
+            WHEN C7_RESIDUO = 'S' THEN 100
+                        ELSE ROUND((C7_QUJE * 100.0) / C7_QUANT, 2)
+                      END AS '% ENTREGUE'
+                          FROM SC7010 
+                          WHERE C7_PRODUTO = 'F03690' 
+              AND C7_CONAPRO = 'L' 
+              AND R_E_C_D_E_L_ = 0 
+                       ORDER BY C7_DATPRF asc  `;
+    request.input('CODIGO', CODIGO)
+    const result = await request.query(query);
+    res.json(result.recordset);
+
+  } catch (error) {
+    console.error('Erro na rota /ultimas-compras:', error);
+    res.status(500).json({ error: 'Erro interno no servidor' });
+  }
+});
+
+router.post("/onde-utiliza", async (req, res) => {
+  try {
+    const { CODIGO } = req.body;    
+    const pool = await connectProtheus_interno();
+    const request = pool.request(); 
+    const query = `
+          SELECT SB.B1_COD , SB.B1_DESC 
+FROM CST_SG1_ESTRUTURA SG  
+INNER JOIN FIBRA_SB1 SB 
+    ON SG.G1_COD COLLATE SQL_Latin1_General_CP1_CI_AS = SB.B1_COD COLLATE SQL_Latin1_General_CP1_CI_AS
+WHERE 
+    SG.G1_COMP COLLATE SQL_Latin1_General_CP1_CI_AS = @CODIGO 
+    AND SB.B1_TIPO = 'PA'; `;
+    
+    request.input('CODIGO', CODIGO)    
+    const result = await request.query(query);
+    res.json(result.recordset);
+
+  } catch (error) {
+    console.error('Erro na rota /onde-utiliza:', error);
+    res.status(500).json({ error: 'Erro interno no servidor' });
+  }
+});
+
+
+router.post("/muda-status-compra", async (req, res) => {
+  try {
+    const { id, filial, status } = req.body;
+    console.log("teste");
+    const pool = await connectProtheus();
+    const request = pool.request(); 
+    const query = `
+      UPDATE SC7010 SET C7_CONAPRO = @status WHERE C7_NUM = @id AND C7_FILIAL = @filial `;
+    
+    //res.json(query);  
+
+    request.input('id', id);
+    request.input('filial', filial);
+    request.input('status', status);
+
+    const result = await request.query(query);
+    res.json(result.recordset);
+
+  } catch (error) {
+    console.error('Erro na rota /muda-status-compra:', error);
+    res.status(500).json({ error: 'Erro interno no servidor' });
+  }
+});
+
+
 
 router.get("/enviar-aprovacoes-compras", async (req, res) => {
   try {
@@ -80,7 +238,7 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
 
     // Buscar todos os pedidos em aprovação
     const queryCab = `
-      SELECT C7.C7_FILIAL, C7.C7_NUM, MAX(C7.C7_OBS) AS OBS2, MAX(C7.C7_OBSM) AS OBS,
+      SELECT C7.C7_FILIAL,count(C7_ITEM) as Qtd_item,SUM(C7_TOTAL) as Total_pedido, C7.C7_NUM, MAX(C7.C7_OBS) AS OBS2, MAX(C7.C7_OBSM) AS OBS,
       MIN(C7.C7_EMISSAO) AS EMISSAO, MIN(USR_EMAIL) AS VENDEDOR_EMAIL,
       MIN(USR_CODIGO) AS VENDEDOR_NOME, MAX(A2_NOME) AS FORNECEDOR,
       CASE 
@@ -91,7 +249,7 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
       FROM SC7010 C7 
       INNER JOIN SA2010 A2 ON C7.C7_FORNECE = A2.A2_COD AND C7_LOJA = A2.A2_LOJA
       INNER JOIN SYS_USR US ON C7.C7_USER = US.USR_ID 
-      WHERE C7_CONAPRO = 'B' AND C7.R_E_C_D_E_L_ = 0 AND C7_ENCER <> 'E' 
+      WHERE C7_CONAPRO = 'B' AND C7.R_E_C_D_E_L_ = 0 --AND C7_ENCER <> 'E' 
       GROUP BY C7.C7_FILIAL, C7.C7_NUM
     `;
 
@@ -99,18 +257,23 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
       for (const pedido of pedidos.recordset) {
         const referenciaId = parseInt(pedido.C7_NUM);
         const referenciaFilial = parseInt(pedido.C7_FILIAL);
-
+        const email_rec =  parseInt(pedido.VENDEDOR_EMAIL);
+        const qtd_item =  parseInt(pedido.Qtd_item);
+        const total_pedido =  parseInt(pedido.Total_pedido);
         let idAprovacao = null;
 
         try {
           // Tenta enviar o cabeçalho
-          const responseCab = await axios.post("http://192.168.0.88/api/aprovacoes", {
+          const responseCab = await axios.post(process.env.INTRANET+"api/aprovacoes", {
             referencia_id: referenciaId,
             filial: referenciaFilial,      
             descricao: `Solicitação de compra para o fornecedor ${pedido.FORNECEDOR} - ${pedido.TIPO_FRETE}`,
             modulo: "Compras",
             enunciado: `Pedido ${pedido.C7_NUM}`,
+            qtd_item: `${pedido.Qtd_item}`,
+            total_pedido: `${pedido.Total_pedido}`,
             urgencia: "Alta",
+            email_rec: `${pedido.VENDEDOR_EMAIL}`,
             obs: pedido.OBS || "",
             autor_id: 42,
             user_id: 157,
@@ -141,28 +304,48 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
         // Buscar e enviar os itens vinculados
         const requestItens = pool.request();
         const queryItens = `
-          SELECT C7_NUM, C7_ITEM, C7_DESCRI, C7_GRUPCOM, C7_TOTAL, C7_QUANT, C7_UM, C7_JUSTIFI
+          SELECT C7_NUM, C7_PRODUTO ,C7_ITEM, C7_DESCRI, C7_GRUPCOM, C7_PRECO, C7_TOTAL, C7_QUANT, C7_UM, C7_JUSTIFI
           FROM SC7010 
-          WHERE C7_CONAPRO = 'B' AND R_E_C_D_E_L_ = 0 AND C7_ENCER <> 'E' 
+          WHERE C7_CONAPRO = 'B' AND R_E_C_D_E_L_ = 0 --AND C7_ENCER <> 'E' 
             AND C7_FILIAL = '${pedido.C7_FILIAL}' AND C7_NUM = '${pedido.C7_NUM}'
         `;
         const itens = await requestItens.query(queryItens);
 
         for (const item of itens.recordset) {
           try {
-            await axios.post("http://192.168.0.88/api/aprovacoes/aprovacao-itens", {
+            await axios.post(process.env.INTRANET+"api/aprovacoes/aprovacao-itens", {
               id_aprovacao_generica: idAprovacao,
               codigo_ref: `${item.C7_NUM}-${item.C7_ITEM}`,
               conteudo_json: [
                 { campo: "Item", valor: item.C7_DESCRI },
+                { campo: "Produto", valor: item.C7_PRODUTO },
                 { campo: "Departamento", valor: item.C7_GRUPCOM },
+                { campo: "Valor Unit.", valor: `R$ ${item.C7_PRECO.toFixed(2)}` },
                 { campo: "Valor", valor: `R$ ${item.C7_TOTAL.toFixed(2)}` },
                 { campo: "Quantidade", valor: item.C7_QUANT.toString() },
                 { campo: "Unidade Medida", valor: item.C7_UM },
-                { campo: "Relatorio 1", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
-                { campo: "Relatorio 2", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
-                { campo: "Relatorio 3", valor: "http://192.168.0.88/aprovacoes/painel-aprovacoes?data_inicio=2025-04-30&data_fim=2025-07-23" },
-                { campo: "Justificativa", valor: item.C7_JUSTIFI || "Sem justificativa informada" }
+                { campo: "Justificativa", valor: item.C7_JUSTIFI || "Sem justificativa informada" },                
+                { 
+                    campo: "Estoque<br>Atual 📦", 
+                    valor: `${process.env.INTRANET}relatorios/totvs/estoque-atual?item=${item.C7_PRODUTO}` 
+                },
+                { 
+                    campo: "Hist.<br>Quant.<br>Comprada 📊", 
+                    valor: `${process.env.INTRANET}relatorios/totvs/ultimas-compras?item=${item.C7_PRODUTO}` 
+                },
+                { 
+                    campo: "Hist.<br>Entrega 🚚", 
+                    valor: `${process.env.INTRANET}relatorios/totvs/evolucao-entrega?item=${item.C7_PRODUTO}` 
+                },
+                { 
+                    campo: "Hist.<br>Preço 💰", 
+                    valor: `${process.env.INTRANET}relatorios/totvs/evolucao-preco?item=${item.C7_PRODUTO}` 
+                },
+                { 
+                    campo: "Onde<br>Utiliza 🔍", 
+                    valor: `${process.env.INTRANET}relatorios/totvs/onde-utiliza?item=${item.C7_PRODUTO}` 
+                }
+
               ]
             });
           } catch (error) {
