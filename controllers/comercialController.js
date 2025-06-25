@@ -242,51 +242,51 @@ router.get("/proposta-de-frete/:id", async(req, res)=>{
     }
 });
 
-router.post("/proposta-de-frete/:id", async(req, res)=>{
-    try {
-        let today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-        today = dd + '/' + mm + '/' + yyyy;
-
-        let valorMaisImposto = req.body[0].valor
-
-        if(req.body[1] == '0101001' || req.body[1] == '0101002'){
-            valorMaisImposto *= 1.3
-        }else{
-            valorMaisImposto *= 1.2
-        }
-
-        // await axios.put(`${process.env.APITOTVS}CONSULTA_SCJ/update_frtori?valor=${req.body[0].valor}&filial=${req.body[1]}&orcamento=${req.body[2]}`, {}, {
-        //     auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
-        // });
-
-        await comercialModel.freteUpdate(req.body, Number(req.params.id), today, valorMaisImposto, req.body[0].valor);
-        const vendedor = await comercialModel.vendedor(req.params.id);
-
-        const id   = vendedor[0].cliente;
-        const loja = vendedor[0].loja_cliente;
-
-        const cliente = await axios.get(`${process.env.APITOTVS}CONSULTA_SA1/unico`, {
-            params: {id, loja},
-            auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
-        });
-
-        const nomeCliente = cliente.data.objects[0].A1_NOME.trimEnd();
-
-        await sendEmail(
-            vendedor[0].email,
-            'Cotação de frete',
-            `Cotado o orçamento ${vendedor[0].pedido} do cliente ${nomeCliente}.`
-        );
-
-        res.sendStatus(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+// router.post("/proposta-de-frete/:id", async(req, res)=>{
+//     try {
+//         let today = new Date();
+//         const dd = String(today.getDate()).padStart(2, '0');
+//         const mm = String(today.getMonth() + 1).padStart(2, '0');
+//         const yyyy = today.getFullYear();
+//         today = dd + '/' + mm + '/' + yyyy;
+//
+//         let valorMaisImposto = req.body[0].valor
+//
+//         if(req.body[1] == '0101001' || req.body[1] == '0101002'){
+//             valorMaisImposto *= 1.3
+//         }else{
+//             valorMaisImposto *= 1.2
+//         }
+//
+//         // await axios.put(`${process.env.APITOTVS}CONSULTA_SCJ/update_frtori?valor=${req.body[0].valor}&filial=${req.body[1]}&orcamento=${req.body[2]}`, {}, {
+//         //     auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+//         // });
+//
+//         await comercialModel.freteUpdate(req.body, Number(req.params.id), today, valorMaisImposto, req.body[0].valor);
+//         const vendedor = await comercialModel.vendedor(req.params.id);
+//
+//         const id   = vendedor[0].cliente;
+//         const loja = vendedor[0].loja_cliente;
+//
+//         const cliente = await axios.get(`${process.env.APITOTVS}CONSULTA_SA1/unico`, {
+//             params: {id, loja},
+//             auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+//         });
+//
+//         const nomeCliente = cliente.data.objects[0].A1_NOME.trimEnd();
+//
+//         await sendEmail(
+//             vendedor[0].email,
+//             'Cotação de frete',
+//             `Cotado o orçamento ${vendedor[0].pedido} do cliente ${nomeCliente}.`
+//         );
+//
+//         res.sendStatus(200);
+//     } catch (error) {
+//         console.log(error);
+//         res.sendStatus(500);
+//     }
+// });
 
 router.get("/sck/:numped/:filial", async(req, res)=>{
     try {
@@ -318,68 +318,68 @@ router.post("/status-aniversario/:id", async(req, res)=>{
     }
 });
 
-router.post("/nova-proposta-de-frete/:numped/:cotador/:filial/:checkAniversario", async(req, res)=>{
-    try {
-        let today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const yyyy = today.getFullYear();
-        today = dd + '/' + mm + '/' + yyyy;
-
-        let checkAniversario = req.params.checkAniversario
-
-        if(checkAniversario === 'true'){
-            checkAniversario = true;
-        } else{
-            checkAniversario = false
-        }
-
-        const checkStatus = checkAniversario ? 'P' : 'N'
-
-        let revisao = await comercialModel.revisaoCotacao(req.params.numped);
-        const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.params.numped}&empresa=${req.params.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-
-        //Na mudança, remover esse codigo pois valorAniversario esta vindo de XTOTIMP e nao do calculo dos impostos
-        let valorTotal = 0.0
-        let ipi = 0.0
-        for(let i = 0; i < req.body.length; i++){
-            let imposto = await axios.get(process.env.APITOTVS + `CONSULTA_SBZ/unico?filial=${req.params.filial}&cod=${req.body[i].produto}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-            if(imposto.data.objects[0].BZ_IPI != 0.0){
-                ipi = (req.body[i].valor * imposto.data.objects[0].BZ_IPI) / 100
-            }else{
-                ipi = 0.0
-            }
-            valorTotal = valorTotal + (req.body[i].valor + ipi)
-        };
-        valorTotal.toFixed(2)
-
-        valorTotal = response.data.CJ_XTOTIMP;
-
-        const valorAniversario = valorTotal * 0.05;
-
-        //Necessário criar 3 cotações
-        if(revisao.length == 0){
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            for(let i = 0; i < req.body.length; i++){
-                await comercialModel.novosItens(req.params.numped, req.body[i], 1);
-            };
-        }else{
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
-            for(let i = 0; i < req.body.length; i++){
-                await comercialModel.novosItens(req.params.numped, req.body[i], parseInt(revisao[0].revisao) + 1);
-            };
-        };
-
-        res.sendStatus(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+// router.post("/nova-proposta-de-frete/:numped/:cotador/:filial/:checkAniversario", async(req, res)=>{
+//     try {
+//         let today = new Date();
+//         const dd = String(today.getDate()).padStart(2, '0');
+//         const mm = String(today.getMonth() + 1).padStart(2, '0');
+//         const yyyy = today.getFullYear();
+//         today = dd + '/' + mm + '/' + yyyy;
+//
+//         let checkAniversario = req.params.checkAniversario
+//
+//         if(checkAniversario === 'true'){
+//             checkAniversario = true;
+//         } else{
+//             checkAniversario = false
+//         }
+//
+//         const checkStatus = checkAniversario ? 'P' : 'N'
+//
+//         let revisao = await comercialModel.revisaoCotacao(req.params.numped);
+//         const response = await axios.get(process.env.APITOTVS + `CONSULTA_SCJ/get_id?id=${req.params.numped}&empresa=${req.params.filial}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+//
+//         //Na mudança, remover esse codigo pois valorAniversario esta vindo de XTOTIMP e nao do calculo dos impostos
+//         let valorTotal = 0.0
+//         let ipi = 0.0
+//         for(let i = 0; i < req.body.length; i++){
+//             let imposto = await axios.get(process.env.APITOTVS + `CONSULTA_SBZ/unico?filial=${req.params.filial}&cod=${req.body[i].produto}`, {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+//             if(imposto.data.objects[0].BZ_IPI != 0.0){
+//                 ipi = (req.body[i].valor * imposto.data.objects[0].BZ_IPI) / 100
+//             }else{
+//                 ipi = 0.0
+//             }
+//             valorTotal = valorTotal + (req.body[i].valor + ipi)
+//         };
+//         valorTotal.toFixed(2)
+//
+//         valorTotal = response.data.CJ_XTOTIMP;
+//
+//         const valorAniversario = valorTotal * 0.05;
+//
+//         //Necessário criar 3 cotações
+//         if(revisao.length == 0){
+//             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+//             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+//             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+//             for(let i = 0; i < req.body.length; i++){
+//                 await comercialModel.novosItens(req.params.numped, req.body[i], 1);
+//             };
+//         }else{
+//             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+//             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+//             await comercialModel.novaProposta(req.params.numped, req.params.cotador, today, parseInt(revisao[0].revisao) + 1, response.data.cliente, valorTotal, req.params.filial, response.data.loja, checkAniversario, checkStatus, valorAniversario);
+//             for(let i = 0; i < req.body.length; i++){
+//                 await comercialModel.novosItens(req.params.numped, req.body[i], parseInt(revisao[0].revisao) + 1);
+//             };
+//         };
+//
+//         res.sendStatus(200);
+//     } catch (error) {
+//         console.log(error);
+//         res.sendStatus(500);
+//     }
+// });
 
 router.get("/proposta-frete-itens/:numped/:revisao", async(req, res)=>{
     try {
@@ -449,45 +449,45 @@ router.get("/transps", async(req, res)=>{
     }
 });
 
-router.get("/update-frete-cot", async(req, res)=>{
-    try {
-
-        let valor = 0.0;
-        const freteOriginal = await comercialModel.buscaValorOriginal(req.query.cj_cst_fts);
-        const prazo = String(freteOriginal[0].prazo)
-
-        let comparador = freteOriginal[0].CJ_FRTORI - freteOriginal[0].aniversario_valor
-
-        if(freteOriginal[0].aniversario_status === 'A'){
-
-            if(comparador <= 0.0){
-                valor = 0.0
-            }else{
-                valor = freteOriginal[0].CJ_FRTORI - freteOriginal[0].aniversario_valor
-
-                if(freteOriginal[0].filial == '0101001' || freteOriginal[0].filial == '0101002'){
-                    valor *= 1.3
-                }else{
-                    valor *= 1.2
-                }
-            }
-        } else if (freteOriginal[0].aniversario_status === 'R' || freteOriginal[0].aniversario_status === 'N') {
-            valor = req.query.valor
-        }
-
-
-        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_frtori?valor=${freteOriginal[0].CJ_FRTORI}&filial=${freteOriginal[0].filial}&orcamento=${freteOriginal[0].pedido}&dias=${prazo}`,"", 
-            {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
-        });
-
-        await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${valor}&transp=${req.query.transp}&filial=${freteOriginal[0].filial}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
-        await comercialModel.preparaArquivaFrete(req.query.cj_num, req.query.revisao)
-        res.sendStatus(200);
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-});
+// router.get("/update-frete-cot", async(req, res)=>{
+//     try {
+//
+//         let valor = 0.0;
+//         const freteOriginal = await comercialModel.buscaValorOriginal(req.query.cj_cst_fts);
+//         const prazo = String(freteOriginal[0].prazo)
+//
+//         let comparador = freteOriginal[0].CJ_FRTORI - freteOriginal[0].aniversario_valor
+//
+//         if(freteOriginal[0].aniversario_status === 'A'){
+//
+//             if(comparador <= 0.0){
+//                 valor = 0.0
+//             }else{
+//                 valor = freteOriginal[0].CJ_FRTORI - freteOriginal[0].aniversario_valor
+//
+//                 if(freteOriginal[0].filial == '0101001' || freteOriginal[0].filial == '0101002'){
+//                     valor *= 1.3
+//                 }else{
+//                     valor *= 1.2
+//                 }
+//             }
+//         } else if (freteOriginal[0].aniversario_status === 'R' || freteOriginal[0].aniversario_status === 'N') {
+//             valor = req.query.valor
+//         }
+//
+//
+//         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_frtori?valor=${freteOriginal[0].CJ_FRTORI}&filial=${freteOriginal[0].filial}&orcamento=${freteOriginal[0].pedido}&dias=${prazo}`,"",
+//             {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}
+//         });
+//
+//         await axios.put(process.env.APITOTVS + `CONSULTA_SCJ/update_cst?num=${req.query.cj_num}&fts=${req.query.cj_cst_fts}&valor=${valor}&transp=${req.query.transp}&filial=${freteOriginal[0].filial}`,"", {auth: {username: process.env.USERTOTVS, password: process.env.SENHAPITOTVS}});
+//         await comercialModel.preparaArquivaFrete(req.query.cj_num, req.query.revisao)
+//         res.sendStatus(200);
+//     } catch (error) {
+//         console.log(error);
+//         res.sendStatus(500);
+//     }
+// });
 
 router.post("/atualiza-val-frete", async(req, res)=>{
     try {
