@@ -4,10 +4,13 @@ async function sendEmailCadastro(to, subject, text) {
     const transporter = nodemailer.createTransport({
         host: 'outlook.maiex13.com.br',
         port: 587,
-        secure: false,
+        secure: true,
         auth: {
             user: 'aux.adm@fibracem.com',
             pass: process.env.EMAIL_SENHA_CADASTRO
+        },
+        tls: {
+            rejectUnauthorized: false // <- ignora o erro de certificado
         }
     });
 
