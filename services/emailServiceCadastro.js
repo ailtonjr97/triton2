@@ -4,7 +4,7 @@ async function sendEmailCadastro(to, subject, text) {
     const transporter = nodemailer.createTransport({
         host: 'outlook.maiex13.com.br',
         port: 587,
-        secure: true,
+        secure: false,
         auth: {
             user: 'aux.adm@fibracem.com',
             pass: process.env.EMAIL_SENHA_CADASTRO
@@ -25,7 +25,7 @@ async function sendEmailCadastro(to, subject, text) {
         await transporter.sendMail(mailOptions);
     } catch (error) {
         console.log(error);
-        throw new Error('Email not sent');
+        //throw new Error('Email not sent');
     }
 }
 
