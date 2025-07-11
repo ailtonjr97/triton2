@@ -62,3 +62,9 @@ app.use("/qualidade-home", cors(corsOptions), authenticationMiddlewareFiles, qua
 app.listen(5000, function () {
     console.log("Node.js working in port 5000");
 });
+
+const enviarAprovacoesCompras = require("./jobs/enviarAprovacoesCompras");
+
+// Executa imediatamente e depois a cada minuto
+enviarAprovacoesCompras();
+setInterval(enviarAprovacoesCompras, 60 * 1000);
