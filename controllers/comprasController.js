@@ -139,7 +139,7 @@ INNER JOIN
 INNER JOIN NNR010 NN ON SB2.B2_LOCAL = NN.NNR_CODIGO AND  SB2.B2_FILIAL = NN.NNR_FILIAL AND NN.D_E_L_E_T_ <> '*'
 INNER JOIN SYS_COMPANY COMP ON COMP.M0_CODFIL = SB2.B2_FILIAL
 WHERE 
-   B1_COD =    @CODIGO and  B2_QATU > 0 AND B2_LOCAL NOT IN ('99','98','01','RQ','80','81','Q1','51')
+   LTRIM(RTRIM(B1_COD)) =    LTRIM(RTRIM(@CODIGO)) and  B2_QATU > 0 AND B2_LOCAL NOT IN ('99','98','01','RQ','80','81','Q1','51')
 ORDER BY 
     B1_DESC; `;
     
@@ -166,7 +166,7 @@ router.post("/ultimas-compras", async (req, res) => {
                         ELSE ROUND((C7_QUJE * 100.0) / C7_QUANT, 2)
                       END AS '% ENTREGUE'
                           FROM SC7010 
-                          WHERE C7_PRODUTO = 'F03690' 
+                          WHERE LTRIM(RTRIM(C7_PRODUTO))  = LTRIM(RTRIM(@CODIGO)) 
               AND C7_CONAPRO = 'L' 
               AND R_E_C_D_E_L_ = 0 
                        ORDER BY C7_DATPRF asc  `;
@@ -191,7 +191,7 @@ FROM CST_SG1_ESTRUTURA SG
 INNER JOIN FIBRA_SB1 SB 
     ON SG.G1_COD COLLATE SQL_Latin1_General_CP1_CI_AS = SB.B1_COD COLLATE SQL_Latin1_General_CP1_CI_AS
 WHERE 
-    SG.G1_COMP COLLATE SQL_Latin1_General_CP1_CI_AS = @CODIGO 
+    LTRIM(RTRIM(SG.G1_COMP))   COLLATE SQL_Latin1_General_CP1_CI_AS = LTRIM(RTRIM(@CODIGO))   
     AND SB.B1_TIPO = 'PA'; `;
     
     request.input('CODIGO', CODIGO)    
@@ -238,7 +238,7 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
 
     // Buscar todos os pedidos em aprovação
     const queryCab = `
-      SELECT C7.C7_FILIAL,count(C7_ITEM) as Qtd_item,SUM(C7_TOTAL) as Total_pedido, C7.C7_NUM, MAX(C7.C7_OBS) AS OBS2, MAX(C7.C7_OBSM) AS OBS,
+         SELECT C7.C7_FILIAL,count(C7_ITEM) as Qtd_item,SUM(C7_TOTAL) as Total_pedido, C7.C7_NUM, MAX(C7.C7_OBS) AS OBS2, MAX(C7.C7_OBSM) AS OBS,
       MIN(C7.C7_EMISSAO) AS EMISSAO, MIN(USR_EMAIL) AS VENDEDOR_EMAIL,
       MIN(USR_CODIGO) AS VENDEDOR_NOME, MAX(A2_NOME) AS FORNECEDOR,
       CASE 
@@ -249,7 +249,7 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
       FROM SC7010 C7 
       INNER JOIN SA2010 A2 ON C7.C7_FORNECE = A2.A2_COD AND C7_LOJA = A2.A2_LOJA
       INNER JOIN SYS_USR US ON C7.C7_USER = US.USR_ID 
-      WHERE C7_CONAPRO = 'B' AND C7.R_E_C_D_E_L_ = 0 --AND C7_ENCER <> 'E' 
+      WHERE C7_CONAPRO = 'B' AND C7.R_E_C_D_E_L_ = 0 AND C7_RESIDUO <> 'S' AND C7_ENCER <> 'E' 
       GROUP BY C7.C7_FILIAL, C7.C7_NUM
     `;
 
@@ -264,7 +264,7 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
 
         try {
           // Tenta enviar o cabeçalho
-          const responseCab = await axios.post(process.env.INTRANET+"api/aprovacoes", {
+          const responseCab = await axios.post("http://intranet.fibracem.com/api/aprovacoes", {
             referencia_id: referenciaId,
             filial: referenciaFilial,      
             descricao: `Solicitação de compra para o fornecedor ${pedido.FORNECEDOR} - ${pedido.TIPO_FRETE}`,
@@ -280,9 +280,15 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
             data_solicitacao: new Date().toISOString().split("T")[0],
             wf_json: [
               { email: "sistema@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
-              { email: "informatica03@fibracem.com", nivel_aprov: 2, status: null, datahora_resposta: null },
-              { email: "informatica06@fibracem.com", nivel_aprov: 3, status: null, datahora_resposta: null }
-            ]
+              { email: "compras@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
+              { email: "compras02@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
+              { email: "compras03@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
+              { email: "compras04@fibracem.com", nivel_aprov: 1, status: null, datahora_resposta: null },
+              { email: "coordenador.ti@fibracem.com", nivel_aprov: 2, status: null, datahora_resposta: null },
+              { email: "suprimentos@fibracem.com", nivel_aprov: 2, status: null, datahora_resposta: null },
+              { email: "bitencourt@fibracem.com", nivel_aprov: 3, status: null, datahora_resposta: null },
+              { email: "carina@fibracem.com", nivel_aprov: 3, status: null, datahora_resposta: null }       
+            ],
           });
 
           idAprovacao = responseCab.data?.id || null;
@@ -319,31 +325,30 @@ router.get("/enviar-aprovacoes-compras", async (req, res) => {
               conteudo_json: [
                 { campo: "Item", valor: item.C7_DESCRI },
                 { campo: "Produto", valor: item.C7_PRODUTO },
-                { campo: "Departamento", valor: item.C7_GRUPCOM },
+                { campo: "Quantidade", valor: item.C7_QUANT.toString() },
                 { campo: "Valor Unit.", valor: `R$ ${item.C7_PRECO.toFixed(2)}` },
                 { campo: "Valor", valor: `R$ ${item.C7_TOTAL.toFixed(2)}` },
-                { campo: "Quantidade", valor: item.C7_QUANT.toString() },
                 { campo: "Unidade Medida", valor: item.C7_UM },
                 { campo: "Justificativa", valor: item.C7_JUSTIFI || "Sem justificativa informada" },                
                 { 
                     campo: "Estoque<br>Atual 📦", 
-                    valor: `${process.env.INTRANET}relatorios/totvs/estoque-atual?item=${item.C7_PRODUTO}` 
+                    valor: `http://intranet.fibracem.com/relatorios/totvs/estoque-atual?item=${item.C7_PRODUTO}` 
                 },
                 { 
                     campo: "Hist.<br>Quant.<br>Comprada 📊", 
-                    valor: `${process.env.INTRANET}relatorios/totvs/ultimas-compras?item=${item.C7_PRODUTO}` 
+                    valor: `http://intranet.fibracem.com/relatorios/totvs/ultimas-compras?item=${item.C7_PRODUTO}` 
                 },
                 { 
                     campo: "Hist.<br>Entrega 🚚", 
-                    valor: `${process.env.INTRANET}relatorios/totvs/evolucao-entrega?item=${item.C7_PRODUTO}` 
+                    valor: `http://intranet.fibracem.com/relatorios/totvs/evolucao-entrega?item=${item.C7_PRODUTO}` 
                 },
                 { 
                     campo: "Hist.<br>Preço 💰", 
-                    valor: `${process.env.INTRANET}relatorios/totvs/evolucao-preco?item=${item.C7_PRODUTO}` 
+                    valor: `http://intranet.fibracem.com/relatorios/totvs/evolucao-preco?item=${item.C7_PRODUTO}` 
                 },
                 { 
                     campo: "Onde<br>Utiliza 🔍", 
-                    valor: `${process.env.INTRANET}relatorios/totvs/onde-utiliza?item=${item.C7_PRODUTO}` 
+                    valor: `http://intranet.fibracem.com/relatorios/totvs/onde-utiliza?item=${item.C7_PRODUTO}` 
                 }
 
               ]

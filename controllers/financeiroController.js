@@ -300,12 +300,12 @@ async function credFinaliza(req, res) {
 
                 await financeiroModel.credFinalizaParcial(req.body[0].result, porcentagem, valor_adiant, respostaAnalise, obsResposta, id);
             }
-        }else{
+        }else{ //aqui
             if(checkEmailCli){
                 await sendEmailCadastro(
                     emailCli,
                     'Liberação de crédito reprovada',
-                    `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito. `
+                    `Informamos que, após avaliação financeira do pedido ${numPedido} de aproximadamente R$ ${formatarParaMoedaBrasileira(valorPedido)} fica estabelecido que o pagamento deverá ser antecipado, o pedido será aceito após confirmação do depósito.`
                 );
             }
 
