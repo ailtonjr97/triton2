@@ -4,7 +4,7 @@ async function anexosHome() {
     try {
         const pool = await connectQualidade();
 
-        const result = await pool.request().query(`SELECT * FROM ANEXOS WHERE HOME_ID IS NOT NULL AND ARQUIVADO = 0`);
+        const result = await pool.request().query(`SELECT TOP 100 * FROM ANEXOS WHERE HOME_ID IS NOT NULL AND ARQUIVADO = 0`);
         console.log(result.recordset);
         return result.recordset;
     } catch (error) {
